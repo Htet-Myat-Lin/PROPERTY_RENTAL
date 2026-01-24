@@ -1,0 +1,51 @@
+import type { Request } from "express";
+import { Document, type Model, type Types } from "mongoose";
+
+export interface IUser extends Document{
+    username: string;
+    email: string;
+    password: string;
+    confirmPassword?: string | undefined;
+    createdAt?: Date;
+    updatedAt?: Date;
+    active?: boolean;
+    isEmailVerified?: boolean;
+    verifyOTP?: string | undefined;
+    verifyOTPExpiry?: number | undefined;
+    verifyOTPGeneratedAt?: number | undefined;
+    resetPasswordOTP?: string | undefined;
+    resetPasswordOTPExpiry?: number | undefined;
+    resetPasswordOTPGeneratedAt?: number | undefined;
+    role: "TENANT" | "ADMIN" | "LANDLORD";
+    profilePictures?: string[] | null;
+    refreshToken?: string | undefined;
+}
+
+export interface UserMethods {
+    comparePassword: (password: string) => Promise<boolean>;
+}
+
+export interface IUserModel extends Model<IUser, {}, UserMethods> {}
+
+export interface AuthRequest extends Request{
+    user?: IUser;
+}
+
+export interface IProperty extends Document {
+    title: string;
+    description: string;
+    rentPrice: number;
+    beds: number;
+    baths: number;
+    area: number;
+    propertyType: string;
+    status: string;
+    location: { type: string; coordinates: [number, number]; address: string };
+    images: string[];
+    nearTransit: { type: string; distance: number };
+    parkingSpaces: number;
+    rating: number;
+    user: Types.ObjectId,
+    createdAt: Date;
+    updatedAt: Date
+}
