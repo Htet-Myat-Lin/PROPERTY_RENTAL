@@ -14,6 +14,9 @@ import {
   Image,
   For,
   CloseButton,
+  Input,
+  NumberInput,
+  Checkbox,
 } from "@chakra-ui/react";
 import { LocationPicker } from "../LocationPicker";
 import { useEffect } from "react";
@@ -34,12 +37,23 @@ const propertyTypes = createListCollection({
   ],
 });
 
+const applianceOptions = [
+  "Refrigerator",
+  "Dishwasher",
+  "Washing Machine",
+  "Dryer",
+  "Microwave",
+  "Oven",
+  "Stove",
+];
+
 export function StepTwo() {
   const {
     formState: { errors },
     setValue,
     control,
     getValues,
+    register,
   } = useFormContext<PropertyFormValues>();
 
   const savedCoords = getValues("location.coordinates");
@@ -51,9 +65,12 @@ export function StepTwo() {
   const existingImages = getValues("existingImages");
 
   const removeImage = (index: number) => {
-    const updated = existingImages?.filter((_, i) => i !== index)
-    setValue("existingImages", updated, {shouldDirty: true, shouldValidate: true})
-  }
+    const updated = existingImages?.filter((_, i) => i !== index);
+    setValue("existingImages", updated, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
 
   return (
     <Box my="5">
@@ -147,35 +164,179 @@ export function StepTwo() {
 
         {/* Existing Images */}
         {existingImages && existingImages.length > 0 && (
-          <Flex align="center" gap="1">
-            <For each={existingImages}>
-              {(image, i) => (
-                <Box position="relative" key={i}>
-                  <Image
-                    src={`${import.meta.env.VITE_FILE_URL}/property-images/${image}`}
-                    width="80px"
-                    height="80px"
-                    objectFit="cover"
-                  />
-                  <CloseButton
-                    size="xs"
-                    position="absolute"
-                    top="0.5"
-                    right="0.5"
-                    bg="blackAlpha.600"
-                    backdropFilter="blur(4px)"
-                    color="white"
-                    rounded="full"
-                    _hover={{ bg: "red.500", transform: "scale(1.1)" }}
-                    transition="all 0.2s"
-                    zIndex="1"
-                    onClick={() => removeImage(i)}
-                  />
-                </Box>
-              )}
-            </For>
-          </Flex>
+          <Stack>
+            <Text fontWeight="medium">Existing Images</Text>
+            <Flex align="center" gap="1">
+              <For each={existingImages}>
+                {(image, i) => (
+                  <Box position="relative" key={i}>
+                    <Image
+                      src={`${import.meta.env.VITE_FILE_URL}/property-images/${image}`}
+                      width="80px"
+                      height="80px"
+                      objectFit="cover"
+                    />
+                    <CloseButton
+                      size="xs"
+                      position="absolute"
+                      top="0.5"
+                      right="0.5"
+                      bg="blackAlpha.600"
+                      backdropFilter="blur(4px)"
+                      color="white"
+                      rounded="full"
+                      _hover={{ bg: "red.500", transform: "scale(1.1)" }}
+                      transition="all 0.2s"
+                      zIndex="1"
+                      onClick={() => removeImage(i)}
+                    />
+                  </Box>
+                )}
+              </For>
+            </Flex>
+          </Stack>
         )}
+
+        {/* Near Transit */}
+        <Stack>
+          <Text fontWeight="medium">Near Transit</Text>
+          <Flex align="center" gap="2">
+            <Field.Root invalid={!!errors.nearTransit?.type}>
+              <Field.Label>Transit Type</Field.Label>
+              <Input
+                type="text"
+                placeholder="e.g., Bus, Metro, Train"
+                {...register("nearTransit.type")}
+              />
+              <Field.ErrorText>
+                {errors.nearTransit?.type?.message}
+              </Field.ErrorText>
+            </Field.Root>
+            <Field.Root invalid={!!errors.nearTransit?.distance}>
+              <Field.Label>Distance (meters)</Field.Label>
+              <NumberInput.Root defaultValue="0" min={0}>
+                <NumberInput.Control>
+                  <NumberInput.IncrementTrigger />
+                  <NumberInput.DecrementTrigger />
+                </NumberInput.Control>
+                <NumberInput.Input {...register("nearTransit.distance")} />
+              </NumberInput.Root>
+              <Field.ErrorText>
+                {errors.nearTransit?.distance?.message}
+              </Field.ErrorText>
+            </Field.Root>
+          </Flex>
+        </Stack>
+
+        {/* Appliances */}
+        <Field.Root invalid={!!errors.appliances}>
+          <Field.Label fontWeight="medium" mb="2">
+            Appliances
+          </Field.Label>
+
+          <Controller
+            name="appliances"
+            control={control}
+            defaultValue={[]}
+            render={({ field }) => {
+              const handleCheckedChange = (
+                appliance: string,
+                isChecked: boolean,
+              ) => {
+                const currentValues = field.value || [];
+                const nextValues = isChecked
+                  ? [...currentValues, appliance]
+                  : currentValues.filter((v: string) => v !== appliance);
+
+                field.onChange(nextValues);
+              };
+
+              return (
+                <Flex
+                  gap="4"
+                  flexWrap="wrap"
+                >
+                  {applianceOptions.map((appliance) => {
+                    const isChecked = field.value?.includes(appliance);
+
+                    const slug = appliance.replace(/\s+/g, "-").toLowerCase();
+
+                    return (
+                      <Checkbox.Root
+                        key={appliance}
+                        ids={{
+                          root: `checkbox-root-${slug}`,
+                          hiddenInput: `checkbox-input-${slug}`,
+                          label: `checkbox-label-${slug}`,
+                        }}
+                        checked={isChecked}
+                        onCheckedChange={(details) =>
+                          handleCheckedChange(appliance, !!details.checked)
+                        }
+                        cursor="pointer"
+                      >
+                        <Checkbox.HiddenInput />
+                        <Checkbox.Control>
+                          <Checkbox.Indicator />
+                        </Checkbox.Control>
+                        <Checkbox.Label fontSize="sm" cursor="pointer">
+                          {appliance}
+                        </Checkbox.Label>
+                      </Checkbox.Root>
+                    );
+                  })}
+                </Flex>
+              );
+            }}
+          />
+          {errors.appliances && (
+            <Field.ErrorText>
+              {errors.appliances.message as string}
+            </Field.ErrorText>
+          )}
+        </Field.Root>
+
+        {/* Internet */}
+        <Stack>
+          <Text fontWeight="medium">Internet</Text>
+          <Flex align="center" gap="2">
+            <Field.Root invalid={!!errors.internet?.name}>
+              <Field.Label>Provider Name</Field.Label>
+              <Input
+                type="text"
+                placeholder="e.g., Comcast, Verizon"
+                {...register("internet.name")}
+              />
+              <Field.ErrorText>
+                {errors.internet?.name?.message}
+              </Field.ErrorText>
+            </Field.Root>
+            <Field.Root invalid={!!errors.internet?.speed}>
+              <Field.Label>Speed</Field.Label>
+              <Input
+                type="text"
+                placeholder="e.g., 100 Mbps"
+                {...register("internet.speed")}
+              />
+              <Field.ErrorText>
+                {errors.internet?.speed?.message}
+              </Field.ErrorText>
+            </Field.Root>
+          </Flex>
+        </Stack>
+
+        {/* Lease Term */}
+        <Field.Root invalid={!!errors.leaseTermMonths}>
+          <Field.Label>Lease Term (months)</Field.Label>
+          <NumberInput.Root defaultValue="12" min={6}>
+            <NumberInput.Control>
+              <NumberInput.IncrementTrigger />
+              <NumberInput.DecrementTrigger />
+            </NumberInput.Control>
+            <NumberInput.Input {...register("leaseTermMonths")} />
+          </NumberInput.Root>
+          <Field.ErrorText>{errors.leaseTermMonths?.message}</Field.ErrorText>
+        </Field.Root>
       </Stack>
     </Box>
   );

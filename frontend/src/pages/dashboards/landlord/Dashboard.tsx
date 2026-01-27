@@ -1,9 +1,43 @@
-import { Text } from "@chakra-ui/react"
+import { Text } from "@chakra-ui/react";
 
 export function Dashboard() {
-    return(
-        <>
-            <Text>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nesciunt necessitatibus repudiandae quis? Perspiciatis omnis repellat, nostrum nihil amet ullam libero cum voluptatum dolor numquam nobis vel necessitatibus est asperiores aperiam recusandae! Odit est ipsa quo vero nihil reprehenderit. Minus unde officiis enim impedit. Harum exercitationem voluptate nobis odit! Delectus amet magnam tempora necessitatibus corrupti totam et ad possimus nulla accusamus nobis maiores culpa illum veniam, doloremque, recusandae quibusdam impedit aliquam! Doloremque praesentium at accusantium itaque laborum placeat, laudantium aliquam vitae quis illo dolorum suscipit et quas, iusto ipsum dolorem neque laboriosam facilis quod consectetur eos! Similique, ratione et vero magnam facilis doloribus accusamus reiciendis velit. Officiis, earum libero temporibus eius odio aspernatur sapiente aliquid eum iste adipisci corporis error quas tenetur nam minus accusantium porro id, officia doloremque minima! Temporibus, fugit ullam saepe doloribus nobis illum culpa nihil blanditiis doloremque? Repellat, libero. Iure doloremque velit perferendis, ipsum dolorem nam rerum facilis ab iusto sed provident, veritatis totam amet tempora. Explicabo, maiores nam quis consequatur laudantium eligendi ipsum autem, hic enim culpa in nulla. Quo earum optio repellendus eligendi quas quae ipsum consequuntur vitae praesentium quis animi delectus iste est assumenda consectetur nisi, odio aliquam magni tempore voluptatibus. Placeat quod esse a quia voluptas eveniet nihil ut consequatur provident explicabo. Voluptates tempora, libero adipisci totam amet aliquam corporis minus dolorem ducimus laudantium natus aliquid beatae consequuntur placeat nam? Dignissimos facere modi expedita officia labore. Sapiente laudantium, atque soluta aliquam ab numquam odio expedita pariatur neque sit odit explicabo, illo dicta nemo possimus qui, officia consequuntur maiores provident hic voluptate architecto laborum autem? At ullam possimus suscipit repellat odio harum odit quos obcaecati fuga aliquam dignissimos natus, eum maiores debitis, tempora iusto vero facilis veniam officiis! Vero aperiam eos voluptas rerum ut odit? Tempore, aliquid quisquam est in ratione atque minima a?</Text>
-        </>
-    )
+  return (
+    <>
+      <Text textAlign="justify">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nesciunt
+        necessitatibus repudiandae quis? Perspiciatis omnis repellat, nostrum
+        nihil amet ullam libero cum voluptatum dolor numquam nobis vel
+        necessitatibus est asperiores aperiam recusandae! Odit est ipsa quo vero
+        nihil reprehenderit. Minus unde officiis enim impedit. Harum
+        exercitationem voluptate nobis odit! Delectus amet magnam tempora
+        necessitatibus corrupti totam et ad possimus nulla accusamus nobis
+        maiores culpa illum veniam, doloremque, recusandae quibusdam impedit
+        aliquam! Doloremque praesentium at accusantium itaque laborum placeat,
+        laudantium aliquam vitae quis illo dolorum suscipit et quas, iusto ipsum
+        dolorem neque laboriosam facilis quod consectetur eos! Similique,
+        ratione et vero magnam facilis doloribus accusamus reiciendis velit.
+        Officiis, earum libero temporibus eius odio aspernatur sapiente aliquid
+        eum iste adipisci corporis error quas tenetur nam minus accusantium
+        porro id, officia doloremque minima! Temporibus, fugit ullam saepe
+        doloribus nobis illum culpa nihil blanditiis doloremque? Repellat,
+        libero. Iure doloremque velit perferendis, ipsum dolorem nam rerum
+        facilis ab iusto sed provident, veritatis totam amet tempora. Explicabo,
+        maiores nam quis consequatur laudantium eligendi ipsum autem, hic enim
+        culpa in nulla. Quo earum optio repellendus eligendi quas quae ipsum
+        consequuntur vitae praesentium quis animi delectus iste est assumenda
+        consectetur nisi, odio aliquam magni tempore voluptatibus. Placeat quod
+        esse a quia voluptas eveniet nihil ut consequatur provident explicabo.
+        Voluptates tempora, libero adipisci totam amet aliquam corporis minus
+        dolorem ducimus laudantium natus aliquid beatae consequuntur placeat
+        nam? Dignissimos facere modi expedita officia labore. Sapiente
+        laudantium, atque soluta aliquam ab numquam odio expedita pariatur neque
+        sit odit explicabo, illo dicta nemo possimus qui, officia consequuntur
+        maiores provident hic voluptate architecto laborum autem? At ullam
+        possimus suscipit repellat odio harum odit quos obcaecati fuga aliquam
+        dignissimos natus, eum maiores debitis, tempora iusto vero facilis
+        veniam officiis! Vero aperiam eos voluptas rerum ut odit? Tempore,
+        aliquid quisquam est in ratione atque minima a?
+      </Text>
+    </>
+  );
 }

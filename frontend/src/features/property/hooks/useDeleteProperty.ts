@@ -7,8 +7,8 @@ export const useDeleteProperty = () => {
     return useMutation({
         mutationFn: PropertyApi.deleteProperty,
         onSuccess: async () => {
-            toast.success("Property was deleted successfully")
             await queryClient.invalidateQueries({ queryKey: ["properties", "landlord"] })
+            toast.success("Property was deleted successfully")
         }
     })
 }

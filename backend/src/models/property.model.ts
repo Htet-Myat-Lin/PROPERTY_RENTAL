@@ -1,49 +1,97 @@
 import { model, Schema } from "mongoose";
 import type { IProperty } from "../utils/types.js";
 
-const propertySchema = new Schema<IProperty>({
-    title: {type: String, required: [true, "Property Title is required"]},
-    description: {type: String, required: [true, "Description is required"]},
-    rentPrice: {type: Number, requied: [true, "Rent Price is required"] },
+const propertySchema = new Schema<IProperty>(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    title: { type: String, required: [true, "Property Title is required"] },
+    description: { type: String, required: [true, "Description is required"] },
+    baseRentPrice: { type: Number, requied: [true, "Rent Price is required"] },
     beds: Number,
     baths: Number,
     area: Number,
     propertyType: {
-        type: String,
-        enum: {
-            values: ["Apartment", "House", "Condo", "Villa"],
-            message: "Please select a valid property type"
-        }
+      type: String,
+      enum: {
+        values: ["Apartment", "House", "Condo", "Villa"],
+        message: "Please select a valid property type",
+      },
     },
     status: {
-        type: String,
-        enum: {
-            values: ["AVAILABLE", "RENTED"],
-            message: "Please slect a valid status"
-        },
-        default: "AVAILABLE"
+      type: String,
+      enum: {
+        values: ["AVAILABLE", "RENTED", "RESERVED"],
+        message: "Please slect a valid status",
+      },
+      default: "AVAILABLE",
     },
     location: {
-        type: {
-            type: String,
-            default: "Point"
-        },
-        coordinates: {
-            type: [Number],
-            required: true
-        },
-        address: String
+      type: {
+        type: String,
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+      address: String,
     },
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
-    },
-    nearTransit: { type: String, distance: Number },
-    parkingSpaces: Number,
+    images: [String],
+    nearTransit: { type: {type: String}, distance: Number },
+    parkingSpaces: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
-    images: [String]
-},{
-    timestamps: true
-})
+    yearBuilt: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          return val <= new Date().getFullYear();
+        },
+        message: "Year Built must not be future date",
+      },
+    },
+    petAllowed: { type: Boolean, default: false },
+    appliances: [String],
+    availableDate: Date,
+    internet: { name: String, speed: String },
+    leaseTermMonths: Number,
+    utilityFee: {
+      electricity: {
+        type: {
+          type: String,
+          enum: ["INCLUDED", "FIXED", "METERED"],
+          required: true,
+        },
+        amount: { type: Number },
+      },
+      water: {
+        type: {
+          type: String,
+          enum: ["INCLUDED", "FIXED", "METERED"],
+          required: true,
+        },
+        amount: { type: Number },
+      },
+      internet: {
+        type: {
+          type: String,
+          enum: ["INCLUDED", "FIXED", "METERED"],
+          required: true,
+        },
+        amount: { type: Number },
+      },
+      trashCollection: {
+        type: {
+          type: String,
+          enum: ["INCLUDED", "FIXED", "METERED"],
+          required: true,
+        },
+        amount: { type: Number },
+      },
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-export const PropertyModel = model<IProperty>("Property", propertySchema)
+export const PropertyModel = model<IProperty>("Property", propertySchema);

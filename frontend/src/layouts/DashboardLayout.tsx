@@ -37,8 +37,8 @@ const NavItem = ({
   <Link to={path} style={{ width: "100%" }}>
     <HStack
       gap={4}
-      px={4}
-      py={3}
+      px={2}
+      py={2}
       borderRadius="lg"
       bg={active ? "blue.600" : "transparent"}
       color={active ? "white" : "fg.muted"}
@@ -51,7 +51,7 @@ const NavItem = ({
       w="full"
     >
       <Icon as={icon} boxSize={5} />
-      <Text fontWeight="medium">{label}</Text>
+      <Text>{label}</Text>
     </HStack>
   </Link>
 );
@@ -79,10 +79,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         borderRight="1px solid"
         borderColor="border"
       >
-        <VStack h="full" p={6} align="stretch" gap={8}>
-          <Heading size="md" color="blue.600" px={2}>
-            Rentify
-          </Heading>
+        <VStack h="full" p={6} align="stretch" gap="4">
 
           <VStack align="stretch" gap={1} flex="1">
             {navLinks.map((link) => (
@@ -132,11 +129,8 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         borderRight="1px solid"
         borderColor="border"
       >
-        <VStack h="full" p={6} align="stretch" gap={8}>
+        <VStack h="full" p="6" align="stretch" gap={3}>
           <Flex justify="space-between" align="center">
-            <Text fontWeight="bold" color="blue.600" fontSize="xl">
-              Rentify
-            </Text>
             <IconButton
               variant="ghost"
               onClick={toggleMobileMenu}
@@ -146,7 +140,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
             </IconButton>
           </Flex>
 
-          <VStack align="stretch" gap={2} flex="1">
+          <VStack align="stretch" gap={3} flex="1">
             {navLinks.map((link) => (
               <NavItem
                 key={link.path}
@@ -188,8 +182,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
             fontWeight="semibold"
             color="fg"
           >
-            {navLinks.find((l) => l.path === location.pathname)?.label ||
-              "Dashboard"}
+            Rentify
           </Text>
 
           <HStack gap="1">
@@ -218,9 +211,3 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
     </Box>
   );
 }
-
-const Heading = ({ children, size, ...props }: any) => (
-  <Text fontWeight="bold" fontSize={size === "md" ? "xl" : "2xl"} {...props}>
-    {children}
-  </Text>
-);
