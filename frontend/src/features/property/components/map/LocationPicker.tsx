@@ -4,7 +4,6 @@ import "leaflet/dist/leaflet.css";
 import type { LeafletMouseEvent } from "leaflet"; 
 import L from "leaflet";
 
-// Fix for default Leaflet marker icons not showing in React
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
@@ -31,15 +30,12 @@ function LocationMarker({ onSelect, defaultValue }: Props) {
     },
   });
 
-  // ✅ THIS FIXES THE RESET PROBLEM
-  // When defaultValue changes (e.g., data finishes loading from API),
-  // update the marker and fly the map to that location.
   useEffect(() => {
     if (defaultValue) {
-      const newPos = new L.LatLng(defaultValue.lat, defaultValue.lng);
+      const newPosition = new L.LatLng(defaultValue.lat, defaultValue.lng);
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setPosition(newPos);
-      map.flyTo(newPos, map.getZoom()); // Smoothly move map to the property location
+      setPosition(newPosition);
+      map.flyTo(newPosition, map.getZoom()); // Smoothly move map to the property location
     }
   }, [defaultValue, map]);
 

@@ -21,7 +21,11 @@ const petOptions = createListCollection({
 });
 
 export function StepOne() {
-  const { register, formState: {errors}, control } = useFormContext<PropertyFormValues>()
+  const {
+    register,
+    formState: { errors },
+    control,
+  } = useFormContext<PropertyFormValues>();
 
   return (
     <Box my="5">
@@ -29,16 +33,79 @@ export function StepOne() {
         {/* Title Field */}
         <Field.Root invalid={!!errors.title}>
           <Field.Label>Title</Field.Label>
-          <Input type="text" placeholder="Enter property title" {...register("title")} />
+          <Input
+            type="text"
+            placeholder="Enter property title"
+            {...register("title")}
+          />
           <Field.ErrorText>{errors.title?.message}</Field.ErrorText>
         </Field.Root>
 
         {/* Description */}
         <Field.Root invalid={!!errors.description}>
           <Field.Label>Description</Field.Label>
-          <Textarea rows={4} placeholder="Enter description" {...register("description")} />
+          <Textarea
+            rows={4}
+            placeholder="Enter description"
+            {...register("description")}
+          />
           <Field.ErrorText>{errors.description?.message}</Field.ErrorText>
         </Field.Root>
+
+        {/* Pet Allowed & Available Date */}
+        <Flex align="center" justify="space-between" gap="2">
+          <Field.Root invalid={!!errors.petAllowed}>
+            <Field.Label>Pet Allowed</Field.Label>
+            <Controller
+              name="petAllowed"
+              control={control}
+              render={({ field }) => {
+                const value = field.value ? "true" : "false";
+                return (
+                  <Select.Root
+                    collection={petOptions}
+                    size="md"
+                    width="full"
+                    value={[value]}
+                    onValueChange={(details) => {
+                      field.onChange(details.value[0] === "true");
+                    }}
+                    onBlur={field.onBlur}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                      <Select.Trigger>
+                        <Select.ValueText placeholder="Select option" />
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Portal>
+                      <Select.Positioner>
+                        <Select.Content>
+                          {petOptions.items.map((item) => (
+                            <Select.Item item={item} key={item.value}>
+                              {item.label}
+                              <Select.ItemIndicator />
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select.Positioner>
+                    </Portal>
+                  </Select.Root>
+                );
+              }}
+            />
+            <Field.ErrorText>{errors.petAllowed?.message}</Field.ErrorText>
+          </Field.Root>
+
+          <Field.Root invalid={!!errors.availableDate}>
+            <Field.Label>Available Date</Field.Label>
+            <Input type="date" {...register("availableDate")} />
+            <Field.ErrorText>{errors.availableDate?.message}</Field.ErrorText>
+          </Field.Root>
+        </Flex>
 
         {/* Bed and Bath rooms */}
         <Flex align="center" justify="space-between" gap="1">
@@ -108,88 +175,16 @@ export function StepOne() {
             <Field.ErrorText>{errors.parkingSpaces?.message}</Field.ErrorText>
           </Field.Root>
 
-          <Field.Root invalid={!!errors.yearBuilt && !!errors.yearBuilt.message}>
-            <Field.Label>Year Built (Optional)</Field.Label>
-            <Input 
-              type="number"
-              min={1800}
-              max={new Date().getFullYear()}
-              placeholder="e.g., 2020"
-              {...register("yearBuilt", {
-                setValueAs: (v) => {
-                  if (v === "" || v === null || v === undefined || v === "0" || Number(v) === 0) {
-                    return undefined;
-                  }
-                  const num = Number(v);
-                  return isNaN(num) ? undefined : num;
-                },
-                validate: (value) => {
-                  if (value === undefined || value === null) return true; // Optional field
-                  if (value < 1800) return "Year must be 1800 or later";
-                  if (value > new Date().getFullYear()) return `Year cannot be later than ${new Date().getFullYear()}`;
-                  return true;
-                }
-              })}
-            />
+          <Field.Root invalid={!!errors.yearBuilt}>
+            <Field.Label>Year Built</Field.Label>
+            <NumberInput.Root defaultValue="1900" min={1900}>
+              <NumberInput.Control>
+                <NumberInput.IncrementTrigger />
+                <NumberInput.DecrementTrigger />
+              </NumberInput.Control>
+              <NumberInput.Input {...register("yearBuilt")} />
+            </NumberInput.Root>
             <Field.ErrorText>{errors.yearBuilt?.message}</Field.ErrorText>
-          </Field.Root>
-        </Flex>
-
-        {/* Pet Allowed & Available Date */}
-        <Flex align="center" justify="space-between" gap="1">
-          <Field.Root invalid={!!errors.petAllowed}>
-            <Field.Label>Pet Allowed</Field.Label>
-            <Controller
-              name="petAllowed"
-              control={control}
-              render={({ field }) => {
-                const value = field.value ? "true" : "false";
-                return (
-                  <Select.Root
-                    collection={petOptions}
-                    size="md"
-                    width="full"
-                    value={[value]}
-                    onValueChange={(details) => {
-                      field.onChange(details.value[0] === "true");
-                    }}
-                    onBlur={field.onBlur}
-                  >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="Select option" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {petOptions.items.map((item) => (
-                            <Select.Item item={item} key={item.value}>
-                              {item.label}
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                );
-              }}
-            />
-            <Field.ErrorText>{errors.petAllowed?.message}</Field.ErrorText>
-          </Field.Root>
-
-          <Field.Root invalid={!!errors.availableDate}>
-            <Field.Label>Available Date</Field.Label>
-            <Input 
-              type="date" 
-              {...register("availableDate")} 
-            />
-            <Field.ErrorText>{errors.availableDate?.message}</Field.ErrorText>
           </Field.Root>
         </Flex>
       </Stack>

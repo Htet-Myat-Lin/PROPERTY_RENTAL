@@ -296,12 +296,12 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
                 disabled={currentStep === 0}
                 onClick={prevStep}
                 colorPalette="blue"
-                variant="outline"
+                variant="surface"
               >
                 Prev
               </Button>
               {currentStep === totalSteps - 1 ? (
-                <Button disabled={isCreating || isEditing || !address} type="submit" colorPalette="blue">
+                <Button disabled={isCreating || isEditing || !address} type="submit" colorPalette="blue" variant="solid">
                   {isCreating || isEditing ? <Spinner /> : propertyToEdit ? "Edit Property" : "Create Property"}
                 </Button>
               ) : (
@@ -309,7 +309,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
                   type="button"
                   onClick={handleNext}
                   colorPalette="blue"
-                  variant="outline"
+                  variant="surface"
                 >
                   Next
                 </Button>

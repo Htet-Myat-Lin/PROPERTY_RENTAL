@@ -23,7 +23,6 @@ type Props = {
 };
 
 export function PropertyTableList({ items, openEditModal }: Props) {
-  // Replace useState with Set for better performance
   const [selectedIds, setSelectedIds] = useState(new Set<string>());
 
   // Memoize allIds to avoid recreating on every render
@@ -77,6 +76,7 @@ export function PropertyTableList({ items, openEditModal }: Props) {
         <Table.Row>
           <Table.ColumnHeader textAlign="center">
             <Checkbox.Root
+              display={selectedIds.size > 0 ? "block" : "none"}
               variant="solid"
               colorPalette="blue"
               size="sm"

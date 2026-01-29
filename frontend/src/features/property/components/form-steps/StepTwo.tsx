@@ -18,7 +18,7 @@ import {
   NumberInput,
   Checkbox,
 } from "@chakra-ui/react";
-import { LocationPicker } from "../LocationPicker";
+import { LocationPicker } from "../map/LocationPicker";
 import { useEffect } from "react";
 import { LuFileImage, LuX } from "react-icons/lu";
 import {
@@ -41,7 +41,7 @@ const applianceOptions = [
   "Refrigerator",
   "Dishwasher",
   "Washing Machine",
-  "Dryer",
+  "AC",
   "Microwave",
   "Oven",
   "Stove",
@@ -123,10 +123,9 @@ export function StepTwo() {
         <Stack>
           <Text fontWeight="medium">Select Property Location</Text>
           <LocationPicker
-            defaultValue={initialLocation} // Pass it here
-            onSelect={(loc) => {
-              // 2. Directly update RHF state
-              setValue("location.coordinates", [loc.lat, loc.lng], {
+            defaultValue={initialLocation}
+            onSelect={(coords) => {
+              setValue("location.coordinates", [coords.lat, coords.lng], {
                 shouldValidate: true,
                 shouldDirty: true,
               });
@@ -213,7 +212,7 @@ export function StepTwo() {
               </Field.ErrorText>
             </Field.Root>
             <Field.Root invalid={!!errors.nearTransit?.distance}>
-              <Field.Label>Distance (meters)</Field.Label>
+              <Field.Label>Distance (km))</Field.Label>
               <NumberInput.Root defaultValue="0" min={0}>
                 <NumberInput.Control>
                   <NumberInput.IncrementTrigger />
@@ -350,14 +349,12 @@ const FileUploadList = ({
   const { watch } = useFormContext<PropertyFormValues>();
   const fileUpload = useFileUploadContext();
 
-  // Watch RHF state instead of relying on context.acceptedFiles
   const savedImages = watch("images") || [];
 
-  // 1. Sync new files from the picker context to RHF
   useEffect(() => {
     if (fileUpload.acceptedFiles.length > 0) {
       setValue("images", fileUpload.acceptedFiles, {
-        shouldValidate: false,
+        shouldValidate: true,
         shouldDirty: true,
       });
     }
@@ -379,8 +376,7 @@ const FileUploadList = ({
           boxSize="20"
           p="2"
           file={file}
-          // Use index + name for key to avoid issues when returning to step
-          key={`${file.name}-${index}`}
+          key={index}
         >
           <FileUpload.ItemPreviewImage />
           <Float placement="top-end">
@@ -389,7 +385,7 @@ const FileUploadList = ({
                 // Manually filter out the deleted image from RHF state
                 const updatedImages = savedImages.filter((_, i) => i !== index);
                 setValue("images", updatedImages);
-                // Also clear from FileUpload context so they don't reappear
+                // Clear from FileUpload context so they don't reappear
                 fileUpload.clearFiles();
               }}
               colorPalette="red"

@@ -52,29 +52,27 @@ export function PropertyList() {
   const [open, setOpen] = useState(false);
   const [propertyToEdit, setPropertyToEdit] = useState<IProperty | null>(null);
   
-  // 1. Manage State via URL Params (Single Source of Truth)
+  // Manage URL Params
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Extract values with defaults
   const page = Number(searchParams.get("page")) || 1;
   const statusValue = searchParams.get("status") || "";
-  const sortValue = searchParams.get("sortBy") || "createdAt:desc";
+  const sortValue = searchParams.get("sortBy") || "";
   const searchValue = searchParams.get("search") || "";
 
-  // Local state for search input to allow typing before triggering API
   const [searchInput, setSearchInput] = useState(searchValue);
 
   const openCreateModal = () => {
     setOpen(true);
     setPropertyToEdit(null);
   };
-
   const openEditModal = (property: IProperty) => {
     setOpen(true);
     setPropertyToEdit(property);
   };
 
-  // 2. Filter Object for API Hook
+  // 2. Filter Object for API Req
   const filters: PropertyFilters = {
     page,
     limit: PAGE_LIMIT,
@@ -82,8 +80,6 @@ export function PropertyList() {
     status: statusValue,
     search: searchValue,
   };
-
-  const { data, isPending } = useGetLandlordProperties(filters);
 
   // 3. Helper to update URL params
   const updateParams = (key: string, value: string) => {
@@ -93,7 +89,7 @@ export function PropertyList() {
       } else {
         prev.delete(key);
       }
-      // Reset to page 1 whenever filters change (except when changing page itself)
+
       if (key !== "page") {
         prev.set("page", "1");
       }
@@ -112,6 +108,12 @@ export function PropertyList() {
     });
   };
 
+  const resetFilter = () => {
+    setSearchInput("")
+    setSearchParams({})
+  }
+
+  const { data, isPending } = useGetLandlordProperties(filters);
   const properties = data?.properties || [];
   const totalPages = data?.totalPages || 0; 
 
@@ -215,7 +217,7 @@ export function PropertyList() {
           {/* Add New Property Button */}
           <Button
             onClick={openCreateModal}
-            colorPalette="teal"
+            colorPalette="blue"
             variant="solid"
             size="sm"
           >
@@ -235,8 +237,9 @@ export function PropertyList() {
       ) : (
         <>
           {properties.length === 0 ? (
-            <Center minH="20vh" borderWidth="1px" borderStyle="dashed" borderRadius="md">
+            <Center minH="20vh" borderWidth="1px" borderStyle="dashed" borderRadius="md" gap="2">
               <Text color="fg.muted">No properties found.</Text>
+              {searchParams.size > 0 && <Button size="xs" onClick={resetFilter}>Reset Filter</Button>}
             </Center>
           ) : (
             <PropertyTableList items={properties} openEditModal={openEditModal} />

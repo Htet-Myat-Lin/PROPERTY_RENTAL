@@ -6,7 +6,7 @@ const propertySchema = new Schema<IProperty>(
     user: { type: Schema.Types.ObjectId, ref: "User" },
     title: { type: String, required: [true, "Property Title is required"] },
     description: { type: String, required: [true, "Description is required"] },
-    baseRentPrice: { type: Number, requied: [true, "Rent Price is required"] },
+    baseRentPrice: { type: Number, required: [true, "Rent Price is required"] },
     beds: Number,
     baths: Number,
     area: Number,
@@ -21,7 +21,7 @@ const propertySchema = new Schema<IProperty>(
       type: String,
       enum: {
         values: ["AVAILABLE", "RENTED", "RESERVED"],
-        message: "Please slect a valid status",
+        message: "Please select a valid status",
       },
       default: "AVAILABLE",
     },
