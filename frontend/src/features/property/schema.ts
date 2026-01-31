@@ -39,35 +39,7 @@ export const propertyFormSchema = z
     leaseTermMonths: z.coerce
       .number()
       .min(6, "Minimum Lease Term must be 6 months")
-      .optional(),
-    utilityFee: z
-      .object({
-        electricity: z
-          .object({
-            type: z.string(),
-            amount: z.coerce.number().nonnegative().optional(),
-          })
-          .optional(),
-        water: z
-          .object({
-            type: z.string(),
-            amount: z.coerce.number().nonnegative().optional(),
-          })
-          .optional(),
-        internet: z
-          .object({
-            type: z.string(),
-            amount: z.coerce.number().nonnegative().optional(),
-          })
-          .optional(),
-        trashCollection: z
-          .object({
-            type: z.string(),
-            amount: z.coerce.number().nonnegative().optional(),
-          })
-          .optional(),
-      })
-      .optional(),
+      .optional()
   })
   .superRefine((data, ctx) => {
     const hasNewImages = data.images && data.images.length > 0;

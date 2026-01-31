@@ -51,7 +51,7 @@ const NavItem = ({
       w="full"
     >
       <Icon as={icon} boxSize={5} />
-      <Text>{label}</Text>
+      <Text fontSize="sm">{label}</Text>
     </HStack>
   </Link>
 );
@@ -79,7 +79,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         borderRight="1px solid"
         borderColor="border"
       >
-        <VStack h="full" p={6} align="stretch" gap="4">
+        <VStack h="full" p="4" align="stretch" gap="4">
 
           <VStack align="stretch" gap={1} flex="1">
             {navLinks.map((link) => (
@@ -157,7 +157,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         {/* Top Navbar */}
         <Flex
           as="header"
-          h="70px"
+          h="60px"
           bg="bg.panel"
           borderBottom="1px solid"
           borderColor="border"

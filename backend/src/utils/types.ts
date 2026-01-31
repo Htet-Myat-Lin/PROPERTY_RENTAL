@@ -52,12 +52,6 @@ export interface IProperty extends Document {
   availableDate: Date;
   internet?: { name: string; speed: string };
   leaseTermMonths: number;
-  utilityFee: {
-    electricity: { type: UtilityType; amount?: number };
-    water: { type: UtilityType; amount?: number };
-    internet?: { type: UtilityType; amount?: number };
-    trashCollection?: { type: UtilityType; amount?: number };
-  };
 }
 
 export type PropertyFilters = {

@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Center,
   Dialog,
   Flex,
@@ -7,6 +8,7 @@ import {
   IconButton,
   Input,
   Menu,
+  Pagination,
   Portal,
   Spinner,
   Stack,
@@ -32,7 +34,7 @@ interface PropertyFilters {
   search?: string;
 }
 
-const PAGE_LIMIT = 15;
+const PAGE_LIMIT = 3;
 
 const statuses = [
   { label: "All", value: "" },
@@ -51,7 +53,7 @@ const sortValues = [
 export function PropertyList() {
   const [open, setOpen] = useState(false);
   const [propertyToEdit, setPropertyToEdit] = useState<IProperty | null>(null);
-  
+
   // Manage URL Params
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -109,21 +111,22 @@ export function PropertyList() {
   };
 
   const resetFilter = () => {
-    setSearchInput("")
-    setSearchParams({})
-  }
+    setSearchInput("");
+    setSearchParams({});
+  };
 
   const { data, isPending } = useGetLandlordProperties(filters);
   const properties = data?.properties || [];
-  const totalPages = data?.totalPages || 0; 
+  const totalPages = data?.totalPages || 0;
+  const totalCount = data?.totalCount || 0;
 
   return (
     <Stack gap="6">
       {/* --- HEADER SECTION --- */}
-      <Flex 
-        alignItems={{ base: "start", md: "center" }} 
-        justify="space-between" 
-        gap="4" 
+      <Flex
+        alignItems={{ base: "start", md: "center" }}
+        justify="space-between"
+        gap="4"
         direction={{ base: "column", md: "row" }}
       >
         <Text fontSize="lg" fontWeight="semibold">
@@ -133,18 +136,18 @@ export function PropertyList() {
         <HStack wrap="wrap" gap="2">
           {/* Search Input */}
           <HStack gap="0" mr="2">
-            <Input 
-              placeholder="Search..." 
-              size="sm" 
+            <Input
+              placeholder="Search..."
+              size="sm"
               maxW="200px"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
               borderRightRadius="0"
             />
-            <IconButton 
-              aria-label="Search" 
-              size="sm" 
+            <IconButton
+              aria-label="Search"
+              size="sm"
               onClick={handleSearchSubmit}
               borderLeftRadius="0"
               variant="surface"
@@ -157,12 +160,11 @@ export function PropertyList() {
           {/* Filter by Status */}
           <Menu.Root>
             <Menu.Trigger asChild>
-              <Button
-                colorPalette="blue"
-                variant="surface"
-                size="sm"
-              >
-                <HiSortAscending /> {statusValue ? statuses.find(s => s.value === statusValue)?.label : "Status"}
+              <Button colorPalette="blue" variant="surface" size="sm">
+                <HiSortAscending />{" "}
+                {statusValue
+                  ? statuses.find((s) => s.value === statusValue)?.label
+                  : "Status"}
               </Button>
             </Menu.Trigger>
             <Portal>
@@ -187,11 +189,7 @@ export function PropertyList() {
           {/* Sorting Menu */}
           <Menu.Root>
             <Menu.Trigger asChild>
-              <Button
-                colorPalette="blue"
-                variant="surface"
-                size="sm"
-              >
+              <Button colorPalette="blue" variant="surface" size="sm">
                 <HiSortAscending /> Sort
               </Button>
             </Menu.Trigger>
@@ -237,41 +235,56 @@ export function PropertyList() {
       ) : (
         <>
           {properties.length === 0 ? (
-            <Center minH="20vh" borderWidth="1px" borderStyle="dashed" borderRadius="md" gap="2">
+            <Center
+              minH="20vh"
+              borderWidth="1px"
+              borderStyle="dashed"
+              borderRadius="md"
+              gap="2"
+            >
               <Text color="fg.muted">No properties found.</Text>
-              {searchParams.size > 0 && <Button size="xs" onClick={resetFilter}>Reset Filter</Button>}
+              {searchParams.size > 0 && (
+                <Button size="xs" onClick={resetFilter}>
+                  Reset Filter
+                </Button>
+              )}
             </Center>
           ) : (
-            <PropertyTableList items={properties} openEditModal={openEditModal} />
+            <PropertyTableList
+              items={properties}
+              openEditModal={openEditModal}
+            />
           )}
 
           {/* --- PAGINATION SECTION --- */}
           {totalPages > 1 && (
-            <Flex justify="flex-end" align="center" gap="4" mt="4">
-              <Text fontSize="sm" color="fg.muted">
-                Page {page} of {totalPages}
-              </Text>
-              <HStack>
-                <IconButton
-                  aria-label="Previous Page"
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => handlePageChange(page - 1)}
-                >
-                  <MdChevronLeft />
-                </IconButton>
-                <IconButton
-                  aria-label="Next Page"
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => handlePageChange(page + 1)}
-                >
-                  <MdChevronRight />
-                </IconButton>
-              </HStack>
-            </Flex>
+            <Pagination.Root count={totalCount} pageSize={PAGE_LIMIT} defaultPage={page}>
+              <ButtonGroup attached variant="outline" size="sm">
+                <Pagination.PrevTrigger asChild>
+                  <IconButton>
+                    <MdChevronLeft />
+                  </IconButton>
+                </Pagination.PrevTrigger>
+
+                <Pagination.Items
+                  render={(page) => (
+                    <IconButton
+                      onClick={() => handlePageChange(page.value)}
+                      variant={{ base: "outline", _selected: "solid" }}
+                      zIndex={{ _selected: "1" }}
+                    >
+                      {page.value}
+                    </IconButton>
+                  )}
+                />
+
+                <Pagination.NextTrigger asChild>
+                  <IconButton>
+                    <MdChevronRight />
+                  </IconButton>
+                </Pagination.NextTrigger>
+              </ButtonGroup>
+            </Pagination.Root>
           )}
         </>
       )}
@@ -279,7 +292,7 @@ export function PropertyList() {
       {/* --- MODALS --- */}
       <Dialog.Root
         placement="center"
-        size="xl"
+        size="lg"
         closeOnInteractOutside={false}
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
@@ -290,7 +303,11 @@ export function PropertyList() {
           <Dialog.Positioner>
             <Dialog.Content>
               <Dialog.Body bg="bg.panel" shadow="lg" borderRadius="lg" p="6">
-                <PropertyForm setOpen={setOpen} propertyToEdit={propertyToEdit} />
+                {/* Property Form Modal */}
+                <PropertyForm
+                  setOpen={setOpen}
+                  propertyToEdit={propertyToEdit}
+                />
               </Dialog.Body>
             </Dialog.Content>
           </Dialog.Positioner>

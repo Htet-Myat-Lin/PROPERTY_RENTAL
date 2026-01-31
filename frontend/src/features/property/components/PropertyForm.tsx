@@ -12,7 +12,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { StepOne } from "./form-steps/StepOne";
 import { StepTwo } from "./form-steps/StepTwo";
 import { StepThree } from "./form-steps/StepThree";
-import { StepFour } from "./form-steps/StepFour";
 import { useCreateProperty } from "../hooks/useCreateProperty";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
@@ -62,7 +61,6 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
         speed: "",
       },
       leaseTermMonths: undefined,
-      utilityFee: undefined,
     },
     shouldFocusError: false
   });
@@ -127,10 +125,6 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
     if (data.internet) {
       formData.append("internet", JSON.stringify(data.internet));
     }
-    
-    if (data.utilityFee) {
-      formData.append("utilityFee", JSON.stringify(data.utilityFee));
-    }
 
     // Add location data
     formData.append("location", JSON.stringify(data.location));
@@ -173,12 +167,6 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
       ];
     } else if (currentStep === 1) {
       fieldsToValidate = ["propertyType", "location", "images"];
-    } else if (currentStep === 2) {
-      // Don't validate utilityFee fields as they're optional
-      fieldsToValidate = [];
-    } else if (currentStep === 3) {
-      // Review step - no validation needed
-      fieldsToValidate = [];
     }
 
     const isStepValid = await trigger(fieldsToValidate);
@@ -222,13 +210,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
         appliances: propertyToEdit.appliances || [],
         availableDate: new Date(propertyToEdit.availableDate).toISOString().split("T")[0],
         internet: propertyToEdit.internet || { name: "", speed: "" },
-        leaseTermMonths: propertyToEdit.leaseTermMonths,
-        utilityFee: propertyToEdit.utilityFee || {
-          electricity: { type: "", amount: undefined },
-          water: { type: "", amount: undefined },
-          internet: { type: "", amount: undefined },
-          trashCollection: { type: "", amount: undefined },
-        },
+        leaseTermMonths: propertyToEdit.leaseTermMonths
       })
     }
   },[propertyToEdit, reset])
@@ -282,7 +264,6 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
             {currentStep === 0 && <StepOne />}
             {currentStep === 1 && <StepTwo />}
             {currentStep === 2 && <StepThree />}
-            {currentStep === 3 && <StepFour />}
 
             <ButtonGroup
               size="sm"

@@ -71,7 +71,7 @@ export class PropertyService {
 
     const totalPages = Math.ceil(totalCount / limit)
 
-    return { properties, totalPages }
+    return { properties, totalPages, totalCount }
   }
 
   static async getPropertyById(id: string) {

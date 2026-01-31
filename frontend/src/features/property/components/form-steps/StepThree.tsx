@@ -1,282 +1,206 @@
 import {
   Box,
-  Field,
-  NumberInput,
+  Flex,
+  Heading,
   Stack,
   Text,
-  Select,
-  Portal,
-  createListCollection,
+  Badge,
+  Separator,
+  Grid,
+  Image
 } from "@chakra-ui/react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import type { PropertyFormValues } from "../../schema";
-import { useEffect } from "react";
-
-const utilityTypes = createListCollection({
-  items: [
-    { label: "Included", value: "INCLUDED" },
-    { label: "Fixed", value: "FIXED" },
-    { label: "Metered", value: "METERED" },
-  ],
-});
+import { formatAddress, reverseGeocode } from "@/utils/geocoding";
+import { useEffect, useState } from "react";
 
 export function StepThree() {
-  const {
-    register,
-    formState: { errors },
-    control,
-    getValues,
-    setValue,
-  } = useFormContext<PropertyFormValues>();
+  const { watch, setValue } = useFormContext<PropertyFormValues>();
+  const formData = watch();
+  const [address, setAddress] = useState<string>("");
 
-  // Initialize utilityFee if it doesn't exist
   useEffect(() => {
-    const utilityFee = getValues("utilityFee");
-    if (!utilityFee) {
-      setValue("utilityFee", {
-        electricity: { type: "", amount: undefined },
-        water: { type: "", amount: undefined },
-        internet: { type: "", amount: undefined },
-        trashCollection: { type: "", amount: undefined },
-      });
-    }
-  }, [getValues, setValue]);
+    const getAddress = async () => {
+      if (formData.location.coordinates.length === 2) {
+        const [lat, lng] = formData.location.coordinates;
+        const result = await reverseGeocode(lat, lng);
+        const formattedAddress = formatAddress(result);
+        setAddress(formattedAddress);
+      }
+    };
+    getAddress();
+    setValue("location.address", address);
+  }, [formData.location.coordinates, setValue, address]);
+
+  const renderImagePreview = (images: string[]) => {
+    if (!images || images.length === 0) return null;
+  
+    return (
+      <Grid templateColumns="repeat(auto-fill, minmax(80px, 1fr))" gap={2}>
+        {images.map((image, index) => (
+          <Box key={index} boxSize="90px" overflow="hidden" borderRadius="md">
+            {typeof image === "string" ? (
+              <Image
+                src={`${import.meta.env.VITE_FILE_URL}/property-images/${image}`}
+                alt={`Property image ${index + 1}`}
+                boxSize="100%"
+                objectFit="cover"
+              />
+            ) : (
+              <Image
+                src={URL.createObjectURL(image)}
+                alt={`Property image ${index + 1}`}
+                boxSize="100%"
+                objectFit="cover"
+              />
+            )}
+          </Box>
+        ))}
+      </Grid>
+    );
+  };
 
   return (
     <Box my="5">
-      <Stack gap="5">
-        <Text fontWeight="medium" fontSize="lg">Utility Fees</Text>
-        
-        {/* Electricity */}
+      <Heading size="md" mb="4">Review Property Details</Heading>
+      <Stack gap="4">
+        {/* Basic Information */}
         <Box p="4" borderWidth="1px" borderRadius="md">
-          <Text fontWeight="medium" mb="3">Electricity</Text>
-          <Stack gap="3">
-            <Field.Root invalid={!!errors.utilityFee?.electricity?.type}>
-              <Field.Label>Type</Field.Label>
-              <Controller
-                name="utilityFee.electricity.type"
-                control={control}
-                render={({ field }) => (
-                  <Select.Root
-                    collection={utilityTypes}
-                    size="md"
-                    width="full"
-                    value={field.value ? [field.value] : []}
-                    onValueChange={(details) => field.onChange(details.value[0])}
-                    onBlur={field.onBlur}
-                  >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="Select type" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {utilityTypes.items.map((item) => (
-                            <Select.Item item={item} key={item.value}>
-                              {item.label}
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                )}
-              />
-              <Field.ErrorText>{errors.utilityFee?.electricity?.type?.message}</Field.ErrorText>
-            </Field.Root>
-            <Field.Root invalid={!!errors.utilityFee?.electricity?.amount}>
-              <Field.Label>Amount ($)</Field.Label>
-              <NumberInput.Root defaultValue="0" min={0}>
-                <NumberInput.Control>
-                  <NumberInput.IncrementTrigger />
-                  <NumberInput.DecrementTrigger />
-                </NumberInput.Control>
-                <NumberInput.Input {...register("utilityFee.electricity.amount")} />
-              </NumberInput.Root>
-              <Field.ErrorText>{errors.utilityFee?.electricity?.amount?.message}</Field.ErrorText>
-            </Field.Root>
+          <Heading size="sm" mb="3">Basic Information</Heading>
+          <Stack gap="2">
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Title:</Text>
+              <Text>{formData.title}</Text>
+            </Flex>
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Description:</Text>
+              <Text maxW="70%" textAlign="right">{formData.description}</Text>
+            </Flex>
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Rent Price:</Text>
+              <Text>${formData.baseRentPrice}/month</Text>
+            </Flex>
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Area:</Text>
+              <Text>{formData.area} sqft</Text>
+            </Flex>
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Parking Spaces:</Text>
+              <Text>{formData.parkingSpaces || 0}</Text>
+            </Flex>
+            {formData.yearBuilt && (
+              <Flex justify="space-between">
+                <Text fontWeight="medium">Year Built:</Text>
+                <Text>{formData.yearBuilt}</Text>
+              </Flex>
+            )}
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Pet Allowed:</Text>
+              <Badge colorScheme={formData.petAllowed ? "green" : "red"}>
+                {formData.petAllowed ? "Yes" : "No"}
+              </Badge>
+            </Flex>
+            {formData.availableDate && (
+              <Flex justify="space-between">
+                <Text fontWeight="medium">Available Date:</Text>
+                <Text>{new Date(formData.availableDate).toLocaleDateString()}</Text>
+              </Flex>
+            )}
           </Stack>
         </Box>
 
-        {/* Water */}
+        {/* Property Details */}
         <Box p="4" borderWidth="1px" borderRadius="md">
-          <Text fontWeight="medium" mb="3">Water</Text>
-          <Stack gap="3">
-            <Field.Root invalid={!!errors.utilityFee?.water?.type}>
-              <Field.Label>Type</Field.Label>
-              <Controller
-                name="utilityFee.water.type"
-                control={control}
-                render={({ field }) => (
-                  <Select.Root
-                    collection={utilityTypes}
-                    size="md"
-                    width="full"
-                    value={field.value ? [field.value] : []}
-                    onValueChange={(details) => field.onChange(details.value[0])}
-                    onBlur={field.onBlur}
-                  >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="Select type" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {utilityTypes.items.map((item) => (
-                            <Select.Item item={item} key={item.value}>
-                              {item.label}
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                )}
-              />
-              <Field.ErrorText>{errors.utilityFee?.water?.type?.message}</Field.ErrorText>
-            </Field.Root>
-            <Field.Root invalid={!!errors.utilityFee?.water?.amount}>
-              <Field.Label>Amount ($)</Field.Label>
-              <NumberInput.Root defaultValue="0" min={0}>
-                <NumberInput.Control>
-                  <NumberInput.IncrementTrigger />
-                  <NumberInput.DecrementTrigger />
-                </NumberInput.Control>
-                <NumberInput.Input {...register("utilityFee.water.amount")} />
-              </NumberInput.Root>
-              <Field.ErrorText>{errors.utilityFee?.water?.amount?.message}</Field.ErrorText>
-            </Field.Root>
+          <Heading size="sm" mb="3">Property Details</Heading>
+          <Stack gap="2">
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Bedrooms:</Text>
+              <Text>{formData.beds}</Text>
+            </Flex>
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Bathrooms:</Text>
+              <Text>{formData.baths}</Text>
+            </Flex>
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Property Type:</Text>
+              <Badge colorScheme="blue">{formData.propertyType}</Badge>
+            </Flex>
+            {formData.leaseTermMonths && (
+              <Flex justify="space-between">
+                <Text fontWeight="medium">Lease Term:</Text>
+                <Text>{formData.leaseTermMonths} months</Text>
+              </Flex>
+            )}
           </Stack>
         </Box>
 
-        {/* Internet Utility */}
+        {/* Additional Features */}
+        {(formData.nearTransit || formData.appliances?.length || formData.internet) && (
+          <Box p="4" borderWidth="1px" borderRadius="md">
+            <Heading size="sm" mb="3">Additional Features</Heading>
+            <Stack gap="2">
+              {formData.nearTransit?.type && (
+                <Flex justify="space-between">
+                  <Text fontWeight="medium">Near Transit:</Text>
+                  <Text>{formData.nearTransit.type} ({formData.nearTransit.distance}m)</Text>
+                </Flex>
+              )}
+              {formData.appliances && formData.appliances.length > 0 && (
+                <Flex justify="space-between">
+                  <Text fontWeight="medium">Appliances:</Text>
+                  <Text>{formData.appliances.join(", ")}</Text>
+                </Flex>
+              )}
+              {formData.internet?.name && (
+                <Flex justify="space-between">
+                  <Text fontWeight="medium">Internet:</Text>
+                  <Text>{formData.internet.name} ({formData.internet.speed})</Text>
+                </Flex>
+              )}
+            </Stack>
+          </Box>
+        )}
+
+        {/* Location */}
         <Box p="4" borderWidth="1px" borderRadius="md">
-          <Text fontWeight="medium" mb="3">Internet (Utility)</Text>
-          <Stack gap="3">
-            <Field.Root invalid={!!errors.utilityFee?.internet?.type}>
-              <Field.Label>Type</Field.Label>
-              <Controller
-                name="utilityFee.internet.type"
-                control={control}
-                render={({ field }) => (
-                  <Select.Root
-                    collection={utilityTypes}
-                    size="md"
-                    width="full"
-                    value={field.value ? [field.value] : []}
-                    onValueChange={(details) => field.onChange(details.value[0])}
-                    onBlur={field.onBlur}
-                  >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="Select type" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {utilityTypes.items.map((item) => (
-                            <Select.Item item={item} key={item.value}>
-                              {item.label}
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                )}
-              />
-              <Field.ErrorText>{errors.utilityFee?.internet?.type?.message}</Field.ErrorText>
-            </Field.Root>
-            <Field.Root invalid={!!errors.utilityFee?.internet?.amount}>
-              <Field.Label>Amount ($)</Field.Label>
-              <NumberInput.Root defaultValue="0" min={0}>
-                <NumberInput.Control>
-                  <NumberInput.IncrementTrigger />
-                  <NumberInput.DecrementTrigger />
-                </NumberInput.Control>
-                <NumberInput.Input {...register("utilityFee.internet.amount")} />
-              </NumberInput.Root>
-              <Field.ErrorText>{errors.utilityFee?.internet?.amount?.message}</Field.ErrorText>
-            </Field.Root>
+          <Heading size="sm" mb="3">Location</Heading>
+          <Stack gap="2">
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Coordinates:</Text>
+              <Text fontSize="sm" color="gray.600">
+                {formData.location.coordinates.length === 2 
+                  ? `${formData.location.coordinates[0].toFixed(6)}, ${formData.location.coordinates[1].toFixed(6)}`
+                  : 'Not set'
+                }
+              </Text>
+            </Flex>
+            <Flex justify="space-between">
+              <Text fontWeight="medium">Address:</Text>
+              <Text maxW="70%" textAlign="right" fontSize="sm">
+                {address || 'Loading address...'}
+              </Text>
+            </Flex>
           </Stack>
         </Box>
 
-        {/* Trash Collection */}
+        {/* Images */}
         <Box p="4" borderWidth="1px" borderRadius="md">
-          <Text fontWeight="medium" mb="3">Trash Collection</Text>
-          <Stack gap="3">
-            <Field.Root invalid={!!errors.utilityFee?.trashCollection?.type}>
-              <Field.Label>Type</Field.Label>
-              <Controller
-                name="utilityFee.trashCollection.type"
-                control={control}
-                render={({ field }) => (
-                  <Select.Root
-                    collection={utilityTypes}
-                    size="md"
-                    width="full"
-                    value={field.value ? [field.value] : []}
-                    onValueChange={(details) => field.onChange(details.value[0])}
-                    onBlur={field.onBlur}
-                  >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="Select type" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {utilityTypes.items.map((item) => (
-                            <Select.Item item={item} key={item.value}>
-                              {item.label}
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                )}
-              />
-              <Field.ErrorText>{errors.utilityFee?.trashCollection?.type?.message}</Field.ErrorText>
-            </Field.Root>
-            <Field.Root invalid={!!errors.utilityFee?.trashCollection?.amount}>
-              <Field.Label>Amount ($)</Field.Label>
-              <NumberInput.Root defaultValue="0" min={0}>
-                <NumberInput.Control>
-                  <NumberInput.IncrementTrigger />
-                  <NumberInput.DecrementTrigger />
-                </NumberInput.Control>
-                <NumberInput.Input {...register("utilityFee.trashCollection.amount")} />
-              </NumberInput.Root>
-              <Field.ErrorText>{errors.utilityFee?.trashCollection?.amount?.message}</Field.ErrorText>
-            </Field.Root>
-          </Stack>
+          <Heading size="sm" mb="3">Property Images</Heading>
+          {renderImagePreview(formData.images || [])}
+          {formData.existingImages && formData.existingImages.length > 0 && (
+            <>
+              <Separator my="2" />
+              <Text fontSize="sm" fontWeight="medium" mb="2">Existing Images:</Text>
+              {renderImagePreview(formData.existingImages)}
+            </>
+          )}
+        </Box>
+
+        {/* Submit Notice */}
+        <Box p="4" bg="blue.50" borderRadius="md">
+          <Text fontSize="sm" color="blue.800">
+            Please review all the information above. Click "Create Property" to submit your listing.
+          </Text>
         </Box>
       </Stack>
     </Box>

@@ -9,8 +9,6 @@ export interface IPropertyFormSlice {
   resetStep: () => void;
 }
 
-type UtilityType = "INCLUDED" | "FIXED" | "METERED";
-
 export interface IProperty {
   _id: string;
   title: string;
@@ -32,12 +30,6 @@ export interface IProperty {
   availableDate: string;
   internet?: { name: string; speed: string };
   leaseTermMonths: number;
-  utilityFee: {
-    electricity: { type: UtilityType; amount?: number };
-    water: { type: UtilityType; amount?: number };
-    internet?: { type: UtilityType; amount?: number };
-    trashCollection?: { type: UtilityType; amount?: number };
-  };
   user: IUser;
   createdAt: Date;
   updatedAt: Date;

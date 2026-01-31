@@ -3,7 +3,7 @@ import type { IPropertyFormSlice } from "../types"
 
 export const createPropertyFormSlice: StoreSlice<IPropertyFormSlice> = (set) => ({
   currentStep: 0,
-  totalSteps: 4,
+  totalSteps: 3,
 
   nextStep: () =>
     set((state) => ({

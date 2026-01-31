@@ -53,41 +53,7 @@ const propertySchema = new Schema<IProperty>(
     appliances: [String],
     availableDate: Date,
     internet: { name: String, speed: String },
-    leaseTermMonths: Number,
-    utilityFee: {
-      electricity: {
-        type: {
-          type: String,
-          enum: ["INCLUDED", "FIXED", "METERED"],
-          required: true,
-        },
-        amount: { type: Number },
-      },
-      water: {
-        type: {
-          type: String,
-          enum: ["INCLUDED", "FIXED", "METERED"],
-          required: true,
-        },
-        amount: { type: Number },
-      },
-      internet: {
-        type: {
-          type: String,
-          enum: ["INCLUDED", "FIXED", "METERED"],
-          required: true,
-        },
-        amount: { type: Number },
-      },
-      trashCollection: {
-        type: {
-          type: String,
-          enum: ["INCLUDED", "FIXED", "METERED"],
-          required: true,
-        },
-        amount: { type: Number },
-      },
-    },
+    leaseTermMonths: Number
   },
   {
     timestamps: true,

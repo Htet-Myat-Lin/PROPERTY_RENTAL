@@ -16,7 +16,7 @@ export const getLandlordProperties = asyncHandler(async (req, res, next) => {
   if (req.query.limit) filters.limit = Number(req.query.limit);
   if (req.query.status) filters.status = req.query.status as string;
 
-  const {properties, totalPages} = await PropertyService.getPropertiesByLandlord(
+  const {properties, totalPages, totalCount} = await PropertyService.getPropertiesByLandlord(
     userId as unknown as string, filters
   );
   res
@@ -25,7 +25,8 @@ export const getLandlordProperties = asyncHandler(async (req, res, next) => {
       success: true,
       message: "Properties fetched successfully",
       properties,
-      totalPages
+      totalPages,
+      totalCount
     });
 });
 
@@ -60,9 +61,6 @@ export const createProperty = async (
     }
     if (typeof req.body.appliances === "string") {
       req.body.appliances = JSON.parse(req.body.appliances);
-    }
-    if (typeof req.body.utilityFee === "string") {
-      req.body.utilityFee = JSON.parse(req.body.utilityFee);
     }
 
     const images = files?.map((file) => file.filename);
