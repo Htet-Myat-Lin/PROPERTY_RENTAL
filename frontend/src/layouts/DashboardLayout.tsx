@@ -79,7 +79,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         borderRight="1px solid"
         borderColor="border"
       >
-        <VStack h="full" p="4" align="stretch" gap="4">
+        <VStack h="full" p="6" align="stretch" gap="4">
 
           <VStack align="stretch" gap={1} flex="1">
             {navLinks.map((link) => (

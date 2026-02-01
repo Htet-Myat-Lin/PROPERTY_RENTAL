@@ -260,8 +260,8 @@ export function PropertyList() {
           {totalPages > 1 && (
             <Pagination.Root count={totalCount} pageSize={PAGE_LIMIT} defaultPage={page}>
               <ButtonGroup attached variant="outline" size="sm">
-                <Pagination.PrevTrigger asChild>
-                  <IconButton>
+                <Pagination.PrevTrigger>
+                  <IconButton onClick={() => handlePageChange(Math.max(1, page - 1))}>
                     <MdChevronLeft />
                   </IconButton>
                 </Pagination.PrevTrigger>
@@ -272,14 +272,15 @@ export function PropertyList() {
                       onClick={() => handlePageChange(page.value)}
                       variant={{ base: "outline", _selected: "solid" }}
                       zIndex={{ _selected: "1" }}
+                      colorPalette={{ base: "gray", _selected: "blue" }}
                     >
                       {page.value}
                     </IconButton>
                   )}
                 />
 
-                <Pagination.NextTrigger asChild>
-                  <IconButton>
+                <Pagination.NextTrigger>
+                  <IconButton onClick={() => handlePageChange(Math.min(totalPages, page + 1))}>
                     <MdChevronRight />
                   </IconButton>
                 </Pagination.NextTrigger>
