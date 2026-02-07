@@ -30,13 +30,6 @@ export function PropertyDetailDialog({ property }: { property: IProperty }) {
     );
   };
 
-  const formatUtilityFee = (utility: { type: string; amount?: number } | undefined) => {
-    if (!utility) return "Not specified";
-    if (utility.type === "INCLUDED") return "Included";
-    if (utility.amount) return `${utility.type} - $${utility.amount}`;
-    return utility.type;
-  };
-
   return (
     <Box my="5" maxH="80vh" overflowY="auto">
       <Heading size="lg" mb="4">{property.title}</Heading>
@@ -179,39 +172,6 @@ export function PropertyDetailDialog({ property }: { property: IProperty }) {
                   <Text>
                     {property.internet.name} ({property.internet.speed})
                   </Text>
-                </Flex>
-              )}
-            </Stack>
-          </Box>
-        )}
-
-        {/* Utility Fees */}
-        {property.utilityFee && (
-          <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
-            <Heading size="sm" mb="3">Utility Fees</Heading>
-            <Stack gap="2">
-              {property.utilityFee.electricity && (
-                <Flex justify="space-between">
-                  <Text fontWeight="medium">Electricity:</Text>
-                  <Text>{formatUtilityFee(property.utilityFee.electricity)}</Text>
-                </Flex>
-              )}
-              {property.utilityFee.water && (
-                <Flex justify="space-between">
-                  <Text fontWeight="medium">Water:</Text>
-                  <Text>{formatUtilityFee(property.utilityFee.water)}</Text>
-                </Flex>
-              )}
-              {property.utilityFee.internet && (
-                <Flex justify="space-between">
-                  <Text fontWeight="medium">Internet (Utility):</Text>
-                  <Text>{formatUtilityFee(property.utilityFee.internet)}</Text>
-                </Flex>
-              )}
-              {property.utilityFee.trashCollection && (
-                <Flex justify="space-between">
-                  <Text fontWeight="medium">Trash Collection:</Text>
-                  <Text>{formatUtilityFee(property.utilityFee.trashCollection)}</Text>
                 </Flex>
               )}
             </Stack>
