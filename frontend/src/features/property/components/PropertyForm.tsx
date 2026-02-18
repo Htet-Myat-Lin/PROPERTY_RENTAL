@@ -1,5 +1,5 @@
 import { useAppStore } from "@/app/store";
-import { Box, Button, ButtonGroup, Flex, Spinner, Steps, CloseButton, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Spinner, Steps, CloseButton, Text, VStack, HStack } from "@chakra-ui/react";
 import {
   FormProvider,
   useForm,
@@ -18,8 +18,15 @@ import { toast } from "react-toastify";
 import type { IProperty } from "../types";
 import { useEditProperty } from "../hooks/useEditProperty";
 import axios from "axios";
+import { LuHouse, LuMapPin, LuCircleCheck } from "react-icons/lu";
 
-export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: boolean)=>void, propertyToEdit: IProperty | null }) {
+const stepLabels = [
+  { icon: LuHouse, label: "Basic Info" },
+  { icon: LuMapPin, label: "Location & Media" },
+  { icon: LuCircleCheck, label: "Review" },
+];
+
+export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boolean)=>void, propertyToEdit: IProperty | null }) {
   const { currentStep, totalSteps, nextStep, prevStep, resetStep } =
     useAppStore(
       useShallow((state) => ({
@@ -33,7 +40,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
 
   const methods = useForm<PropertyFormValues>({
     resolver: zodResolver(propertyFormSchema) as Resolver<PropertyFormValues>,
-    mode: "onChange", // Validate on change so errors clear when fields become valid
+    mode: "onChange",
     defaultValues: {
       title: "",
       description: "",
@@ -67,7 +74,6 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
 
   const { handleSubmit, trigger, reset, watch, formState: {isDirty} } = methods;
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const address = watch("location.address")
 
   const {
@@ -86,11 +92,12 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
 
   const apiResponseError = createError || editError
 
+  const isLoading = isCreating || isEditing;
+
   const onSubmit = async (data: PropertyFormValues) => {
     console.log("Form submitted with data:", data);
     const formData = new FormData();
 
-    // Add all form fields
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("baseRentPrice", data.baseRentPrice.toString());
@@ -126,15 +133,12 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
       formData.append("internet", JSON.stringify(data.internet));
     }
 
-    // Add location data
     formData.append("location", JSON.stringify(data.location));
 
-    // Add existing images if any
     if (data.existingImages && data.existingImages.length > 0) {
       formData.append("existingImages", JSON.stringify(data.existingImages));
     }
 
-    // Add new images
     if (data.images && data.images.length > 0) {
       data.images.forEach((image: File) => {
         formData.append("propertyImages", image);
@@ -190,7 +194,6 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
     }
   }, [isCreateSuccess, reset, resetStep, setOpen, isEditingSuccess]);
 
-  // Initialize data for edit
   useEffect(() => {
     if(propertyToEdit){
       reset({
@@ -217,88 +220,161 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (opoen: bool
 
   return (
     <Box gap="6">
-      <Flex justify="end" mb="2"><CloseButton onClick={closeModal} /></Flex>
-      <Steps.Root step={currentStep} count={totalSteps} colorPalette="blue">
-        <Steps.List>
-          {Array.from({ length: totalSteps }).map((_, index) => (
-            <Steps.Item key={index} index={index}>
-              <Steps.Indicator />
-              <Steps.Separator />
-            </Steps.Item>
-          ))}
-        </Steps.List>
+      {/* Header */}
+      <Flex justify="space-between" align="center" mb={4}>
+        <VStack gap={0} align="start">
+          <Text fontWeight="bold" fontSize="lg" color="fg">
+            {propertyToEdit ? "Edit Property" : "Add New Property"}
+          </Text>
+          <Text fontSize="sm" color="fg.muted">
+            {propertyToEdit ? "Update your property details" : "Fill in the details to list your property"}
+          </Text>
+        </VStack>
+        <CloseButton onClick={closeModal} borderRadius="lg" />
+      </Flex>
 
-        {/* Main Form Content Here */}
-        <FormProvider {...methods}>
-            <form
-            onSubmit={handleSubmit(
-              onSubmit,
-              (errors) => {
-                console.error("Form validation errors:", errors);
-                toast.error("Please fix the form errors before submitting");
-                // Scroll to first error
-                const firstError = Object.keys(errors)[0];
-                if (firstError) {
-                  const element = document.querySelector(`[name="${firstError}"]`);
-                  if (element) {
-                    element.scrollIntoView({ behavior: "smooth", block: "center" });
-                  }
+      {/* Step Indicators with Labels */}
+      <Box mb={6}>
+        <Steps.Root step={currentStep} count={totalSteps} colorPalette="blue">
+          <Steps.List justifyContent="center">
+            {Array.from({ length: totalSteps }).map((_, index) => (
+              <Steps.Item key={index} index={index}>
+                <Flex direction="column" align="center" gap={1}>
+                  <Steps.Indicator 
+                    borderRadius="full"
+                    _current={{
+                      bg: "blue.500",
+                      color: "white",
+                    }}
+                  />
+                  <Steps.Title 
+                    fontSize="xs" 
+                    fontWeight={index === currentStep ? "semibold" : "normal"}
+                    color={index === currentStep ? "blue.500" : "fg.muted"}
+                    display={{ base: "none", md: "block" }}
+                  >
+                    {stepLabels[index]?.label}
+                  </Steps.Title>
+                </Flex>
+                <Steps.Separator 
+                  h="2px" 
+                  bg={index < currentStep ? "blue.500" : "border"} 
+                  mx={1}
+                />
+              </Steps.Item>
+            ))}
+          </Steps.List>
+        </Steps.Root>
+      </Box>
+
+      {/* Main Form Content */}
+      <FormProvider {...methods}>
+        <form
+          onSubmit={handleSubmit(
+            onSubmit,
+            (errors) => {
+              console.error("Form validation errors:", errors);
+              toast.error("Please fix the form errors before submitting");
+              const firstError = Object.keys(errors)[0];
+              if (firstError) {
+                const element = document.querySelector(`[name="${firstError}"]`);
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
               }
-            )}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && currentStep !== totalSteps - 1) {
-                e.preventDefault();
-              }
-            }}
-          >
-            {/* API RESPONSE ERROR */}
-            {apiResponseError && (
-              <Text alignSelf="flex-start" fontSize="xs" color="red.500">
+            }
+          )}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && currentStep !== totalSteps - 1) {
+              e.preventDefault();
+            }
+          }}
+        >
+          {/* API Response Error */}
+          {apiResponseError && (
+            <Box 
+              mb={4} 
+              p={3} 
+              bg="red.50" 
+              _dark={{ bg: "red.950" }}
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="red.200"
+            >
+              <Text fontSize="sm" color="red.600" _dark={{ color: "red.300" }}>
                 {axios.isAxiosError(apiResponseError)
                   ? apiResponseError?.response?.data?.message
                   : "Internal Server Error"}
               </Text>
-            )}
+            </Box>
+          )}
 
-            {currentStep === 0 && <StepOne />}
-            {currentStep === 1 && <StepTwo />}
-            {currentStep === 2 && <StepThree />}
+          {currentStep === 0 && <StepOne />}
+          {currentStep === 1 && <StepTwo />}
+          {currentStep === 2 && <StepThree />}
 
-            <ButtonGroup
-              size="sm"
-              variant="outline"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
+          {/* Navigation Buttons */}
+          <Flex 
+            mt={6} 
+            justify="space-between" 
+            align="center"
+            pt={4}
+            borderTop="1px solid"
+            borderColor="border.muted"
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={prevStep}
+              disabled={currentStep === 0}
+              borderRadius="lg"
+              visibility={currentStep === 0 ? "hidden" : "visible"}
             >
+              ← Previous
+            </Button>
+
+            <HStack gap={2}>
               <Button
                 type="button"
-                disabled={currentStep === 0}
-                onClick={prevStep}
-                colorPalette="blue"
-                variant="surface"
+                variant="outline"
+                onClick={closeModal}
+                borderRadius="lg"
               >
-                Prev
+                Cancel
               </Button>
+              
               {currentStep === totalSteps - 1 ? (
-                <Button disabled={isCreating || isEditing || !address} type="submit" colorPalette="blue" variant="solid">
-                  {isCreating || isEditing ? <Spinner /> : propertyToEdit ? "Edit Property" : "Create Property"}
+                <Button
+                  disabled={isLoading || !address}
+                  type="submit"
+                  colorPalette="blue"
+                  borderRadius="lg"
+                  px={6}
+                >
+                  {isLoading ? (
+                    <Spinner size="sm" />
+                  ) : propertyToEdit ? (
+                    "Save Changes"
+                  ) : (
+                    "Create Property"
+                  )}
                 </Button>
               ) : (
                 <Button
                   type="button"
                   onClick={handleNext}
                   colorPalette="blue"
-                  variant="surface"
+                  variant="solid"
+                  borderRadius="lg"
+                  px={6}
                 >
-                  Next
+                  Next →
                 </Button>
               )}
-            </ButtonGroup>
-          </form>
-        </FormProvider>
-      </Steps.Root>
+            </HStack>
+          </Flex>
+        </form>
+      </FormProvider>
     </Box>
   );
 }

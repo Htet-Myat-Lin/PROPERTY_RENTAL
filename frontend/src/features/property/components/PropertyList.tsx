@@ -1,10 +1,12 @@
 import {
+  Box,
   Button,
   ButtonGroup,
   Center,
   Dialog,
   Flex,
   HStack,
+  Icon,
   IconButton,
   Input,
   Menu,
@@ -14,10 +16,12 @@ import {
   Stack,
   Text,
   VStack,
+  Badge,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import { HiSortAscending } from "react-icons/hi";
+import { LuFilter, LuX, LuChrome } from "react-icons/lu";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { useSearchParams } from "react-router";
 import { PropertyForm } from "./PropertyForm";
@@ -74,7 +78,7 @@ export function PropertyList() {
     setPropertyToEdit(property);
   };
 
-  // 2. Filter Object for API Req
+  // Filter Object for API Req
   const filters: PropertyFilters = {
     page,
     limit: PAGE_LIMIT,
@@ -83,7 +87,7 @@ export function PropertyList() {
     search: searchValue,
   };
 
-  // 3. Helper to update URL params
+  // Helper to update URL params
   const updateParams = (key: string, value: string) => {
     setSearchParams((prev) => {
       if (value) {
@@ -120,177 +124,334 @@ export function PropertyList() {
   const totalPages = data?.totalPages || 0;
   const totalCount = data?.totalCount || 0;
 
+  const hasActiveFilters = statusValue || sortValue || searchValue;
+
   return (
     <Stack gap="6">
-      {/* --- HEADER SECTION --- */}
+      {/* ─── Page Header ─── */}
       <Flex
         alignItems={{ base: "start", md: "center" }}
         justify="space-between"
         gap="4"
         direction={{ base: "column", md: "row" }}
       >
-        <Text fontSize="lg" fontWeight="semibold">
-          Properties
-        </Text>
+        <Box>
+          <HStack gap={2} mb={1}>
+            <Icon as={LuChrome} boxSize={6} color="blue.500" />
+            <Text fontSize="xl" fontWeight="bold" color="fg">
+              Properties
+            </Text>
+          </HStack>
+          <Text fontSize="sm" color="fg.muted">
+            Manage and monitor all your property listings
+          </Text>
+        </Box>
 
-        <HStack wrap="wrap" gap="2">
+        <Button
+          onClick={openCreateModal}
+          colorPalette="blue"
+          variant="solid"
+          size="sm"
+          borderRadius="lg"
+          px={5}
+        >
+          <FaPlus /> Add Property
+        </Button>
+      </Flex>
+
+      {/* ─── Filters & Search Bar ─── */}
+      <Box
+        bg="bg.panel"
+        borderRadius="xl"
+        border="1px solid"
+        borderColor="border.muted"
+        p={4}
+      >
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          gap={3}
+          align={{ base: "stretch", md: "center" }}
+          justify="space-between"
+        >
           {/* Search Input */}
-          <HStack gap="0" mr="2">
+          <HStack gap="0" flex={1} maxW={{ md: "320px" }}>
             <Input
-              placeholder="Search..."
+              placeholder="Search properties..."
               size="sm"
-              maxW="200px"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
               borderRightRadius="0"
+              borderRadius="lg"
+              bg="bg.subtle"
+              _dark={{ bg: "whiteAlpha.50" }}
             />
             <IconButton
               aria-label="Search"
               size="sm"
               onClick={handleSearchSubmit}
               borderLeftRadius="0"
-              variant="surface"
-              colorPalette="gray"
+              borderRightRadius="lg"
+              variant="solid"
+              colorPalette="blue"
             >
               <FaSearch />
             </IconButton>
           </HStack>
 
-          {/* Filter by Status */}
-          <Menu.Root>
-            <Menu.Trigger asChild>
-              <Button colorPalette="blue" variant="surface" size="sm">
-                <HiSortAscending />{" "}
-                {statusValue
-                  ? statuses.find((s) => s.value === statusValue)?.label
-                  : "Status"}
+          {/* Filter Controls */}
+          <HStack wrap="wrap" gap="2">
+            {/* Filter by Status */}
+            <Menu.Root>
+              <Menu.Trigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  borderRadius="lg"
+                  gap={2}
+                >
+                  <Icon as={LuFilter} boxSize={4} />
+                  {statusValue
+                    ? statuses.find((s) => s.value === statusValue)?.label
+                    : "Status"}
+                </Button>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content minW="10rem" bg="bg.panel" borderRadius="lg">
+                    <Menu.RadioItemGroup
+                      value={statusValue}
+                      onValueChange={(e) => updateParams("status", e.value)}
+                    >
+                      {statuses.map((item) => (
+                        <Menu.RadioItem key={item.value} value={item.value}>
+                          {item.label}
+                          <Menu.ItemIndicator />
+                        </Menu.RadioItem>
+                      ))}
+                    </Menu.RadioItemGroup>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
+
+            {/* Sorting Menu */}
+            <Menu.Root>
+              <Menu.Trigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  borderRadius="lg"
+                  gap={2}
+                >
+                  <HiSortAscending /> Sort
+                </Button>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content minW="10rem" bg="bg.panel" borderRadius="lg">
+                    <Menu.RadioItemGroup
+                      value={sortValue}
+                      onValueChange={(e) => updateParams("sortBy", e.value)}
+                    >
+                      {sortValues.map((item) => (
+                        <Menu.RadioItem key={item.value} value={item.value}>
+                          {item.label}
+                          <Menu.ItemIndicator />
+                        </Menu.RadioItem>
+                      ))}
+                    </Menu.RadioItemGroup>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
+
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                borderRadius="lg"
+                color="fg.muted"
+                onClick={resetFilter}
+                gap={1}
+              >
+                <Icon as={LuX} boxSize={4} />
+                Clear
               </Button>
-            </Menu.Trigger>
-            <Portal>
-              <Menu.Positioner>
-                <Menu.Content minW="10rem" bg="bg.panel">
-                  <Menu.RadioItemGroup
-                    value={statusValue}
-                    onValueChange={(e) => updateParams("status", e.value)}
-                  >
-                    {statuses.map((item) => (
-                      <Menu.RadioItem key={item.value} value={item.value}>
-                        {item.label}
-                        <Menu.ItemIndicator />
-                      </Menu.RadioItem>
-                    ))}
-                  </Menu.RadioItemGroup>
-                </Menu.Content>
-              </Menu.Positioner>
-            </Portal>
-          </Menu.Root>
+            )}
+          </HStack>
+        </Flex>
 
-          {/* Sorting Menu */}
-          <Menu.Root>
-            <Menu.Trigger asChild>
-              <Button colorPalette="blue" variant="surface" size="sm">
-                <HiSortAscending /> Sort
-              </Button>
-            </Menu.Trigger>
-            <Portal>
-              <Menu.Positioner>
-                <Menu.Content minW="10rem" bg="bg.panel">
-                  <Menu.RadioItemGroup
-                    value={sortValue}
-                    onValueChange={(e) => updateParams("sortBy", e.value)}
-                  >
-                    {sortValues.map((item) => (
-                      <Menu.RadioItem key={item.value} value={item.value}>
-                        {item.label}
-                        <Menu.ItemIndicator />
-                      </Menu.RadioItem>
-                    ))}
-                  </Menu.RadioItemGroup>
-                </Menu.Content>
-              </Menu.Positioner>
-            </Portal>
-          </Menu.Root>
+        {/* Active filter badges */}
+        {hasActiveFilters && (
+          <HStack mt={3} gap={2} flexWrap="wrap">
+            {searchValue && (
+              <Badge
+                variant="subtle"
+                colorPalette="blue"
+                borderRadius="full"
+                px={3}
+                py={1}
+              >
+                Search: {searchValue}
+              </Badge>
+            )}
+            {statusValue && (
+              <Badge
+                variant="subtle"
+                colorPalette="green"
+                borderRadius="full"
+                px={3}
+                py={1}
+              >
+                Status: {statuses.find((s) => s.value === statusValue)?.label}
+              </Badge>
+            )}
+            {sortValue && (
+              <Badge
+                variant="subtle"
+                colorPalette="purple"
+                borderRadius="full"
+                px={3}
+                py={1}
+              >
+                Sort: {sortValues.find((s) => s.value === sortValue)?.label}
+              </Badge>
+            )}
+          </HStack>
+        )}
+      </Box>
 
-          {/* Add New Property Button */}
-          <Button
-            onClick={openCreateModal}
-            colorPalette="blue"
-            variant="solid"
-            size="sm"
-          >
-            <FaPlus /> New
-          </Button>
-        </HStack>
-      </Flex>
-
-      {/* --- CONTENT SECTION --- */}
+      {/* ─── Content Section ─── */}
       {isPending ? (
         <Center minH="40vh">
-          <VStack colorPalette="teal">
-            <Spinner color="colorPalette.600" size="xl" />
-            <Text color="colorPalette.600">Loading properties...</Text>
+          <VStack gap={4}>
+            <Spinner color="blue.500" size="xl" borderWidth="3px" />
+            <Text color="fg.muted" fontSize="sm">
+              Loading properties...
+            </Text>
           </VStack>
         </Center>
       ) : (
         <>
           {properties.length === 0 ? (
             <Center
-              minH="20vh"
-              borderWidth="1px"
+              minH="30vh"
+              borderWidth="2px"
               borderStyle="dashed"
-              borderRadius="md"
-              gap="2"
+              borderColor="border.muted"
+              borderRadius="xl"
+              flexDirection="column"
+              gap="4"
+              p={8}
             >
-              <Text color="fg.muted">No properties found.</Text>
-              {searchParams.size > 0 && (
-                <Button size="xs" onClick={resetFilter}>
-                  Reset Filter
+              <Box
+                w="60px"
+                h="60px"
+                borderRadius="full"
+                bg="blue.50"
+                _dark={{ bg: "blue.950" }}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon as={LuChrome} boxSize={7} color="blue.500" />
+              </Box>
+              <VStack gap={1}>
+                <Text fontWeight="semibold" color="fg">
+                  No properties found
+                </Text>
+                <Text color="fg.muted" fontSize="sm" textAlign="center">
+                  {searchParams.size > 0
+                    ? "Try adjusting your filters or search terms"
+                    : "Get started by adding your first property"}
+                </Text>
+              </VStack>
+              {searchParams.size > 0 ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  borderRadius="lg"
+                  onClick={resetFilter}
+                >
+                  Reset Filters
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  colorPalette="blue"
+                  borderRadius="lg"
+                  onClick={openCreateModal}
+                >
+                  <FaPlus /> Add Property
                 </Button>
               )}
             </Center>
           ) : (
-            <PropertyTableList
-              items={properties}
-              openEditModal={openEditModal}
-            />
+            <Box
+              bg="bg.panel"
+              borderRadius="xl"
+              border="1px solid"
+              borderColor="border.muted"
+              overflow="hidden"
+            >
+              <PropertyTableList
+                items={properties}
+                openEditModal={openEditModal}
+              />
+            </Box>
           )}
 
-          {/* --- PAGINATION SECTION --- */}
+          {/* ─── Pagination ─── */}
           {totalPages > 1 && (
-            <Pagination.Root count={totalCount} pageSize={PAGE_LIMIT} defaultPage={page}>
-              <ButtonGroup attached variant="outline" size="sm">
-                <Pagination.PrevTrigger>
-                  <IconButton onClick={() => handlePageChange(Math.max(1, page - 1))}>
-                    <MdChevronLeft />
-                  </IconButton>
-                </Pagination.PrevTrigger>
-
-                <Pagination.Items
-                  render={(page) => (
+            <Flex justify="center" pt={2}>
+              <Pagination.Root
+                count={totalCount}
+                pageSize={PAGE_LIMIT}
+                defaultPage={page}
+              >
+                <ButtonGroup attached variant="outline" size="sm">
+                  <Pagination.PrevTrigger>
                     <IconButton
-                      onClick={() => handlePageChange(page.value)}
-                      variant={{ base: "outline", _selected: "solid" }}
-                      zIndex={{ _selected: "1" }}
-                      colorPalette={{ base: "gray", _selected: "blue" }}
+                      onClick={() => handlePageChange(Math.max(1, page - 1))}
+                      borderRadius="lg"
                     >
-                      {page.value}
+                      <MdChevronLeft />
                     </IconButton>
-                  )}
-                />
+                  </Pagination.PrevTrigger>
 
-                <Pagination.NextTrigger>
-                  <IconButton onClick={() => handlePageChange(Math.min(totalPages, page + 1))}>
-                    <MdChevronRight />
-                  </IconButton>
-                </Pagination.NextTrigger>
-              </ButtonGroup>
-            </Pagination.Root>
+                  <Pagination.Items
+                    render={(page) => (
+                      <IconButton
+                        onClick={() => handlePageChange(page.value)}
+                        variant={{ base: "outline", _selected: "solid" }}
+                        zIndex={{ _selected: "1" }}
+                        colorPalette={{ base: "gray", _selected: "blue" }}
+                      >
+                        {page.value}
+                      </IconButton>
+                    )}
+                  />
+
+                  <Pagination.NextTrigger>
+                    <IconButton
+                      onClick={() =>
+                        handlePageChange(Math.min(totalPages, page + 1))
+                      }
+                      borderRadius="lg"
+                    >
+                      <MdChevronRight />
+                    </IconButton>
+                  </Pagination.NextTrigger>
+                </ButtonGroup>
+              </Pagination.Root>
+            </Flex>
           )}
         </>
       )}
 
-      {/* --- MODALS --- */}
+      {/* ─── Property Form Modal ─── */}
       <Dialog.Root
         placement="center"
         size="lg"
@@ -302,9 +463,8 @@ export function PropertyList() {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content>
-              <Dialog.Body bg="bg.panel" shadow="lg" borderRadius="lg" p="6">
-                {/* Property Form Modal */}
+            <Dialog.Content borderRadius="xl">
+              <Dialog.Body bg="bg.panel" shadow="lg" borderRadius="xl" p="6">
                 <PropertyForm
                   setOpen={setOpen}
                   propertyToEdit={propertyToEdit}

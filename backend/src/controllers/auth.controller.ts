@@ -13,7 +13,7 @@ const register = asyncHandler(async (req, res, next) => {
   newUser.refreshToken = refreshToken;
   await newUser.save({ validateBeforeSave: false });
 
-  sendEmailVerifyOTP(newUser)
+  await sendEmailVerifyOTP(newUser)
 
   res.cookie("token", refreshToken, {
     httpOnly: true,

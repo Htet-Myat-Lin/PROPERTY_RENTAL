@@ -1,13 +1,15 @@
 import {
   Table,
   HStack,
-  Icon,
   Dialog,
   Portal,
   Button,
   CloseButton,
   Checkbox,
   ActionBar,
+  Badge,
+  Text,
+  IconButton,
 } from "@chakra-ui/react";
 import type { IProperty } from "../types";
 import { formateDate } from "@/utils/format-date";
@@ -20,6 +22,13 @@ import { useDeleteProperties } from "../hooks/useDeleteProperties";
 type Props = {
   items: IProperty[];
   openEditModal: (property: IProperty) => void;
+};
+
+/* ─── Status Badge Color Map ─── */
+const statusColorMap: Record<string, string> = {
+  AVAILABLE: "green",
+  RENTED: "blue",
+  RESERVED: "orange",
 };
 
 export function PropertyTableList({ items, openEditModal }: Props) {
@@ -48,7 +57,7 @@ export function PropertyTableList({ items, openEditModal }: Props) {
 
   const isChecked = useCallback(
     (id: string) => selectedIds.has(id),
-    [selectedIds],
+    [selectedIds]
   );
 
   const openActionBar = selectedIds.size > 1;
@@ -61,20 +70,14 @@ export function PropertyTableList({ items, openEditModal }: Props) {
   };
   const handleBulkDelete = () => {
     deleteProperties(Array.from(selectedIds));
-    setSelectedIds(new Set<string>())
+    setSelectedIds(new Set<string>());
   };
 
   return (
-    <Table.Root
-      size="sm"
-      variant="outline"
-      showColumnBorder
-      borderRadius="sm"
-      shadow="md"
-    >
+    <Table.Root size="sm" variant="outline" showColumnBorder>
       <Table.Header>
-        <Table.Row>
-          <Table.ColumnHeader textAlign="center">
+        <Table.Row bg="bg.subtle" _dark={{ bg: "whiteAlpha.50" }}>
+          <Table.ColumnHeader w="40px" textAlign="center">
             <Checkbox.Root
               display={selectedIds.size > 0 ? "block" : "none"}
               variant="solid"
@@ -87,19 +90,39 @@ export function PropertyTableList({ items, openEditModal }: Props) {
               <Checkbox.Control />
             </Checkbox.Root>
           </Table.ColumnHeader>
-          <Table.ColumnHeader>Title</Table.ColumnHeader>
-          <Table.ColumnHeader>Rent Fee</Table.ColumnHeader>
-          <Table.ColumnHeader>Type</Table.ColumnHeader>
-          <Table.ColumnHeader>Beds / Baths</Table.ColumnHeader>
-          <Table.ColumnHeader>Address</Table.ColumnHeader>
-          <Table.ColumnHeader>Updated</Table.ColumnHeader>
-          <Table.ColumnHeader>Status</Table.ColumnHeader>
-          <Table.ColumnHeader>Actions</Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted">
+            Title
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted">
+            Rent Fee
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted">
+            Type
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted">
+            Beds / Baths
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted">
+            Address
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted">
+            Updated
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted">
+            Status
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="xs" textTransform="uppercase" letterSpacing="wider" color="fg.muted" textAlign="center">
+            Actions
+          </Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {items.map((item) => (
-          <Table.Row key={item._id}>
+          <Table.Row
+            key={item._id}
+            transition="background 0.15s"
+            _hover={{ bg: "bg.subtle", _dark: { bg: "whiteAlpha.50" } }}
+          >
             <Table.Cell textAlign="center">
               <Checkbox.Root
                 variant="solid"
@@ -112,77 +135,132 @@ export function PropertyTableList({ items, openEditModal }: Props) {
                 <Checkbox.Control />
               </Checkbox.Root>
             </Table.Cell>
-            <Table.Cell>{item.title}</Table.Cell>
-            <Table.Cell>{item.baseRentPrice}</Table.Cell>
-            <Table.Cell>{item.propertyType}</Table.Cell>
-            <Table.Cell>{`${item.beds} / ${item.baths}`}</Table.Cell>
-            <Table.Cell>{item.location.address}</Table.Cell>
-            <Table.Cell>{formateDate(item.updatedAt)}</Table.Cell>
-            <Table.Cell>{item.status}</Table.Cell>
             <Table.Cell>
-              <HStack>
-                {/* Delete Icon */}
-                <Icon color="red" size="sm">
-                  {/* Delete Confirm Dialog */}
-                  <Dialog.Root role="alertdialog">
-                    <Dialog.Trigger asChild>
-                      <Icon color="red" size="sm">
-                        <FiTrash2 />
-                      </Icon>
-                    </Dialog.Trigger>
-                    <Portal>
-                      <Dialog.Backdrop />
-                      <Dialog.Positioner>
-                        <Dialog.Content>
-                          <Dialog.Header>
-                            <Dialog.Title>Are you sure to delete?</Dialog.Title>
-                          </Dialog.Header>
-                          <Dialog.Body>
-                            <p>
-                              This action cannot be undone. This will
-                              permanently delete your property listing and
-                              remove your data from our systems.
-                            </p>
-                          </Dialog.Body>
-                          <Dialog.Footer>
-                            <Dialog.ActionTrigger asChild>
-                              <Button variant="outline">Cancel</Button>
-                            </Dialog.ActionTrigger>
-                            <Button
-                              colorPalette="red"
-                              onClick={() => handleDelete(item._id)}
-                            >
-                              Delete
-                            </Button>
-                          </Dialog.Footer>
-                          <Dialog.CloseTrigger asChild>
-                            <CloseButton size="sm" />
-                          </Dialog.CloseTrigger>
-                        </Dialog.Content>
-                      </Dialog.Positioner>
-                    </Portal>
-                  </Dialog.Root>
-                </Icon>
-                {/* Edit Icon */}
-                <Icon color="green" size="sm">
-                  <FiEdit3 onClick={() => openEditModal(item)} />
-                </Icon>
-                {/* View Detail Icon */}
+              <Text fontWeight="medium" fontSize="sm" lineClamp={1}>
+                {item.title}
+              </Text>
+            </Table.Cell>
+            <Table.Cell>
+              <Text fontWeight="semibold" fontSize="sm" color="blue.600" _dark={{ color: "blue.300" }}>
+                ${item.baseRentPrice.toLocaleString()}
+              </Text>
+            </Table.Cell>
+            <Table.Cell>
+              <Badge variant="subtle" colorPalette="gray" borderRadius="full" size="sm">
+                {item.propertyType}
+              </Badge>
+            </Table.Cell>
+            <Table.Cell>
+              <Text fontSize="sm">{`${item.beds} / ${item.baths}`}</Text>
+            </Table.Cell>
+            <Table.Cell>
+              <Text fontSize="sm" lineClamp={1} maxW="200px" color="fg.muted">
+                {item.location.address}
+              </Text>
+            </Table.Cell>
+            <Table.Cell>
+              <Text fontSize="sm" color="fg.muted">
+                {formateDate(item.updatedAt)}
+              </Text>
+            </Table.Cell>
+            <Table.Cell>
+              <Badge
+                variant="subtle"
+                colorPalette={statusColorMap[item.status] || "gray"}
+                borderRadius="full"
+                size="sm"
+                px={3}
+              >
+                {item.status}
+              </Badge>
+            </Table.Cell>
+            <Table.Cell>
+              <HStack gap={1} justify="center">
+                {/* View Detail */}
                 <Dialog.Root placement="center" size="lg">
                   <Dialog.Trigger asChild>
-                    <Icon color="blue.solid" size="sm">
+                    <IconButton
+                      variant="ghost"
+                      size="xs"
+                      aria-label="View details"
+                      color="blue.500"
+                      borderRadius="md"
+                      _hover={{ bg: "blue.50", _dark: { bg: "blue.950" } }}
+                    >
                       <FiEye />
-                    </Icon>
+                    </IconButton>
                   </Dialog.Trigger>
                   <Portal>
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
-                      <Dialog.Content>
-                        <Dialog.Header></Dialog.Header>
+                      <Dialog.Content borderRadius="xl">
+                        <Dialog.Header />
                         <Dialog.Body>
-                          {/* Property Detial Modal */}
                           <PropertyDetailDialog property={item} />
                         </Dialog.Body>
+                        <Dialog.CloseTrigger asChild>
+                          <CloseButton size="sm" />
+                        </Dialog.CloseTrigger>
+                      </Dialog.Content>
+                    </Dialog.Positioner>
+                  </Portal>
+                </Dialog.Root>
+
+                {/* Edit */}
+                <IconButton
+                  variant="ghost"
+                  size="xs"
+                  aria-label="Edit property"
+                  color="green.500"
+                  borderRadius="md"
+                  _hover={{ bg: "green.50", _dark: { bg: "green.950" } }}
+                  onClick={() => openEditModal(item)}
+                >
+                  <FiEdit3 />
+                </IconButton>
+
+                {/* Delete */}
+                <Dialog.Root role="alertdialog">
+                  <Dialog.Trigger asChild>
+                    <IconButton
+                      variant="ghost"
+                      size="xs"
+                      aria-label="Delete property"
+                      color="red.500"
+                      borderRadius="md"
+                      _hover={{ bg: "red.50", _dark: { bg: "red.950" } }}
+                    >
+                      <FiTrash2 />
+                    </IconButton>
+                  </Dialog.Trigger>
+                  <Portal>
+                    <Dialog.Backdrop />
+                    <Dialog.Positioner>
+                      <Dialog.Content borderRadius="xl">
+                        <Dialog.Header>
+                          <Dialog.Title>Delete Property</Dialog.Title>
+                        </Dialog.Header>
+                        <Dialog.Body>
+                          <Text color="fg.muted">
+                            This action cannot be undone. This will permanently
+                            delete your property listing and remove your data
+                            from our systems.
+                          </Text>
+                        </Dialog.Body>
+                        <Dialog.Footer gap={3}>
+                          <Dialog.ActionTrigger asChild>
+                            <Button variant="outline" borderRadius="lg">
+                              Cancel
+                            </Button>
+                          </Dialog.ActionTrigger>
+                          <Button
+                            colorPalette="red"
+                            borderRadius="lg"
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            Delete
+                          </Button>
+                        </Dialog.Footer>
                         <Dialog.CloseTrigger asChild>
                           <CloseButton size="sm" />
                         </Dialog.CloseTrigger>
@@ -195,43 +273,53 @@ export function PropertyTableList({ items, openEditModal }: Props) {
           </Table.Row>
         ))}
       </Table.Body>
-      {/* Action Bar For Bulk Delete */}
+
+      {/* ─── Bulk Action Bar ─── */}
       <ActionBar.Root open={openActionBar}>
         <Portal>
           <ActionBar.Positioner>
-            <ActionBar.Content>
+            <ActionBar.Content borderRadius="xl" shadow="lg">
               <ActionBar.SelectionTrigger>
-                {selectedIds.size} selected
+                <Badge colorPalette="blue" variant="solid" borderRadius="full" mr={1}>
+                  {selectedIds.size}
+                </Badge>
+                items selected
               </ActionBar.SelectionTrigger>
               <ActionBar.Separator />
               {/* Bulk Delete Confirm Dialog */}
               <Dialog.Root role="alertdialog">
                 <Dialog.Trigger asChild>
-                  <Button variant="surface" size="sm" colorPalette="red">
+                  <Button variant="surface" size="sm" colorPalette="red" borderRadius="lg">
                     <FiTrash2 />
-                    Delete
+                    Delete Selected
                   </Button>
                 </Dialog.Trigger>
                 <Portal>
                   <Dialog.Backdrop />
                   <Dialog.Positioner>
-                    <Dialog.Content>
+                    <Dialog.Content borderRadius="xl">
                       <Dialog.Header>
-                        <Dialog.Title>Are you sure to delete?</Dialog.Title>
+                        <Dialog.Title>Delete {selectedIds.size} Properties</Dialog.Title>
                       </Dialog.Header>
                       <Dialog.Body>
-                        <p>
+                        <Text color="fg.muted">
                           This action cannot be undone. This will permanently
-                          delete your property listing and remove your data from
-                          our systems.
-                        </p>
+                          delete the selected property listings and remove the
+                          data from our systems.
+                        </Text>
                       </Dialog.Body>
-                      <Dialog.Footer>
+                      <Dialog.Footer gap={3}>
                         <Dialog.ActionTrigger asChild>
-                          <Button variant="outline">Cancel</Button>
+                          <Button variant="outline" borderRadius="lg">
+                            Cancel
+                          </Button>
                         </Dialog.ActionTrigger>
-                        <Button colorPalette="red" onClick={handleBulkDelete}>
-                          Delete
+                        <Button
+                          colorPalette="red"
+                          borderRadius="lg"
+                          onClick={handleBulkDelete}
+                        >
+                          Delete All
                         </Button>
                       </Dialog.Footer>
                       <Dialog.CloseTrigger asChild>

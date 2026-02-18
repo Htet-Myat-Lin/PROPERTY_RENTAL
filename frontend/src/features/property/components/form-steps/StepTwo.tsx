@@ -6,8 +6,6 @@ import {
   FileUpload,
   Flex,
   Float,
-  Portal,
-  Select,
   Stack,
   Text,
   useFileUploadContext,
@@ -17,10 +15,12 @@ import {
   Input,
   NumberInput,
   Checkbox,
+  Grid,
+  Icon,
 } from "@chakra-ui/react";
 import { LocationPicker } from "../map/LocationPicker";
 import { useEffect } from "react";
-import { LuFileImage, LuX } from "react-icons/lu";
+import { LuFileImage, LuMapPin, LuWifi, LuWarehouse, LuBus } from "react-icons/lu";
 import {
   Controller,
   useFormContext,
@@ -73,74 +73,82 @@ export function StepTwo() {
   };
 
   return (
-    <Box my="5">
-      <Stack gap="5">
-        {/* Property Types */}
-        <Field.Root invalid={!!errors.propertyType}>
-          <Field.Label>Select Property</Field.Label>
-
-          <Controller
-            name="propertyType"
-            control={control}
-            render={({ field }) => (
-              <Select.Root
-                collection={propertyTypes}
-                size="md"
-                width="full"
-                name={field.name}
-                value={field.value ? [field.value] : []}
-                onValueChange={(details) => field.onChange(details.value[0])}
-                onBlur={field.onBlur}
+    <Box my="2">
+      <Stack gap={6}>
+        {/* Property Type */}
+        <Box 
+          p={4} 
+          bg="bg.subtle" 
+          _dark={{ bg: "whiteAlpha.50" }}
+          borderRadius="xl"
+        >
+          <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+            Property Type <Text as="span" color="red.500">*</Text>
+          </Text>
+          
+          <Grid templateColumns={{ base: "1fr 1fr", md: "repeat(4, 1fr)" }} gap={2}>
+            {propertyTypes.items.map((type) => (
+              <Box
+                key={type.value}
+                p={3}
+                borderRadius="lg"
+                border="1px solid"
+                borderColor={getValues("propertyType") === type.value ? "blue.500" : "border"}
+                bg={getValues("propertyType") === type.value ? "blue.50" : "transparent"}
+                _dark={{ bg: getValues("propertyType") === type.value ? "blue.950" : "transparent" }}
+                cursor="pointer"
+                transition="all 0.2s"
+                _hover={{ borderColor: "blue.300" }}
+                onClick={() => setValue("propertyType", type.value, { shouldDirty: true })}
               >
-                <Select.HiddenSelect />
-                <Select.Control>
-                  <Select.Trigger>
-                    <Select.ValueText placeholder="Select Property Types" />
-                  </Select.Trigger>
-                  <Select.IndicatorGroup>
-                    <Select.Indicator />
-                  </Select.IndicatorGroup>
-                </Select.Control>
-                <Portal>
-                  <Select.Positioner>
-                    <Select.Content>
-                      {propertyTypes.items.map((item) => (
-                        <Select.Item item={item} key={item.value}>
-                          {item.label}
-                          <Select.ItemIndicator />
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Positioner>
-                </Portal>
-              </Select.Root>
-            )}
-          />
-          <Field.ErrorText>{errors.propertyType?.message}</Field.ErrorText>
-        </Field.Root>
+                <Text fontSize="sm" fontWeight="medium" textAlign="center">
+                  {type.label}
+                </Text>
+              </Box>
+            ))}
+          </Grid>
+          {errors.propertyType && (
+            <Text color="red.500" fontSize="xs" mt={2}>
+              {errors.propertyType.message}
+            </Text>
+          )}
+        </Box>
 
         {/* Location Picker */}
-        <Stack>
-          <Text fontWeight="medium">Select Property Location</Text>
-          <LocationPicker
-            defaultValue={initialLocation}
-            onSelect={(coords) => {
-              setValue("location.coordinates", [coords.lat, coords.lng], {
-                shouldValidate: true,
-                shouldDirty: true,
-              });
-            }}
-          />
+        <Box>
+          <Text fontWeight="semibold" mb={2}>
+            <Icon as={LuMapPin} boxSize={4} mr={1} color="red.500" />
+            Property Location <Text as="span" color="red.500">*</Text>
+          </Text>
+          <Box 
+            borderRadius="xl" 
+            overflow="hidden" 
+            border="1px solid" 
+            borderColor={errors.location?.coordinates ? "red.300" : "border"}
+          >
+            <LocationPicker
+              defaultValue={initialLocation}
+              onSelect={(coords) => {
+                setValue("location.coordinates", [coords.lat, coords.lng], {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }}
+            />
+          </Box>
           {errors.location?.coordinates && (
-            <Text color="red.600" fontSize="xs">
+            <Text color="red.500" fontSize="xs" mt={1}>
               {errors.location.coordinates.message}
             </Text>
           )}
-        </Stack>
+        </Box>
 
         {/* Image Upload */}
-        <Stack>
-          <Text fontWeight="medium">Property Images</Text>
+        <Box>
+          <Text fontWeight="semibold" mb={2}>
+            <Icon as={LuFileImage} boxSize={4} mr={1} color="blue.500" />
+            Property Images <Text as="span" color="red.500">*</Text>
+          </Text>
           <FileUpload.Root
             accept="image/*"
             maxFiles={5}
@@ -148,24 +156,31 @@ export function StepTwo() {
           >
             <FileUpload.HiddenInput />
             <FileUpload.Trigger asChild>
-              <Button variant="outline" size="sm">
-                <LuFileImage /> Upload
+              <Button 
+                variant="outline" 
+                size="md"
+                borderRadius="lg"
+                borderStyle="dashed"
+              >
+                <LuFileImage /> Click to upload images
               </Button>
             </FileUpload.Trigger>
             <FileUploadList setValue={setValue} />
           </FileUpload.Root>
           {errors.images && (
-            <Text color="red.600" fontSize="xs">
+            <Text color="red.500" fontSize="xs" mt={1}>
               {errors.images.message}
             </Text>
           )}
-        </Stack>
+        </Box>
 
         {/* Existing Images */}
         {existingImages && existingImages.length > 0 && (
-          <Stack>
-            <Text fontWeight="medium">Existing Images</Text>
-            <Flex align="center" gap="1">
+          <Box>
+            <Text fontSize="sm" fontWeight="medium" mb={2}>
+              Existing Images ({existingImages.length})
+            </Text>
+            <Flex align="center" gap="2" flexWrap="wrap">
               <For each={existingImages}>
                 {(image, i) => (
                   <Box position="relative" key={i}>
@@ -174,16 +189,16 @@ export function StepTwo() {
                       width="80px"
                       height="80px"
                       objectFit="cover"
+                      borderRadius="lg"
                     />
                     <CloseButton
                       size="xs"
                       position="absolute"
-                      top="0.5"
-                      right="0.5"
+                      top="1"
+                      right="1"
                       bg="blackAlpha.600"
-                      backdropFilter="blur(4px)"
                       color="white"
-                      rounded="full"
+                      borderRadius="full"
                       _hover={{ bg: "red.500", transform: "scale(1.1)" }}
                       transition="all 0.2s"
                       zIndex="1"
@@ -193,46 +208,77 @@ export function StepTwo() {
                 )}
               </For>
             </Flex>
-          </Stack>
+          </Box>
         )}
 
-        {/* Near Transit */}
-        <Stack>
-          <Text fontWeight="medium">Near Transit</Text>
-          <Flex align="center" gap="2">
-            <Field.Root invalid={!!errors.nearTransit?.type}>
-              <Field.Label>Transit Type</Field.Label>
-              <Input
-                type="text"
-                placeholder="e.g., Bus, Metro, Train"
-                {...register("nearTransit.type")}
-              />
-              <Field.ErrorText>
-                {errors.nearTransit?.type?.message}
-              </Field.ErrorText>
-            </Field.Root>
-            <Field.Root invalid={!!errors.nearTransit?.distance}>
-              <Field.Label>Distance (km))</Field.Label>
-              <NumberInput.Root defaultValue="0" min={0}>
-                <NumberInput.Control>
+        {/* Transit & Lease */}
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
+          <Box 
+            p={4} 
+            bg="bg.subtle" 
+            _dark={{ bg: "whiteAlpha.50" }}
+            borderRadius="xl"
+          >
+            <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+              <Icon as={LuBus} boxSize={4} mr={1} />
+              Near Transit
+            </Text>
+            <Flex align="center" gap={2}>
+              <Field.Root invalid={!!errors.nearTransit?.type}>
+                <Input
+                  type="text"
+                  placeholder="Transit type"
+                  {...register("nearTransit.type")}
+                  size="sm"
+                  borderRadius="lg"
+                />
+              </Field.Root>
+              <Field.Root invalid={!!errors.nearTransit?.distance}>
+                <NumberInput.Root defaultValue="0" min={0} size="sm" w="100px">
+                  <NumberInput.Control borderRadius="lg">
+                    <NumberInput.IncrementTrigger />
+                    <NumberInput.DecrementTrigger />
+                  </NumberInput.Control>
+                  <NumberInput.Input {...register("nearTransit.distance")} />
+                </NumberInput.Root>
+              </Field.Root>
+            </Flex>
+          </Box>
+
+          <Box 
+            p={4} 
+            bg="bg.subtle" 
+            _dark={{ bg: "whiteAlpha.50" }}
+            borderRadius="xl"
+          >
+            <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+              Lease Term
+            </Text>
+            <Field.Root invalid={!!errors.leaseTermMonths}>
+              <NumberInput.Root defaultValue="12" min={6} size="sm">
+                <NumberInput.Control borderRadius="lg">
                   <NumberInput.IncrementTrigger />
                   <NumberInput.DecrementTrigger />
                 </NumberInput.Control>
-                <NumberInput.Input {...register("nearTransit.distance")} />
+                <NumberInput.Input {...register("leaseTermMonths")} />
               </NumberInput.Root>
-              <Field.ErrorText>
-                {errors.nearTransit?.distance?.message}
-              </Field.ErrorText>
+              <Text fontSize="xs" color="fg.muted" mt={1}>Min: 6 months</Text>
+              <Field.ErrorText>{errors.leaseTermMonths?.message}</Field.ErrorText>
             </Field.Root>
-          </Flex>
-        </Stack>
+          </Box>
+        </Grid>
 
         {/* Appliances */}
-        <Field.Root invalid={!!errors.appliances}>
-          <Field.Label fontWeight="medium" mb="2">
+        <Box 
+          p={4} 
+          bg="bg.subtle" 
+          _dark={{ bg: "whiteAlpha.50" }}
+          borderRadius="xl"
+        >
+          <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+            <Icon as={LuWarehouse} boxSize={4} mr={1} />
             Appliances
-          </Field.Label>
-
+          </Text>
           <Controller
             name="appliances"
             control={control}
@@ -251,23 +297,12 @@ export function StepTwo() {
               };
 
               return (
-                <Flex
-                  gap="4"
-                  flexWrap="wrap"
-                >
+                <Flex gap={3} flexWrap="wrap">
                   {applianceOptions.map((appliance) => {
                     const isChecked = field.value?.includes(appliance);
-
-                    const slug = appliance.replace(/\s+/g, "-").toLowerCase();
-
                     return (
                       <Checkbox.Root
                         key={appliance}
-                        ids={{
-                          root: `checkbox-root-${slug}`,
-                          hiddenInput: `checkbox-input-${slug}`,
-                          label: `checkbox-label-${slug}`,
-                        }}
                         checked={isChecked}
                         onCheckedChange={(details) =>
                           handleCheckedChange(appliance, !!details.checked)
@@ -275,7 +310,10 @@ export function StepTwo() {
                         cursor="pointer"
                       >
                         <Checkbox.HiddenInput />
-                        <Checkbox.Control>
+                        <Checkbox.Control 
+                          borderRadius="md"
+                          _checked={{ bg: "blue.500", borderColor: "blue.500" }}
+                        >
                           <Checkbox.Indicator />
                         </Checkbox.Control>
                         <Checkbox.Label fontSize="sm" cursor="pointer">
@@ -288,54 +326,40 @@ export function StepTwo() {
               );
             }}
           />
-          {errors.appliances && (
-            <Field.ErrorText>
-              {errors.appliances.message as string}
-            </Field.ErrorText>
-          )}
-        </Field.Root>
+        </Box>
 
         {/* Internet */}
-        <Stack>
-          <Text fontWeight="medium">Internet</Text>
-          <Flex align="center" gap="2">
+        <Box 
+          p={4} 
+          bg="bg.subtle" 
+          _dark={{ bg: "whiteAlpha.50" }}
+          borderRadius="xl"
+        >
+          <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
+            <Icon as={LuWifi} boxSize={4} mr={1} />
+            Internet
+          </Text>
+          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={3}>
             <Field.Root invalid={!!errors.internet?.name}>
-              <Field.Label>Provider Name</Field.Label>
               <Input
                 type="text"
-                placeholder="e.g., Comcast, Verizon"
+                placeholder="Provider (e.g., Comcast)"
                 {...register("internet.name")}
+                size="sm"
+                borderRadius="lg"
               />
-              <Field.ErrorText>
-                {errors.internet?.name?.message}
-              </Field.ErrorText>
             </Field.Root>
             <Field.Root invalid={!!errors.internet?.speed}>
-              <Field.Label>Speed</Field.Label>
               <Input
                 type="text"
-                placeholder="e.g., 100 Mbps"
+                placeholder="Speed (e.g., 100 Mbps)"
                 {...register("internet.speed")}
+                size="sm"
+                borderRadius="lg"
               />
-              <Field.ErrorText>
-                {errors.internet?.speed?.message}
-              </Field.ErrorText>
             </Field.Root>
-          </Flex>
-        </Stack>
-
-        {/* Lease Term */}
-        <Field.Root invalid={!!errors.leaseTermMonths}>
-          <Field.Label>Lease Term (months)</Field.Label>
-          <NumberInput.Root defaultValue="12" min={6}>
-            <NumberInput.Control>
-              <NumberInput.IncrementTrigger />
-              <NumberInput.DecrementTrigger />
-            </NumberInput.Control>
-            <NumberInput.Input {...register("leaseTermMonths")} />
-          </NumberInput.Root>
-          <Field.ErrorText>{errors.leaseTermMonths?.message}</Field.ErrorText>
-        </Field.Root>
+          </Grid>
+        </Box>
       </Stack>
     </Box>
   );
@@ -360,7 +384,6 @@ const FileUploadList = ({
     }
   }, [fileUpload.acceptedFiles, setValue]);
 
-  // If there are no images in RHF, don't show the list
   if (savedImages.length === 0) return null;
 
   return (
@@ -368,31 +391,41 @@ const FileUploadList = ({
       display="flex"
       flexDirection="row"
       flexWrap="wrap"
-      gap="4"
+      gap={3}
+      mt={3}
     >
       {savedImages.map((file: File, index: number) => (
         <FileUpload.Item
           w="auto"
-          boxSize="20"
-          p="2"
+          boxSize="24"
+          p="1"
           file={file}
           key={index}
+          borderRadius="lg"
+          overflow="hidden"
+          border="1px solid"
+          borderColor="border"
         >
-          <FileUpload.ItemPreviewImage />
+          <FileUpload.ItemPreviewImage 
+            objectFit="cover" 
+            w="full" 
+            h="full" 
+          />
           <Float placement="top-end">
             <FileUpload.ItemDeleteTrigger
               onClick={() => {
-                // Manually filter out the deleted image from RHF state
                 const updatedImages = savedImages.filter((_, i) => i !== index);
                 setValue("images", updatedImages);
-                // Clear from FileUpload context so they don't reappear
                 fileUpload.clearFiles();
               }}
               colorPalette="red"
-              boxSize="4"
-              layerStyle="fill.solid"
+              boxSize="5"
+              borderRadius="full"
+              bg="blackAlpha.600"
+              color="white"
+              _hover={{ bg: "red.500" }}
             >
-              <LuX />
+              ×
             </FileUpload.ItemDeleteTrigger>
           </Float>
         </FileUpload.Item>

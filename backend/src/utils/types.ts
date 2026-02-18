@@ -17,6 +17,8 @@ export interface IUser extends Document {
   role: "TENANT" | "ADMIN" | "LANDLORD";
   profilePictures?: string[] | null;
   refreshToken?: string | undefined;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface UserMethods {
