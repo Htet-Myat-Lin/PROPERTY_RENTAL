@@ -1,5 +1,5 @@
 import { UserModel } from "../models/user.model.js";
-import type { IUser, UserMethods } from "../utils/types.js";
+import type { IUser, UserMethods } from "../types/types.js";
 
 export class UserService {
     static async createUser(userData: IUser): Promise<IUser> {

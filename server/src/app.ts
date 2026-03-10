@@ -3,10 +3,10 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import morgan from "morgan"
 
-import authRouter from "./routes/auth.route.js"
-import userRouter from "./routes/user.route.js"
-import propertyRouter from "./routes/property.route.js"
 import { errorHandler } from "./middleware/error.middleware.js"
+import { authRouter } from "./modules/auth/auth.route.js"
+import { propertyRouter } from "./modules/property/property.route.js"
+import { userRouter } from "./modules/user/user.route.js"
 const app = express()
 
 app.use(express.json())

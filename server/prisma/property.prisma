@@ -1,0 +1,50 @@
+enum PropertyType {
+  Apartment
+  House
+  Condo
+  Villa
+}
+
+enum Status {
+  AVAILABLE
+  RENTED
+  RESERVED
+}
+
+model Property {
+  id               String       @id @default(uuid())
+  userId           String
+  user             User         @relation(fields: [userId], references: [id])
+  
+  title            String
+  description      String
+  baseRentPrice    Float
+  beds             Int?
+  baths            Int?
+  area             Float?
+  
+  propertyType     PropertyType
+  status           Status       @default(AVAILABLE)
+  
+  locationAddress  String?
+  coordinates      Float[]
+  
+  images           String[]
+  
+  nearTransitType  String?
+  nearTransitDist  Float?
+  
+  parkingSpaces    Int          @default(0)
+  rating           Float        @default(0)
+  yearBuilt        Int?
+  petAllowed       Boolean      @default(false)
+  appliances       String[]
+  availableDate    DateTime?
+  
+  internetName     String?
+  internetSpeed    String?
+  leaseTermMonths  Int?
+
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}

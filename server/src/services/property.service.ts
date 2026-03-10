@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import { PropertyModel } from "../models/property.model.js";
-import type { IProperty, PropertyFilters } from "../utils/types.js";
+import type { IProperty, PropertyFilters } from "../types/types.js";
 import { AppError } from "../utils/app.error.js";
 
 export class PropertyService {
