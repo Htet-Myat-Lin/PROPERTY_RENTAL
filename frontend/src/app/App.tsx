@@ -28,7 +28,7 @@ function AppContent() {
 
   useEffect(() => {
     if (!isFetchingUser) {
-      setUser(data?.user ?? null);
+      setUser(data?.content?.user ?? null);
       setLoading(false);
     }
   }, [data, setLoading, isFetchingUser, setUser]);

@@ -13,10 +13,11 @@ export function errorHandler(
 
   if (err instanceof ZodError) {
     return res.status(400).json({
-      success: false,
+      status: "error",
       errors: err.issues.map((e) => ({
         field: e.path.join("."),
         message: e.message,
+        error: e
       })),
     });
   }
@@ -29,13 +30,13 @@ export function errorHandler(
 
       const fieldName = fields?.join(", ") || "field";
       return res.status(409).json({
-        success: false,
+        status: "error",
         message: `${fieldName} already exists`,
       });
     }
     if (err.code === "P2025") {
       return res.status(404).json({
-        success: false,
+        status: "error",
         message: "Record not found",
       });
     }
@@ -43,13 +44,14 @@ export function errorHandler(
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
-      success: false,
+      status: "error",
       message: err.message,
     });
   }
 
   return res.status(500).json({
-    success: false,
+    error: err,
+    status: "error",
     message: "Internal server error",
   });
 }

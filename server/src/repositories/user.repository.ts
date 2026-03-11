@@ -32,7 +32,8 @@ export class UserRepository {
   }
 
   static async verifyEmail(userId: string) {
-    prisma.user.update({
+    // return the promise so callers can await completion
+    return prisma.user.update({
       where: { id: userId },
       data: {
         isEmailVerified: true,
@@ -44,7 +45,7 @@ export class UserRepository {
   }
 
   static async resetPassword(userId: string, password: string) {
-    prisma.user.update({
+    return prisma.user.update({
       where: { id: userId },
       data: {
         password,
@@ -61,7 +62,7 @@ export class UserRepository {
     expiry: number,
     generatedAt: number,
   ) {
-    prisma.user.update({
+    return prisma.user.update({
       where: { id: userId },
       data: {
         verifyOTP: hashedOTP,
@@ -72,7 +73,7 @@ export class UserRepository {
   }
 
   static async clearVerifyOTP(userId: string) {
-    prisma.user.update({
+    return prisma.user.update({
       where: { id: userId },
       data: {
         verifyOTP: null,
@@ -88,7 +89,7 @@ export class UserRepository {
     expiry: number,
     generatedAt: number,
   ) {
-    prisma.user.update({
+    return prisma.user.update({
       where: { id: userId },
       data: {
         resetPasswordOTP: hashedOTP,
@@ -99,7 +100,7 @@ export class UserRepository {
   }
 
   static async clearResetPasswordOTP(userId: string) {
-    prisma.user.update({
+    return prisma.user.update({
       where: { id: userId },
       data: {
         resetPasswordOTP: null,

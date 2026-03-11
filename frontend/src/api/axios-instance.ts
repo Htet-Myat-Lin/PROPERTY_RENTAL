@@ -55,8 +55,9 @@ axiosInstance.interceptors.response.use(
                     withCredentials: true
                 });
                 
-                if (response.data && response.data.success) {
-                    const { accessToken } = response.data;
+                if (response.data) {
+                    console.log(response.data.content);
+                    const { accessToken } = response.data.content;
                     useAppStore.getState().setAccessToken(accessToken);
                     originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
                     processQueue(null, accessToken);

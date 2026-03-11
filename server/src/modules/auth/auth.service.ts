@@ -51,7 +51,7 @@ export const sendVerifyEmailOTPService = async (email: string) => {
 
   if (
     user.verifyOTPGeneratedAt &&
-    Date.now() - user.verifyOTPGeneratedAt < 60 * 1000
+    Date.now() / 1000 - user.verifyOTPGeneratedAt < 60
   ) {
     throw new AppError(
       "OTP already sent. Please wait before requesting a new one.",
@@ -73,7 +73,11 @@ export const verifyEmailService = async (email: string, otp: string) => {
   if (user.isEmailVerified) throw new AppError("Email is already verified", 400);
 
   const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex")
-  if (user?.verifyOTP !==  hashedOTP || !user.verifyOTPExpiry || Date.now() > user.verifyOTPExpiry) {
+  if (
+    user?.verifyOTP !== hashedOTP ||
+    !user.verifyOTPExpiry ||
+    Date.now() / 1000 > user.verifyOTPExpiry
+  ) {
     throw new AppError("Invalid or expired OTP", 400);
   }
 
@@ -86,7 +90,7 @@ export const forgotPasswordService = async (email: string) => {
     const user = await UserRepository.findByEmail(email);
     if (!user) throw new AppError("User with this email not found", 404);
 
-    if (user.resetPasswordOTPGeneratedAt && Date.now() - user.resetPasswordOTPGeneratedAt < 60 * 1000) {
+    if (user.resetPasswordOTPGeneratedAt && Date.now() / 1000 - user.resetPasswordOTPGeneratedAt < 60) {
         throw new AppError("OTP already sent. Please wait before requesting a new one.", 429);
     }
     
@@ -99,7 +103,7 @@ export const sendResetPasswordOTPService = async (email: string) => {
     const user = await UserRepository.findByEmail(email);
     if (!user) throw new AppError("User with this email not found", 404);
 
-    if (user.resetPasswordOTPGeneratedAt && Date.now() - user.resetPasswordOTPGeneratedAt < 60 * 1000) {
+    if (user.resetPasswordOTPGeneratedAt && Date.now() / 1000 - user.resetPasswordOTPGeneratedAt < 60) {
         throw new AppError("OTP already sent. Please wait before requesting a new one.", 429);
     }
     
@@ -113,7 +117,11 @@ export const resetPasswordService = async (email: string, otp: string, password:
     if (!user) throw new AppError("User with this email not found", 404);
 
     const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex")
-    if (user?.resetPasswordOTP !==  hashedOTP || !user.resetPasswordOTPExpiry || Date.now() > user.resetPasswordOTPExpiry) {
+    if (
+        user?.resetPasswordOTP !== hashedOTP ||
+        !user.resetPasswordOTPExpiry ||
+        Date.now() / 1000 > user.resetPasswordOTPExpiry
+    ) {
         throw new AppError("Invalid or expired OTP", 400);
     }
 

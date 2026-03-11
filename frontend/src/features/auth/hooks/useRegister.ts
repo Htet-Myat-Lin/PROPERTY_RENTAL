@@ -8,7 +8,7 @@ export const useRegister = () =>{
     return useMutation({
         mutationFn: AuthApi.register,
         onSuccess: (data) => {
-            setUser(data.user)
+            setUser(data.content.user)
             setAccessToken(data.accessToken)
         }
     })

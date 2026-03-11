@@ -6,11 +6,13 @@ import { UserRepository } from "@/repositories/user.repository.js";
 export const sendEmailVerifyOTP = async (user: any) => {
   const otp = generateOTP();
   const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
+  // store timestamps in seconds to fit within 32-bit integer range
+  const nowSec = Math.floor(Date.now() / 1000);
   await UserRepository.saveVerifyOTP(
     user.id,
     hashedOTP,
-    Date.now() + 10 * 60 * 1000,
-    Date.now(),
+    nowSec + 10 * 60, // expires in 10 minutes
+    nowSec,
   );
 
   // Send OTP via email
@@ -31,11 +33,12 @@ export const sendPasswordResetOTP = async (user: any) => {
     .createHash("sha256")
     .update(resetPasswordOTP)
     .digest("hex");
+  const nowSec = Math.floor(Date.now() / 1000);
   await UserRepository.saveResetPasswordOTP(
     user.id,
     hashedOTP,
-    Date.now() + 10 * 60 * 1000,
-    Date.now(),
+    nowSec + 10 * 60,
+    nowSec,
   );
 
   try {
