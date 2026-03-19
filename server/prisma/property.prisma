@@ -13,8 +13,8 @@ enum Status {
 
 model Property {
   id               String       @id @default(uuid())
-  userId           String
-  user             User         @relation(fields: [userId], references: [id])
+  landlordId       String
+  landlord         User         @relation(fields: [landlordId], references: [id])
   
   title            String
   description      String

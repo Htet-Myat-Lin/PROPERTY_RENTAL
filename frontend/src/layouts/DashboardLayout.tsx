@@ -53,22 +53,24 @@ const NavItem = ({
       px={3}
       py={2.5}
       borderRadius="xl"
-      bg={active ? "blue.50" : "transparent"}
-      color={active ? "blue.600" : "fg.muted"}
+      bg={active ? "white" : "transparent"}
+      color={active ? "blue.700" : "blue.800"}
       fontWeight={active ? "semibold" : "normal"}
       position="relative"
       transition="all 0.2s cubic-bezier(.4,0,.2,1)"
+      boxShadow={active ? "0 2px 8px rgba(59,130,246,0.13)" : "none"}
       _hover={{
-        bg: active ? "blue.50" : "gray.100",
-        color: active ? "blue.600" : "fg",
+        bg: active ? "white" : "whiteAlpha.600",
+        color: "blue.700",
         transform: "translateX(2px)",
       }}
       _dark={{
-        bg: active ? "blue.950" : "transparent",
-        color: active ? "blue.200" : "fg.muted",
+        bg: active ? "blue.800" : "transparent",
+        color: active ? "blue.100" : "blue.200",
+        boxShadow: active ? "0 2px 8px rgba(59,130,246,0.25)" : "none",
         _hover: {
-          bg: active ? "blue.950" : "whiteAlpha.100",
-          color: active ? "blue.200" : "fg",
+          bg: active ? "blue.800" : "whiteAlpha.100",
+          color: "blue.100",
         },
       }}
       cursor="pointer"
@@ -78,11 +80,11 @@ const NavItem = ({
       {active && (
         <Box
           position="absolute"
-          left="-12px"
+          left="-16px"
           top="50%"
           transform="translateY(-50%)"
           w="4px"
-          h="60%"
+          h="55%"
           bg="blue.500"
           borderRadius="full"
         />
@@ -90,23 +92,27 @@ const NavItem = ({
       <Flex
         align="center"
         justify="center"
-        w="36px"
-        h="36px"
+        w="34px"
+        h="34px"
         borderRadius="lg"
-        bg={active ? "blue.500" : "transparent"}
-        color={active ? "white" : "inherit"}
+        bg={active ? "blue.500" : "whiteAlpha.500"}
+        color={active ? "white" : "blue.600"}
         transition="all 0.2s"
         flexShrink={0}
+        _dark={{
+          bg: active ? "blue.500" : "whiteAlpha.100",
+          color: active ? "white" : "blue.300",
+        }}
       >
-        <Icon as={icon} boxSize={5} />
+        <Icon as={icon} boxSize={4} />
       </Flex>
       {!collapsed && (
-        <Text fontSize="sm" lineClamp={1}>
+        <Text fontSize="sm" letterSpacing="tight" flex={1} truncate>
           {label}
         </Text>
       )}
       {active && !collapsed && (
-        <Icon as={LuChevronRight} boxSize={4} ml="auto" opacity={0.5} />
+        <Icon as={LuChevronRight} boxSize={3.5} flexShrink={0} color="blue.400" />
       )}
     </HStack>
   </Link>
@@ -114,30 +120,47 @@ const NavItem = ({
 
 /* ─── Sidebar Brand / Logo ─── */
 const SidebarBrand = () => (
-  <HStack gap={3} px={1} py={2}>
+  <HStack gap={3} px={1} py={1}>
     <Flex
       align="center"
       justify="center"
       w="40px"
       h="40px"
       borderRadius="xl"
-      bg="blue.500"
+      bg="blue.600"
       color="white"
       fontWeight="bold"
       fontSize="lg"
       flexShrink={0}
+      boxShadow="0 4px 14px rgba(37,99,235,0.35)"
     >
       <Icon as={LuHouse} boxSize={5} />
     </Flex>
     <VStack gap={0} align="start">
-      <Text fontWeight="bold" fontSize="lg" lineHeight="1.2" color="fg">
+      <Text fontWeight="bold" fontSize="lg" lineHeight="1.2" color="blue.900" _dark={{ color: "blue.50" }}>
         Rentify
       </Text>
-      <Text fontSize="xs" color="fg.muted" lineHeight="1">
+      <Text fontSize="xs" color="blue.500" lineHeight="1" letterSpacing="wide">
         Property Manager
       </Text>
     </VStack>
   </HStack>
+);
+
+/* ─── Section Label ─── */
+const SectionLabel = ({ label }: { label: string }) => (
+  <Text
+    fontSize="2xs"
+    fontWeight="bold"
+    textTransform="uppercase"
+    letterSpacing="widest"
+    color="blue.400"
+    mb={2}
+    px={3}
+    _dark={{ color: "blue.400" }}
+  >
+    {label}
+  </Text>
 );
 
 /* ─── Sidebar User Profile ─── */
@@ -149,28 +172,28 @@ const SidebarUserProfile = ({
   onLogout: () => void;
 }) => (
   <Box>
-    <Separator borderColor="border.muted" mb={4} />
+    <Separator borderColor="blue.200" opacity={0.5} mb={4} _dark={{ borderColor: "blue.700" }} />
     <Flex
       align="center"
       gap={3}
       p={3}
       borderRadius="xl"
-      bg="bg.subtle"
-      _dark={{ bg: "whiteAlpha.50" }}
+      bg="white"
+      boxShadow="0 2px 8px rgba(59,130,246,0.10)"
+      _dark={{ bg: "blue.900", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}
     >
       <Avatar.Root size="sm">
         <Avatar.Fallback
           name={user?.username}
-          bg="blue.500"
-          color="white"
           fontWeight="semibold"
+          fontSize="xs"
         />
       </Avatar.Root>
       <VStack gap={0} align="start" flex={1} overflow="hidden">
-        <Text fontSize="sm" fontWeight="semibold" lineClamp={1} color="fg">
+        <Text fontSize="sm" fontWeight="semibold" lineClamp={1} color="blue.900" _dark={{ color: "blue.50" }}>
           {user?.username || "User"}
         </Text>
-        <Text fontSize="xs" color="fg.muted" lineClamp={1}>
+        <Text fontSize="xs" color="blue.500" lineClamp={1}>
           {user?.role || "Member"}
         </Text>
       </VStack>
@@ -178,9 +201,9 @@ const SidebarUserProfile = ({
         variant="ghost"
         size="sm"
         aria-label="Logout"
-        color="fg.muted"
+        color="blue.400"
         _hover={{ color: "red.500", bg: "red.50" }}
-        _dark={{ _hover: { bg: "red.950" } }}
+        _dark={{ _hover: { bg: "red.950", color: "red.400" } }}
         onClick={onLogout}
         borderRadius="lg"
       >
@@ -188,6 +211,34 @@ const SidebarUserProfile = ({
       </IconButton>
     </Flex>
   </Box>
+);
+
+/* ─── Sidebar Background Decoration ─── */
+const SidebarDecoration = () => (
+  <>
+    <Box
+      position="absolute"
+      top="-40px"
+      right="-40px"
+      w="160px"
+      h="160px"
+      borderRadius="full"
+      bg="blue.300"
+      opacity={0.15}
+      pointerEvents="none"
+    />
+    <Box
+      position="absolute"
+      bottom="60px"
+      left="-60px"
+      w="200px"
+      h="200px"
+      borderRadius="full"
+      bg="blue.400"
+      opacity={0.10}
+      pointerEvents="none"
+    />
+  </>
 );
 
 /* ─── Desktop Sidebar Content ─── */
@@ -202,26 +253,32 @@ const SidebarContent = ({
   user: any;
   onLogout: () => void;
 }) => (
-  <VStack h="full" p={5} align="stretch" gap={6}>
-    {/* Brand */}
-    <SidebarBrand />
+  <VStack h="full" p={5} align="stretch" gap={5} position="relative" overflow="hidden">
+    <SidebarDecoration />
 
-    <Separator borderColor="border.muted" />
+    {/* Fixed: Brand */}
+    <Box flexShrink={0}>
+      <SidebarBrand />
+    </Box>
 
-    {/* Navigation Label */}
-    <Box>
-      <Text
-        fontSize="xs"
-        fontWeight="bold"
-        textTransform="uppercase"
-        letterSpacing="wider"
-        color="fg.muted"
-        mb={3}
-        px={3}
-      >
-        Menu
-      </Text>
-      <VStack align="stretch" gap={1} flex="1">
+    <Separator borderColor="blue.200" opacity={0.5} flexShrink={0} _dark={{ borderColor: "blue.700" }} />
+
+    {/* Scrollable nav area */}
+    <Box
+      flex={1}
+      overflowY="auto"
+      overflowX="hidden"
+      css={{
+        "&::-webkit-scrollbar": { width: "3px" },
+        "&::-webkit-scrollbar-track": { background: "transparent" },
+        "&::-webkit-scrollbar-thumb": {
+          background: "rgba(147,197,253,0.4)",
+          borderRadius: "full",
+        },
+      }}
+    >
+      <SectionLabel label="Navigation" />
+      <VStack align="stretch" gap={1}>
         {navLinks.map((link) => (
           <NavItem
             key={link.path}
@@ -232,13 +289,28 @@ const SidebarContent = ({
       </VStack>
     </Box>
 
-    {/* Spacer */}
-    <Box flex={1} />
-
-    {/* User Profile */}
-    <SidebarUserProfile user={user} onLogout={onLogout} />
+    {/* Fixed: User profile */}
+    <Box flexShrink={0}>
+      <SidebarUserProfile user={user} onLogout={onLogout} />
+    </Box>
   </VStack>
 );
+
+/* ─── Sidebar shared styles ─── */
+const SIDEBAR_WIDTH = "260px";
+
+const sharedSidebarProps = {
+  h: "full" as const,
+  background: "linear-gradient(160deg, #dbeafe 0%, #eff6ff 60%, #e0f2fe 100%)",
+  w: SIDEBAR_WIDTH,
+  borderRight: "1px solid",
+  borderColor: "blue.200",
+  overflow: "hidden" as const,
+  _dark: {
+    background: "linear-gradient(160deg, #1e3a5f 0%, #1e3a8a 60%, #172554 100%)",
+    borderColor: "blue.800",
+  },
+};
 
 /* ─── Main Layout ─── */
 export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
@@ -248,10 +320,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
   const logout = useLogout();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-
-  const handleLogout = () => {
-    logout.mutate();
-  };
+  const handleLogout = () => logout.mutate();
 
   return (
     <Box minH="100vh" bg="bg.canvas" color="fg">
@@ -261,23 +330,10 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         position="fixed"
         left="0"
         top="0"
-        h="full"
-        bg="bg.panel"
-        w="270px"
-        display={{ base: "none", lg: "block" }}
         zIndex="100"
-        borderRight="1px solid"
-        borderColor="border.muted"
         boxShadow="sm"
-        overflowY="auto"
-        css={{
-          "&::-webkit-scrollbar": { width: "4px" },
-          "&::-webkit-scrollbar-track": { background: "transparent" },
-          "&::-webkit-scrollbar-thumb": {
-            background: "var(--chakra-colors-border)",
-            borderRadius: "full",
-          },
-        }}
+        display={{ base: "none", lg: "block" }}
+        {...sharedSidebarProps}
       >
         <SidebarContent
           navLinks={navLinks}
@@ -292,8 +348,8 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         <Box
           position="fixed"
           inset="0"
-          bg="blackAlpha.600"
-          backdropFilter="blur(8px)"
+          bg="blackAlpha.500"
+          backdropFilter="blur(6px)"
           zIndex="200"
           onClick={toggleMobileMenu}
           display={{ lg: "none" }}
@@ -306,17 +362,14 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         position="fixed"
         left={isMobileMenuOpen ? "0" : "-300px"}
         top="0"
-        h="full"
-        bg="bg.panel"
-        w="270px"
         transition="left 0.3s cubic-bezier(.4,0,.2,1)"
         zIndex="201"
         display={{ lg: "none" }}
         boxShadow={isMobileMenuOpen ? "2xl" : "none"}
-        overflowY="auto"
+        {...sharedSidebarProps}
       >
-        <VStack h="full" p={5} align="stretch" gap={6}>
-          {/* Mobile Header */}
+        <VStack h="full" p={5} align="stretch" gap={5} position="relative" overflow="hidden">
+          <SidebarDecoration />
           <Flex justify="space-between" align="center">
             <SidebarBrand />
             <IconButton
@@ -325,27 +378,28 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               onClick={toggleMobileMenu}
               aria-label="Close menu"
               borderRadius="lg"
+              color="blue.500"
+              _hover={{ bg: "whiteAlpha.600", color: "blue.700" }}
             >
               <LuX />
             </IconButton>
           </Flex>
-
-          <Separator borderColor="border.muted" />
-
-          {/* Navigation */}
-          <Box>
-            <Text
-              fontSize="xs"
-              fontWeight="bold"
-              textTransform="uppercase"
-              letterSpacing="wider"
-              color="fg.muted"
-              mb={3}
-              px={3}
-            >
-              Menu
-            </Text>
-            <VStack align="stretch" gap={1} flex="1">
+          <Separator borderColor="blue.200" opacity={0.5} flexShrink={0} _dark={{ borderColor: "blue.700" }} />
+          <Box
+            flex={1}
+            overflowY="auto"
+            overflowX="hidden"
+            css={{
+              "&::-webkit-scrollbar": { width: "3px" },
+              "&::-webkit-scrollbar-track": { background: "transparent" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "rgba(147,197,253,0.4)",
+                borderRadius: "full",
+              },
+            }}
+          >
+            <SectionLabel label="Navigation" />
+            <VStack align="stretch" gap={1}>
               {navLinks.map((link) => (
                 <NavItem
                   key={link.path}
@@ -355,22 +409,20 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               ))}
             </VStack>
           </Box>
-
-          <Box flex={1} />
-
-          {/* User Profile */}
-          <SidebarUserProfile user={user} onLogout={handleLogout} />
+          <Box flexShrink={0}>
+            <SidebarUserProfile user={user} onLogout={handleLogout} />
+          </Box>
         </VStack>
       </Box>
 
       {/* ─── Main Content Area ─── */}
-      <Box ml={{ base: 0, lg: "270px" }} transition="margin 0.3s">
+      <Box ml={{ base: 0, lg: SIDEBAR_WIDTH }} transition="margin 0.3s">
         {/* ─── Top Navbar ─── */}
         <Flex
           as="header"
-          h="64px"
-          bg="bg.panel/80"
-          backdropFilter="blur(12px)"
+          h="60px"
+          bg="bg.panel/90"
+          backdropFilter="blur(16px)"
           borderBottom="1px solid"
           borderColor="border.muted"
           px={{ base: 4, md: 8 }}
@@ -393,7 +445,6 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               <LuMenu />
             </IconButton>
 
-            {/* Search bar (desktop) */}
             <HStack
               display={{ base: "none", md: "flex" }}
               bg="bg.subtle"
@@ -402,14 +453,18 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               px={4}
               py={2}
               gap={2}
-              minW="280px"
+              minW="260px"
               cursor="pointer"
               border="1px solid"
               borderColor="transparent"
               transition="all 0.2s"
-              _hover={{ borderColor: "border" }}
+              _hover={{
+                borderColor: "blue.200",
+                bg: "blue.50",
+                _dark: { borderColor: "blue.700", bg: "whiteAlpha.50" },
+              }}
             >
-              <Icon as={LuSearch} boxSize={4} color="fg.muted" />
+              <Icon as={LuSearch} boxSize={3.5} color="fg.muted" />
               <Text fontSize="sm" color="fg.muted">
                 Search...
               </Text>
@@ -433,7 +488,6 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
 
           {/* Right side */}
           <HStack gap={1}>
-            {/* Search icon for mobile */}
             <IconButton
               display={{ base: "flex", md: "none" }}
               variant="ghost"
@@ -447,7 +501,6 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
 
             <ColorModeButton />
 
-            {/* Notification bell with badge */}
             <Box position="relative">
               <IconButton
                 variant="ghost"
@@ -455,7 +508,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
                 color="fg.muted"
                 size="sm"
                 borderRadius="lg"
-                _hover={{ color: "fg" }}
+                _hover={{ color: "fg", bg: "blue.50", _dark: { bg: "whiteAlpha.100" } }}
               >
                 <LuBell />
               </IconButton>
@@ -478,7 +531,6 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               </Badge>
             </Box>
 
-            {/* User avatar with name */}
             <HStack
               gap={2}
               ml={2}
@@ -498,21 +550,19 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               <Avatar.Root size="sm">
                 <Avatar.Fallback
                   name={user?.username}
-                  bg="blue.500"
-                  color="white"
                   fontWeight="semibold"
+                  fontSize="xs"
                 />
               </Avatar.Root>
             </HStack>
 
-            {/* Mobile avatar only */}
             <Box display={{ base: "block", md: "none" }}>
               <Avatar.Root size="sm">
                 <Avatar.Fallback
                   name={user?.username}
-                  bg="blue.500"
                   color="white"
                   fontWeight="semibold"
+                  fontSize="xs"
                 />
               </Avatar.Root>
             </Box>
@@ -520,11 +570,7 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
         </Flex>
 
         {/* ─── Page Content ─── */}
-        <Box
-          p={{ base: 4, md: 6, lg: 8 }}
-          maxW="1400px"
-          mx="auto"
-        >
+        <Box p={{ base: 4, md: 6, lg: 8 }} mx="auto">
           <Outlet />
         </Box>
       </Box>

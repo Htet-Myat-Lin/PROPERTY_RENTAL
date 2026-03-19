@@ -126,19 +126,19 @@ export function PropertyDetailDialog({ property }: { property: IProperty }) {
         <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
           <Heading size="sm" mb="3">Location</Heading>
           <Stack gap="2">
-            {property.location.address && (
+            {property.locationAddress && (
               <Flex justify="space-between">
                 <Text fontWeight="medium">Address:</Text>
                 <Text maxW="70%" textAlign="right" fontSize="sm">
-                  {property.location.address}
+                  {property.locationAddress}
                 </Text>
               </Flex>
             )}
             <Flex justify="space-between">
               <Text fontWeight="medium">Coordinates:</Text>
               <Text fontSize="sm" color="gray.600">
-                {property.location.coordinates.length === 2
-                  ? `${property.location.coordinates[0].toFixed(6)}, ${property.location.coordinates[1].toFixed(6)}`
+                {property.coordinates.length === 2
+                  ? `${property.coordinates[0].toFixed(6)}, ${property.coordinates[1].toFixed(6)}`
                   : "Not set"}
               </Text>
             </Flex>
@@ -146,15 +146,15 @@ export function PropertyDetailDialog({ property }: { property: IProperty }) {
         </Box>
 
         {/* Additional Features */}
-        {(property.nearTransit || property.appliances?.length || property.internet) && (
+        {(property.nearTransitType || property.appliances?.length || property.internetName) && (
           <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
             <Heading size="sm" mb="3">Additional Features</Heading>
             <Stack gap="2">
-              {property.nearTransit?.type && (
+              {property.nearTransitType && (
                 <Flex justify="space-between">
                   <Text fontWeight="medium">Near Transit:</Text>
                   <Text>
-                    {property.nearTransit.type} ({property.nearTransit.distance}m)
+                    {property.nearTransitType} ({property.nearTransitDist}m)
                   </Text>
                 </Flex>
               )}
@@ -166,11 +166,11 @@ export function PropertyDetailDialog({ property }: { property: IProperty }) {
                   </Text>
                 </Flex>
               )}
-              {property.internet?.name && (
+              {property.internetName && (
                 <Flex justify="space-between">
                   <Text fontWeight="medium">Internet:</Text>
                   <Text>
-                    {property.internet.name} ({property.internet.speed})
+                    {property.internetName} ({property.internetSpeed})
                   </Text>
                 </Flex>
               )}

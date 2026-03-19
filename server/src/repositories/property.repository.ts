@@ -19,7 +19,7 @@ export class PropertyRepository {
       prisma.property.findMany({
         where: queryFilters,
         include: {
-          user: { select: { username: true } },
+          landlord: { select: { username: true } },
         },
         orderBy,
         skip,

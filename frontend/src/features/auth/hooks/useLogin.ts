@@ -9,7 +9,7 @@ export const useLogin = () => {
     return useMutation({
         mutationFn: AuthApi.login,
         onSuccess: (data) => {
-            setAccessToken(data.accessToken)
+            setAccessToken(data.content.accessToken)
             setUser(data.content.user)
         },
         onError: (err) => console.error(err)

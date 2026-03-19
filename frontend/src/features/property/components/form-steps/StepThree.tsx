@@ -35,16 +35,16 @@ export function StepThree() {
 
   useEffect(() => {
     const getAddress = async () => {
-      if (formData.location.coordinates.length === 2) {
-        const [lat, lng] = formData.location.coordinates;
+      if (formData.coordinates.length === 2) {
+        const [lat, lng] = formData.coordinates;
         const result = await reverseGeocode(lat, lng);
         const formattedAddress = formatAddress(result);
         setAddress(formattedAddress);
       }
     };
     getAddress();
-    setValue("location.address", address);
-  }, [formData.location.coordinates, setValue, address]);
+    setValue("locationAddress", address);
+  }, [formData.coordinates, setValue, address]);
 
   const renderImagePreview = (images: string[]) => {
     if (!images || images.length === 0) return null;
@@ -215,7 +215,7 @@ export function StepThree() {
         </Box>
 
         {/* Additional Features */}
-        {(formData.nearTransit?.type || formData.appliances?.length || formData.internet?.name) && (
+        {(formData.nearTransitType || formData.appliances?.length || formData.internetName) && (
           <Box 
             p={4} 
             borderWidth="1px" 
@@ -226,10 +226,10 @@ export function StepThree() {
               Additional Features
             </Heading>
             <Stack gap={2}>
-              {formData.nearTransit?.type && (
+              {formData.nearTransitType && (
                 <InfoRow 
                   label="Near Transit" 
-                  value={`${formData.nearTransit.type} (${formData.nearTransit.distance}m)`}
+                  value={`${formData.nearTransitType} (${formData.nearTransitDist}m)`}
                 />
               )}
               {formData.appliances && formData.appliances.length > 0 && (
@@ -247,10 +247,10 @@ export function StepThree() {
                   </Flex>
                 </Flex>
               )}
-              {formData.internet?.name && (
+              {formData.internetName && (
                 <InfoRow 
                   label="Internet" 
-                  value={`${formData.internet.name} (${formData.internet.speed})`}
+                  value={`${formData.internetName} (${formData.internetSpeed})`}
                   icon={LuWifi}
                 />
               )}
@@ -276,8 +276,8 @@ export function StepThree() {
               label="Coordinates" 
               value={
                 <Text fontSize="xs" color="fg.muted">
-                  {formData.location.coordinates.length === 2 
-                    ? `${formData.location.coordinates[0].toFixed(6)}, ${formData.location.coordinates[1].toFixed(6)}`
+                  {formData.coordinates.length === 2 
+                    ? `${formData.coordinates[0].toFixed(6)}, ${formData.coordinates[1].toFixed(6)}`
                     : 'Not set'
                   }
                 </Text>

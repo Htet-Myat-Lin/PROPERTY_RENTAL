@@ -35,7 +35,7 @@ export function PropertyTableList({ items, openEditModal }: Props) {
   const [selectedIds, setSelectedIds] = useState(new Set<string>());
 
   // Memoize allIds to avoid recreating on every render
-  const allIds = useMemo(() => items.map((item) => item._id), [items]);
+  const allIds = useMemo(() => items.map((item) => item.id), [items]);
 
   // Optimized handlers with useCallback
   const handleCheckboxChange = useCallback((id: string) => {
@@ -119,7 +119,7 @@ export function PropertyTableList({ items, openEditModal }: Props) {
       <Table.Body>
         {items.map((item) => (
           <Table.Row
-            key={item._id}
+            key={item.id}
             transition="background 0.15s"
             _hover={{ bg: "bg.subtle", _dark: { bg: "whiteAlpha.50" } }}
           >
@@ -128,8 +128,8 @@ export function PropertyTableList({ items, openEditModal }: Props) {
                 variant="solid"
                 colorPalette="blue"
                 size="sm"
-                checked={isChecked(item._id)}
-                onChange={() => handleCheckboxChange(item._id)}
+                checked={isChecked(item.id)}
+                onChange={() => handleCheckboxChange(item.id)}
               >
                 <Checkbox.HiddenInput />
                 <Checkbox.Control />
@@ -142,7 +142,7 @@ export function PropertyTableList({ items, openEditModal }: Props) {
             </Table.Cell>
             <Table.Cell>
               <Text fontWeight="semibold" fontSize="sm" color="blue.600" _dark={{ color: "blue.300" }}>
-                ${item.baseRentPrice.toLocaleString()}
+                {item.baseRentPrice.toLocaleString()} ks
               </Text>
             </Table.Cell>
             <Table.Cell>
@@ -155,7 +155,7 @@ export function PropertyTableList({ items, openEditModal }: Props) {
             </Table.Cell>
             <Table.Cell>
               <Text fontSize="sm" lineClamp={1} maxW="200px" color="fg.muted">
-                {item.location.address}
+                {item.locationAddress}
               </Text>
             </Table.Cell>
             <Table.Cell>
@@ -256,7 +256,7 @@ export function PropertyTableList({ items, openEditModal }: Props) {
                           <Button
                             colorPalette="red"
                             borderRadius="lg"
-                            onClick={() => handleDelete(item._id)}
+                            onClick={() => handleDelete(item.id)}
                           >
                             Delete
                           </Button>

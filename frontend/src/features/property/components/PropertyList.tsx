@@ -120,9 +120,9 @@ export function PropertyList() {
   };
 
   const { data, isPending } = useGetLandlordProperties(filters);
-  const properties = data?.properties || [];
-  const totalPages = data?.totalPages || 0;
-  const totalCount = data?.totalCount || 0;
+  const properties = data?.content?.properties || [];
+  const totalPages = data?.content?.totalPages || 0;
+  const totalCount = data?.content?.totalCount || 0;
 
   const hasActiveFilters = statusValue || sortValue || searchValue;
 

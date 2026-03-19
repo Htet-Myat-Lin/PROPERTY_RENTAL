@@ -12,20 +12,12 @@ export const propertyFormSchema = z
     baths: z.coerce.number().nonnegative(),
     area: z.coerce.number().nonnegative(),
     propertyType: z.string().min(1, "Property Type is required"),
-    location: z.object({
-      coordinates: z
-        .array(z.number())
-        .length(2, "Property location is required"),
-      address: z.string().optional(),
-    }),
+    coordinates: z.array(z.number()).length(2, "Property location is required"),
+    locationAddress: z.string(),
     images: z.any().array().optional(),
     existingImages: z.array(z.string()).optional(),
-    nearTransit: z
-      .object({
-        type: z.string(),
-        distance: z.coerce.number().nonnegative(),
-      })
-      .optional(),
+    nearTransitType: z.string().optional(),
+    nearTransitDist: z.coerce.number().nonnegative().optional(),
     parkingSpaces: z.coerce.number().nonnegative().default(0),
     yearBuilt: z.preprocess((val) => {
       if (val === "" || val === null || val === undefined) return undefined;
@@ -35,7 +27,8 @@ export const propertyFormSchema = z
     petAllowed: z.boolean().default(false),
     appliances: z.array(z.string()).optional(),
     availableDate: z.string().min(1, "Available Date is required"),
-    internet: z.object({ name: z.string(), speed: z.string() }).optional(),
+    internetName: z.string().optional(),
+    internetSpeed: z.string().optional(),
     leaseTermMonths: z.coerce
       .number()
       .min(6, "Minimum Lease Term must be 6 months")

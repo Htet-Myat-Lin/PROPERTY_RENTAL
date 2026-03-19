@@ -10,7 +10,7 @@ export interface IPropertyFormSlice {
 }
 
 export interface IProperty {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   baseRentPrice: number;
@@ -19,16 +19,19 @@ export interface IProperty {
   area: number;
   propertyType: string;
   status: string;
-  location: { type: string; coordinates: [number, number]; address: string };
+  locationAddress?: string;
+  coordinates: [number, number];
   images: string[];
-  nearTransit: { type: string; distance: number };
+  nearTransitType?: string;
+  nearTransitDist?: number;
   parkingSpaces: number;
   rating: number;
   yearBuilt?: number;
   petAllowed: boolean;
   appliances?: string[];
   availableDate: string;
-  internet?: { name: string; speed: string };
+  internetName?: string;
+  internetSpeed?: string;
   leaseTermMonths: number;
   user: IUser;
   createdAt: Date;

@@ -44,7 +44,7 @@ export enum PropertyStatus {
 
 export interface IProperty {
   id: string;
-  userId: string;
+  landlordId: string;
   user?: IUser;
   title: string;
   description: string;
@@ -81,7 +81,7 @@ export type PropertyFilters = {
 }
 
 export type PropertyQueryFilters = {
-  userId: string;
+  landlordId: string;
   status?: string;
   title?: string;
   description?: string;

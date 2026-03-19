@@ -1,7 +1,10 @@
 import { PropertyRepository } from "@/repositories/property.repository";
 import { PropertyFilters } from "@/types/types";
 import { AppError, NotFoundError } from "@/utils/app.error";
+import { PropertyType } from "generated/prisma/client.js";
 import fs from "node:fs"
+
+const PROPERTY_TYPES = Object.values(PropertyType) as string[];
 
 export const getPropertiesByLandlordService = async (
   landlordId: string,
@@ -13,16 +16,22 @@ export const getPropertiesByLandlordService = async (
   const skip = (page - 1) * limit;
 
   const queryFilters: any = {};
-  if (landlordId) queryFilters.userId = landlordId;
+  if (landlordId) queryFilters.landlordId = landlordId;
   if (status) queryFilters.status = status;
   if (search && search.trim().length > 0) {
-    const searchTerm = search.trim();
-    queryFilters.OR = [
+    const searchTerm = search.trim().toLowerCase();
+    const orConditions: any[] = [
       { title: { contains: searchTerm, mode: "insensitive" } },
       { description: { contains: searchTerm, mode: "insensitive" } },
-      { propertyType: { contains: searchTerm, mode: "insensitive" } },
-      { locationAddress: { contains: searchTerm, mode: "insensitive" } },
+      { locationAddress: { contains: searchTerm, mode: "insensitive" } }
     ];
+    const matchingPropertyType = PROPERTY_TYPES.find(
+      (t) => t.toLowerCase() === searchTerm
+    );
+    if (matchingPropertyType) {
+      orConditions.push({ propertyType: { equals: matchingPropertyType as PropertyType } });
+    }
+    queryFilters.OR = orConditions;
   }
 
   let orderBy: any = { createdAt: "desc" }; // default newest
@@ -66,13 +75,23 @@ export const createPropertyService = async (
   if (typeof body.appliances === "string") {
     body.appliances = JSON.parse(body.appliances);
   }
+  body.baseRentPrice = Number(body.baseRentPrice);
+  body.beds = Number(body.beds);
+  body.baths = Number(body.baths);
+  body.area = Number(body.area);
+  body.parkingSpaces = Number(body.parkingSpaces);
+  body.yearBuilt = Number(body.yearBuilt);
+  body.leaseTermMonths = Number(body.leaseTermMonths);
+  body.petAllowed = Boolean(body.petAllowed);
+  body.availableDate = new Date(body.availableDate);
+  body.nearTransitDist = Number(body.nearTransitDist);
 
   const images = files?.map((file) => file.filename);
 
   const newProperty = await PropertyRepository.create({
     ...body,
     images,
-    userId: landlordId,
+    landlordId: landlordId,
   });
 
   return { property: newProperty };

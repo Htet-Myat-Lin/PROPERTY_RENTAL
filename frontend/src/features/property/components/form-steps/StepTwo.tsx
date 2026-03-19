@@ -56,7 +56,7 @@ export function StepTwo() {
     register,
   } = useFormContext<PropertyFormValues>();
 
-  const savedCoords = getValues("location.coordinates");
+  const savedCoords = getValues("coordinates");
   const initialLocation =
     savedCoords.length === 2
       ? { lat: savedCoords[0], lng: savedCoords[1] }
@@ -124,21 +124,21 @@ export function StepTwo() {
             borderRadius="xl" 
             overflow="hidden" 
             border="1px solid" 
-            borderColor={errors.location?.coordinates ? "red.300" : "border"}
+            borderColor={errors?.coordinates ? "red.300" : "border"}
           >
             <LocationPicker
               defaultValue={initialLocation}
               onSelect={(coords) => {
-                setValue("location.coordinates", [coords.lat, coords.lng], {
+                setValue("coordinates", [coords.lat, coords.lng], {
                   shouldValidate: true,
                   shouldDirty: true,
                 });
               }}
             />
           </Box>
-          {errors.location?.coordinates && (
+          {errors?.coordinates && (
             <Text color="red.500" fontSize="xs" mt={1}>
-              {errors.location.coordinates.message}
+              {errors.coordinates.message}
             </Text>
           )}
         </Box>
@@ -224,22 +224,22 @@ export function StepTwo() {
               Near Transit
             </Text>
             <Flex align="center" gap={2}>
-              <Field.Root invalid={!!errors.nearTransit?.type}>
+              <Field.Root invalid={!!errors.nearTransitType}>
                 <Input
                   type="text"
                   placeholder="Transit type"
-                  {...register("nearTransit.type")}
+                  {...register("nearTransitType")}
                   size="sm"
                   borderRadius="lg"
                 />
               </Field.Root>
-              <Field.Root invalid={!!errors.nearTransit?.distance}>
+              <Field.Root invalid={!!errors.nearTransitDist}>
                 <NumberInput.Root defaultValue="0" min={0} size="sm" w="100px">
                   <NumberInput.Control borderRadius="lg">
                     <NumberInput.IncrementTrigger />
                     <NumberInput.DecrementTrigger />
                   </NumberInput.Control>
-                  <NumberInput.Input {...register("nearTransit.distance")} />
+                  <NumberInput.Input {...register("nearTransitDist")} />
                 </NumberInput.Root>
               </Field.Root>
             </Flex>
@@ -340,20 +340,20 @@ export function StepTwo() {
             Internet
           </Text>
           <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={3}>
-            <Field.Root invalid={!!errors.internet?.name}>
+            <Field.Root invalid={!!errors.internetName}>
               <Input
                 type="text"
                 placeholder="Provider (e.g., Comcast)"
-                {...register("internet.name")}
+                {...register("internetName")}
                 size="sm"
                 borderRadius="lg"
               />
             </Field.Root>
-            <Field.Root invalid={!!errors.internet?.speed}>
+            <Field.Root invalid={!!errors.internetSpeed}>
               <Input
                 type="text"
                 placeholder="Speed (e.g., 100 Mbps)"
-                {...register("internet.speed")}
+                {...register("internetSpeed")}
                 size="sm"
                 borderRadius="lg"
               />

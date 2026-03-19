@@ -49,24 +49,19 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
       baths: 0,
       area: 0,
       propertyType: "",
-      location: {
-        coordinates: [] as unknown as [number, number],
-      },
+      locationAddress: "",
+      coordinates: [] as unknown as [number, number],
       images: [],
       existingImages: [],
-      nearTransit: {
-        type: "",
-        distance: 0,
-      },
+      nearTransitType: "",
+      nearTransitDist: 0,
       parkingSpaces: 0,
       yearBuilt: 2010,
       petAllowed: false,
       appliances: [],
       availableDate: new Date().toISOString().split("T")[0],
-      internet: {
-        name: "",
-        speed: "",
-      },
+      internetName: "",
+      internetSpeed: "",
       leaseTermMonths: undefined,
     },
     shouldFocusError: false
@@ -74,7 +69,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
 
   const { handleSubmit, trigger, reset, watch, formState: {isDirty} } = methods;
 
-  const address = watch("location.address")
+  const address = watch("locationAddress")
 
   const {
     isPending: isCreating,
@@ -88,7 +83,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
     mutate: editProperty,
     isSuccess: isEditingSuccess,
     error: editError
-  } = useEditProperty(propertyToEdit?._id || "")
+  } = useEditProperty(propertyToEdit?.id || "")
 
   const apiResponseError = createError || editError
 
@@ -106,12 +101,13 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
     formData.append("area", data.area.toString());
     formData.append("propertyType", data.propertyType);
     formData.append("parkingSpaces", (data.parkingSpaces || 0).toString());
+    formData.append("locationAddress", data.locationAddress)
+
+    formData.append("petAllowed", data.petAllowed ? "true" : "false");
     
     if (data.yearBuilt) {
       formData.append("yearBuilt", data.yearBuilt.toString());
     }
-    
-    formData.append("petAllowed", data.petAllowed ? "true" : "false");
     
     if (data.availableDate) {
       formData.append("availableDate", data.availableDate);
@@ -121,19 +117,27 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
       formData.append("leaseTermMonths", data.leaseTermMonths.toString());
     }
     
-    if (data.nearTransit) {
-      formData.append("nearTransit", JSON.stringify(data.nearTransit));
+    if (data.nearTransitType) {
+      formData.append("nearTransitType", JSON.stringify(data.nearTransitType));
+    }
+
+    if (data.nearTransitDist) {
+      formData.append("nearTransitDist", data.nearTransitDist.toString());
     }
     
     if (data.appliances && data.appliances.length > 0) {
       formData.append("appliances", JSON.stringify(data.appliances));
     }
     
-    if (data.internet) {
-      formData.append("internet", JSON.stringify(data.internet));
+    if (data.internetName) {
+      formData.append("internetName", JSON.stringify(data.internetName));
     }
 
-    formData.append("location", JSON.stringify(data.location));
+    if (data.internetSpeed) {
+      formData.append("internetSpeed", JSON.stringify(data.internetSpeed));
+    }
+
+    formData.append("coordinates", JSON.stringify(data.coordinates));
 
     if (data.existingImages && data.existingImages.length > 0) {
       formData.append("existingImages", JSON.stringify(data.existingImages));
@@ -170,7 +174,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
         "availableDate"
       ];
     } else if (currentStep === 1) {
-      fieldsToValidate = ["propertyType", "location", "images"];
+      fieldsToValidate = ["propertyType", "locationAddress", "images"];
     }
 
     const isStepValid = await trigger(fieldsToValidate);
@@ -204,15 +208,18 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
         baths: propertyToEdit.baths,
         area: propertyToEdit.area,
         propertyType: propertyToEdit.propertyType,
-        location: { coordinates: propertyToEdit.location.coordinates },
+        locationAddress: propertyToEdit.locationAddress,
+        coordinates: propertyToEdit.coordinates,
         existingImages: propertyToEdit.images,
-        nearTransit: propertyToEdit.nearTransit || { type: "", distance: 0 },
+        nearTransitType: propertyToEdit.nearTransitType,
+        nearTransitDist: propertyToEdit.nearTransitDist,
         parkingSpaces: propertyToEdit.parkingSpaces || 0,
         yearBuilt: propertyToEdit.yearBuilt,
         petAllowed: propertyToEdit.petAllowed || false,
         appliances: propertyToEdit.appliances || [],
         availableDate: new Date(propertyToEdit.availableDate).toISOString().split("T")[0],
-        internet: propertyToEdit.internet || { name: "", speed: "" },
+        internetName: propertyToEdit.internetName,
+        internetSpeed: propertyToEdit.internetSpeed,
         leaseTermMonths: propertyToEdit.leaseTermMonths
       })
     }
@@ -324,7 +331,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
           >
             <Button
               type="button"
-              variant="ghost"
+              colorPalette="red"
               onClick={prevStep}
               disabled={currentStep === 0}
               borderRadius="lg"

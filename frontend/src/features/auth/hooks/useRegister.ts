@@ -9,7 +9,7 @@ export const useRegister = () =>{
         mutationFn: AuthApi.register,
         onSuccess: (data) => {
             setUser(data.content.user)
-            setAccessToken(data.accessToken)
+            setAccessToken(data.content.accessToken)
         }
     })
 }
