@@ -6,11 +6,11 @@ import fs from "node:fs"
 
 const PROPERTY_TYPES = Object.values(PropertyType) as string[];
 
-export const getPropertiesByLandlordService = async (
-  landlordId: string,
+export const getPropertiesService = async (
   filters: PropertyFilters,
+  landlordId: string | null = null
 ) => {
-  const { search, sortBy, status } = filters;
+  const { search, sortBy, status, propertyTypes, bedrooms, bathrooms, priceRange, leaseTermMonths } = filters;
   const page = filters.page || 1;
   const limit = filters.limit || 10;
   const skip = (page - 1) * limit;
@@ -18,6 +18,11 @@ export const getPropertiesByLandlordService = async (
   const queryFilters: any = {};
   if (landlordId) queryFilters.landlordId = landlordId;
   if (status) queryFilters.status = status;
+  if (propertyTypes) queryFilters.propertyType = { in: Array.isArray(propertyTypes) ? propertyTypes : [propertyTypes] };
+  if (bedrooms) queryFilters.beds = { gte: bedrooms }
+  if (bathrooms) queryFilters.baths = { gte: bathrooms }
+  if (priceRange) queryFilters.baseRentPrice = { gte: priceRange.minPrice, lte: priceRange.maxPrice }
+  if (leaseTermMonths) queryFilters.leaseTermMonths = { gte: leaseTermMonths }
   if (search && search.trim().length > 0) {
     const searchTerm = search.trim().toLowerCase();
     const orConditions: any[] = [

@@ -1,12 +1,23 @@
 import { Header } from "@/components/Header/Header";
-import { Center, Text } from "@chakra-ui/react";
+import { Listings } from "@/features/property/components/Listings";
+import { Box } from "@chakra-ui/react";
 
 export function PropertyListingPage() {
   return (
-  <>
-    <Header />
-    <Center minH="4xl">
-      <Text>Properties Page</Text>
-    </Center>
-  </>);
+    <>
+      <Header />
+      <Box
+        bg="bg.subtle"
+        px={{ base: "2", md: "4" }}
+        py={{ base: "12", md: "20" }}
+      >
+        <Box
+          mx="auto"
+          maxW="7xl"
+        >
+          <Listings />
+        </Box>
+      </Box>
+    </>
+  );
 }

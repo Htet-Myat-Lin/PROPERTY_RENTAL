@@ -25,8 +25,9 @@ export const cache = (ttl: number = 60, tag: string = "default") => {
             const originalJson = res.json.bind(res)
 
             res.json = (data: any) => {
+                const cachedData = { statusCode, data }
                 // store response data with in redis
-                redisClient.setEx(key, ttl, JSON.stringify(data)).catch(console.error)
+                redisClient.setEx(key, ttl, JSON.stringify(cachedData)).catch(console.error)
                 // store key under tag
                 redisClient.SADD(`tags:${tag}`, key).catch(console.error)
                 // send response

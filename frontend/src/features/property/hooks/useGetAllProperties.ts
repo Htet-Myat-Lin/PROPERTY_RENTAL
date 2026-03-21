@@ -2,9 +2,9 @@
 import { PropertyApi } from "@/api/services/property-service";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetLandlordProperties = (filters?: any) => {
+export const useGetAllProperties = (filters?: any) => {
   return useQuery({
-    queryKey: ["properties", "landlord", filters],
-    queryFn: () => PropertyApi.getLandlordProperties(filters),
+    queryKey: ["properties", filters],
+    queryFn: () => PropertyApi.getAllProperties(filters),
   });
 };

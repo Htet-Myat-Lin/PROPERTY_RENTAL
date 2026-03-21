@@ -38,7 +38,7 @@ interface PropertyFilters {
   search?: string;
 }
 
-const PAGE_LIMIT = 3;
+const PAGE_LIMIT = 10;
 
 const statuses = [
   { label: "All", value: "" },

@@ -77,7 +77,15 @@ export type PropertyFilters = {
   sortBy?: string;
   page?: number;
   limit?: number;
-  status?: string
+  status?: string;
+  propertyTypes?: PropertyType[];
+  leaseTermMonths?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  priceRange?: {
+    minPrice?: number;
+    maxPrice?: number;
+  }
 }
 
 export type PropertyQueryFilters = {
