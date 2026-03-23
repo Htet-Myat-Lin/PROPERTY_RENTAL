@@ -57,7 +57,7 @@ export const getAllProperties = asyncHandler(async (req, res, _next) => {
 export const getPropertyById = asyncHandler(async (req, res, _next) => {
   const property = await PropertyRepository.findById(req.params.id);
   if (!property) throw new AppError("Property not found", 404);
-  successResponse(res, "Property was fetched", 200, property);
+  successResponse(res, "Property was fetched", 200, { property });
 });
 
 export const createProperty = async (

@@ -19,6 +19,7 @@ import {
   LuUsers,
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
+import { PropertyDetailsPage } from "@/pages/PropdertyDetailsPage";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
   { path: "/about", element: <AboutPage /> },
   { path: "/contact", element: <ContactPage /> },
   { path: "/properties", element: <PropertyListingPage /> },
+  { path: "/properties/:propertyId", element: <PropertyDetailsPage /> },
   { path: "/testimonial", element: <TestimonialPage /> },
   { path: "/login-register", element: <LoginRegisterPage /> },
   { path: "/verify-email", element: <EmailVerificationPage /> },

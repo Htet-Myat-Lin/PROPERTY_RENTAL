@@ -4,8 +4,6 @@ import { AppError, NotFoundError } from "@/utils/app.error";
 import { PropertyType } from "generated/prisma/client.js";
 import fs from "node:fs"
 
-const PROPERTY_TYPES = Object.values(PropertyType) as string[];
-
 export const getPropertiesService = async (
   filters: PropertyFilters,
   landlordId: string | null = null
@@ -30,12 +28,6 @@ export const getPropertiesService = async (
       { description: { contains: searchTerm, mode: "insensitive" } },
       { locationAddress: { contains: searchTerm, mode: "insensitive" } }
     ];
-    const matchingPropertyType = PROPERTY_TYPES.find(
-      (t) => t.toLowerCase() === searchTerm
-    );
-    if (matchingPropertyType) {
-      orConditions.push({ propertyType: { equals: matchingPropertyType as PropertyType } });
-    }
     queryFilters.OR = orConditions;
   }
 
@@ -80,16 +72,6 @@ export const createPropertyService = async (
   if (typeof body.appliances === "string") {
     body.appliances = JSON.parse(body.appliances);
   }
-  body.baseRentPrice = Number(body.baseRentPrice);
-  body.beds = Number(body.beds);
-  body.baths = Number(body.baths);
-  body.area = Number(body.area);
-  body.parkingSpaces = Number(body.parkingSpaces);
-  body.yearBuilt = Number(body.yearBuilt);
-  body.leaseTermMonths = Number(body.leaseTermMonths);
-  body.petAllowed = Boolean(body.petAllowed);
-  body.availableDate = new Date(body.availableDate);
-  body.nearTransitDist = Number(body.nearTransitDist);
 
   const images = files?.map((file) => file.filename);
 
@@ -128,7 +110,7 @@ export const editPropertyService = async (propertyId: string, body: any, files: 
 
   const newImages = files?.map((file) => file.filename)
 
-  delete body.expressingImages // remove existing images from body for update
+  delete body.existingImages // remove existing images from body for update
   
   const updatedProperty = await PropertyRepository.edit(propertyId, { ...body, images: [...existingImages, ...newImages] })
 

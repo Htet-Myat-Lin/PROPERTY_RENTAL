@@ -118,7 +118,7 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
     }
     
     if (data.nearTransitType) {
-      formData.append("nearTransitType", JSON.stringify(data.nearTransitType));
+      formData.append("nearTransitType", data.nearTransitType);
     }
 
     if (data.nearTransitDist) {
@@ -130,11 +130,11 @@ export function PropertyForm({ setOpen, propertyToEdit }:{ setOpen: (open: boole
     }
     
     if (data.internetName) {
-      formData.append("internetName", JSON.stringify(data.internetName));
+      formData.append("internetName", data.internetName);
     }
 
     if (data.internetSpeed) {
-      formData.append("internetSpeed", JSON.stringify(data.internetSpeed));
+      formData.append("internetSpeed",data.internetSpeed);
     }
 
     formData.append("coordinates", JSON.stringify(data.coordinates));

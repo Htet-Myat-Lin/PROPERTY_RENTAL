@@ -44,6 +44,10 @@ export const PropertyApi = {
         return (await axiosInstance.get(endpoint)).data
     },
 
+    getProperty: async (propertyId: string) => {
+        return (await axiosInstance.get(`/properties/${propertyId}`)).data
+    },
+
     editProperty: async(propertyId: string, payload: FormData) => {
         return (await axiosInstance.patch(`/properties/${propertyId}`, payload, {
             headers: {"Content-Type": "multipart/form-data"}

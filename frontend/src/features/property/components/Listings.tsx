@@ -44,7 +44,7 @@ import {
   LuSlidersHorizontal,
 } from "react-icons/lu";
 import { HiSortAscending } from "react-icons/hi";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useMemo, useState } from "react";
 import { useGetAllProperties } from "../hooks/useGetAllProperties";
 
@@ -615,7 +615,7 @@ function PropertyCardGrid({ property }: { property: Property }) {
           <HStack gap="1" color="fg.muted">
             <LuCalendar size={11} />
             <Text fontSize="xs">
-              Available{" "}
+              Available from{" "}
               {new Date(property.availableDate).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -648,6 +648,7 @@ function PropertyRowList({ property }: { property: Property }) {
         position="relative"
         minW={{ base: "28", sm: "48" }}
         w={{ base: "28", sm: "48" }}
+        h="44"
         flexShrink={0}
         bg="bg.muted"
         overflow="hidden"
@@ -743,7 +744,7 @@ function PropertyRowList({ property }: { property: Property }) {
             {property.leaseTermMonths && (
               <HStack gap="1" display={{ base: "none", md: "flex" }}>
                 <LuCalendar size={12} />
-                <Text fontSize="xs">{property.leaseTermMonths} mo lease</Text>
+                <Text fontSize="xs">{property.leaseTermMonths} month lease</Text>
               </HStack>
             )}
           </HStack>
@@ -811,7 +812,7 @@ function PropertyRowList({ property }: { property: Property }) {
               color="blue.500"
               lineHeight="1.2"
             >
-              ${property.baseRentPrice.toLocaleString()}
+              {property.baseRentPrice.toLocaleString()} mmk
             </Text>
             <Text fontSize="xs" color="fg.muted">
               /month
@@ -850,7 +851,7 @@ function PropertyRowList({ property }: { property: Property }) {
               borderRadius="lg"
               display={{ base: "none", sm: "flex" }}
             >
-              View
+              <Link to={`/properties/${property.id}`}>View</Link>
             </Button>
           </HStack>
         </VStack>
