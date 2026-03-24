@@ -83,8 +83,8 @@ export type PropertyFilters = {
   bedrooms?: number;
   bathrooms?: number;
   priceRange?: {
-    minPrice?: number;
-    maxPrice?: number;
+    min?: number;
+    max?: number;
   }
 }
 

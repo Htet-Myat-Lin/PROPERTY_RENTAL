@@ -19,7 +19,7 @@ export const getPropertiesService = async (
   if (propertyTypes) queryFilters.propertyType = { in: Array.isArray(propertyTypes) ? propertyTypes : [propertyTypes] };
   if (bedrooms) queryFilters.beds = { gte: bedrooms }
   if (bathrooms) queryFilters.baths = { gte: bathrooms }
-  if (priceRange) queryFilters.baseRentPrice = { gte: priceRange.minPrice, lte: priceRange.maxPrice }
+  if (priceRange) queryFilters.baseRentPrice = { gte: priceRange.min, lte: priceRange.max }
   if (leaseTermMonths) queryFilters.leaseTermMonths = { gte: leaseTermMonths }
   if (search && search.trim().length > 0) {
     const searchTerm = search.trim().toLowerCase();

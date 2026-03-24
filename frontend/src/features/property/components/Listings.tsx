@@ -47,11 +47,16 @@ import { HiSortAscending } from "react-icons/hi";
 import { Link, useSearchParams } from "react-router";
 import { useMemo, useState } from "react";
 import { useGetAllProperties } from "../hooks/useGetAllProperties";
+import { useAppStore } from "@/app/store";
+import { useGetWishlist } from "../hooks/useGetWishlist";
+import { useAddToWishlist } from "../hooks/useAddToWishlist";
+import { useRemoveFromWishlist } from "../hooks/useRemoveFromWishlist";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type PropertyType = "APARTMENT" | "HOUSE" | "CONDO" | "VILLA";
 type Status = "AVAILABLE" | "RENTED" | "MAINTENANCE";
+type Wishlist = { id: string; userId: string; propertyId: string }
 
 interface Property {
   id: string;
@@ -433,8 +438,7 @@ function PropertyCardSkeleton({ list = false }: { list?: boolean }) {
   );
 }
 
-function PropertyCardGrid({ property }: { property: Property }) {
-  const [saved, setSaved] = useState(false);
+function PropertyCardGrid({ property, isInWishlist, toggleSave }: { property: Property, isInWishlist: (propertyId: string) => boolean, toggleSave: (propertyId: string) => void }) {
 
   return (
     <Box
@@ -496,13 +500,13 @@ function PropertyCardGrid({ property }: { property: Property }) {
             variant="solid"
             size="xs"
             borderRadius="full"
-            bg={saved ? "red.500" : "whiteAlpha.800"}
-            color={saved ? "white" : "gray.700"}
+            bg={isInWishlist(property.id) ? "red.500" : "whiteAlpha.800"}
+            color={isInWishlist(property.id) ? "white" : "gray.700"}
             backdropFilter="blur(6px)"
-            _hover={{ bg: saved ? "red.600" : "whiteAlpha.950" }}
-            onClick={() => setSaved(!saved)}
+            _hover={{ bg: isInWishlist(property.id) ? "red.600" : "whiteAlpha.950" }}
+            onClick={() => toggleSave(property.id)}
           >
-            <LuHeart size={12} fill={saved ? "currentColor" : "none"} />
+            <LuHeart size={12} fill={isInWishlist(property.id) ? "currentColor" : "none"} />
           </IconButton>
         </Flex>
 
@@ -629,8 +633,7 @@ function PropertyCardGrid({ property }: { property: Property }) {
   );
 }
 
-function PropertyRowList({ property }: { property: Property }) {
-  const [saved, setSaved] = useState(false);
+function PropertyRowList({ property, isInWishlist, toggleSave }: { property: Property, isInWishlist: (propertyId: string) => boolean, toggleSave: (propertyId: string) => void }) {
 
   return (
     <Flex
@@ -840,10 +843,10 @@ function PropertyRowList({ property }: { property: Property }) {
               variant="ghost"
               size="sm"
               borderRadius="full"
-              color={saved ? "red.400" : "fg.muted"}
-              onClick={() => setSaved(!saved)}
+              color={isInWishlist(property.id) ? "red.400" : "fg.muted"}
+              onClick={() => toggleSave(property.id)}
             >
-              <LuHeart size={14} fill={saved ? "currentColor" : "none"} />
+              <LuHeart size={14} fill={isInWishlist(property.id) ? "currentColor" : "none"} />
             </IconButton>
             <Button
               size="sm"
@@ -1018,6 +1021,14 @@ export function Listings() {
   const properties: Property[] = data?.content?.properties || [];
   const totalPages = data?.content?.totalPages || 1;
   const totalCount = data?.content?.totalCount || 0;
+
+  const user = useAppStore((state) => state.user)
+  const { data: wishlistData } = useGetWishlist(user?.id)
+  const wishlist = wishlistData?.content?.wishlist
+  const isInWishlist = (propertyId: string) => wishlist?.some((p: Wishlist) => p.propertyId === propertyId)
+  const { mutate: addToWishlist } = useAddToWishlist(user?.id)
+  const { mutate: removeFromWishlist } = useRemoveFromWishlist(user?.id)
+  const toggleSave = (propertyId: string) => isInWishlist(propertyId) ? removeFromWishlist(propertyId) : addToWishlist(propertyId)
 
   const filterPanelProps: FilterPanelProps = {
     propertyTypesParam,
@@ -1414,13 +1425,13 @@ export function Listings() {
                 gap="4"
               >
                 {properties.map((p) => (
-                  <PropertyCardGrid key={p.id} property={p} />
+                  <PropertyCardGrid key={p.id} property={p} isInWishlist={isInWishlist} toggleSave={toggleSave} />
                 ))}
               </SimpleGrid>
             ) : (
               <Stack gap="3">
                 {properties.map((p) => (
-                  <PropertyRowList key={p.id} property={p} />
+                  <PropertyRowList key={p.id} property={p} isInWishlist={isInWishlist} toggleSave={toggleSave} />
                 ))}
               </Stack>
             )}
