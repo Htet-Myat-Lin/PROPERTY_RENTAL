@@ -160,6 +160,7 @@ export function Header() {
             <Button
               onClick={() => navigate("/login-register")}
               colorPalette="blue"
+              size="sm"
             >
               Login
             </Button>

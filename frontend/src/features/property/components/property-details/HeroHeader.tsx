@@ -13,8 +13,10 @@ import {
 } from "@chakra-ui/react";
 import { IoLocationSharp } from "react-icons/io5";
 import { LuShare2, LuHeart, LuStar } from "react-icons/lu";
+import { useHandleWishlist } from "../../hooks/useHandleWishlist";
 
 type Props = {
+  id: string
   title: string;
   location: string;
   propertyType: string;
@@ -24,6 +26,7 @@ type Props = {
 };
 
 export function HeroHeader({
+  id,
   title,
   location,
   propertyType,
@@ -31,6 +34,9 @@ export function HeroHeader({
   rating,
   rentPrice,
 }: Props) {
+
+  const { isInWishlist, toggleSave } = useHandleWishlist()
+
   return (
     <Box
       borderWidth="1px"
@@ -144,8 +150,10 @@ export function HeroHeader({
               variant="outline"
               size="sm"
               borderRadius="xl"
+              color={isInWishlist(id) ? "red" : "gray"}
+              onClick={() => toggleSave(id)}
             >
-              <LuHeart size={15} />
+              <LuHeart size={15} fill={isInWishlist(id) ? "currentColor" : "none"} />
             </IconButton>
             <IconButton
               aria-label="Share"

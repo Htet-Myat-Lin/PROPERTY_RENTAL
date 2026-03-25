@@ -35,7 +35,6 @@ export const getLandlordProperties = asyncHandler(async (req, res, _next) => {
 
 export const getAllProperties = asyncHandler(async (req, res, _next) => {
   const filters: PropertyFilters = {};
-  console.log(req.query);
   if (req.query.search) filters.search = req.query.search as string;
   if (req.query.sortBy) filters.sortBy = req.query.sortBy as string;
   if (req.query.page) filters.page = Number(req.query.page);

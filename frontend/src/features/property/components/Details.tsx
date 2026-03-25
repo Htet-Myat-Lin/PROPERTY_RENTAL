@@ -79,7 +79,7 @@ export function Details() {
         <PropertyBreadcrumb title={property?.title} />
 
         {/* ── Hero Header ── */}
-        <HeroHeader title={property?.title} location={property?.location} propertyType={property?.propertyType} status={property?.status} rating={property?.rating} rentPrice={property?.baseRentPrice} />
+        <HeroHeader id={property?.id} title={property?.title} location={property?.locationAddress} propertyType={property?.propertyType} status={property?.status} rating={property?.rating} rentPrice={property?.baseRentPrice} />
 
         {/* ── Image Carousel ── */}
         <PropertyImageCarosel propertyImages={propertyImages} />

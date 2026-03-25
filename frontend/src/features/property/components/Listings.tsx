@@ -6,59 +6,54 @@ import {
   Text,
   Button,
   Group,
-  Checkbox,
-  For,
-  NativeSelect,
-  NumberInput,
   InputGroup,
   Menu,
   Portal,
   Badge,
-  Image,
-  Skeleton,
-  SkeletonText,
-  Separator,
   IconButton,
   HStack,
-  VStack,
   SimpleGrid,
   Drawer,
 } from "@chakra-ui/react";
 import {
   LuSearch,
-  LuBed,
-  LuBath,
-  LuSquare,
-  LuMapPin,
-  LuStar,
-  LuHeart,
-  LuWifi,
-  LuCar,
-  LuPawPrint,
-  LuCalendar,
   LuList,
   LuLayoutGrid,
-  LuChevronLeft,
-  LuChevronRight,
   LuX,
   LuSlidersHorizontal,
 } from "react-icons/lu";
 import { HiSortAscending } from "react-icons/hi";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { useMemo, useState } from "react";
 import { useGetAllProperties } from "../hooks/useGetAllProperties";
-import { useAppStore } from "@/app/store";
-import { useGetWishlist } from "../hooks/useGetWishlist";
-import { useAddToWishlist } from "../hooks/useAddToWishlist";
-import { useRemoveFromWishlist } from "../hooks/useRemoveFromWishlist";
+import { FilterPanel } from "./property-listing/FilterPanel";
+import { PropertyCardSkeleton } from "./property-listing/PropertyCardSkeleton";
+import { PropertyCardGrid } from "./property-listing/PropertyCardGrid";
+import { PropertyRowList } from "./property-listing/PropertyRowList";
+import { Pagination } from "./property-listing/Pagination";
+import { useHandleWishlist } from "../hooks/useHandleWishlist";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+const SORT_OPTIONS = [
+  { label: "Newest", value: "desc" },
+  { label: "Oldest", value: "asc" },
+  { label: "Price: High to Low", value: "priceDesc" },
+  { label: "Price: Low to High", value: "priceAsc" },
+  { label: "Best Rated", value: "rating" },
+];
 
-type PropertyType = "APARTMENT" | "HOUSE" | "CONDO" | "VILLA";
-type Status = "AVAILABLE" | "RENTED" | "MAINTENANCE";
-type Wishlist = { id: string; userId: string; propertyId: string }
+export type Filter = {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  search?: string;
+  priceRange?: { min: number; max: number };
+  bedrooms?: number;
+  bathrooms?: number;
+  leaseTermMonths?: number;
+  propertyTypes?: string[];
+};
 
-interface Property {
+export interface Property {
   id: string;
   landlordId: string;
   title: string;
@@ -87,43 +82,7 @@ interface Property {
   updatedAt: string;
 }
 
-type Filter = {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  search?: string;
-  priceRange?: { min: number; max: number };
-  bedrooms?: number;
-  bathrooms?: number;
-  leaseTermMonths?: number;
-  propertyTypes?: string[];
-};
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const PROPERTY_TYPES = ["Apartment", "House", "Condo", "Villa"];
-const SORT_OPTIONS = [
-  { label: "Newest", value: "desc" },
-  { label: "Oldest", value: "asc" },
-  { label: "Price: High to Low", value: "priceDesc" },
-  { label: "Price: Low to High", value: "priceAsc" },
-  { label: "Best Rated", value: "rating" },
-];
-
-const STATUS_COLOR: Record<Status, string> = {
-  AVAILABLE: "green",
-  RENTED: "red",
-  MAINTENANCE: "orange",
-};
-const STATUS_LABEL: Record<Status, string> = {
-  AVAILABLE: "Available",
-  RENTED: "Rented",
-  MAINTENANCE: "Maintenance",
-};
-
-// ─── Filter Panel (shared between sidebar + drawer) ───────────────────────────
-
-interface FilterPanelProps {
+export interface FilterPanelProps {
   propertyTypesParam: string[];
   bedroomsParam: string;
   bathroomsParam: string;
@@ -138,794 +97,18 @@ interface FilterPanelProps {
   onClearFilters: () => void;
 }
 
-function FilterPanel({
-  propertyTypesParam,
-  bedroomsParam,
-  bathroomsParam,
-  leaseTermMonthsParam,
-  priceRange,
-  activeFilterCount,
-  onPropertyTypeChange,
-  onBedroomsChange,
-  onBathroomsChange,
-  onLeaseTermChange,
-  onPriceRangeChange,
-  onClearFilters,
-}: FilterPanelProps) {
-  return (
-    <Stack gap="5" h="full">
-      {/* Header */}
-      <Flex justify="space-between" align="center">
-        <HStack gap="2">
-          <Text fontWeight="bold" fontSize="sm" letterSpacing="tight">
-            Filters
-          </Text>
-          {activeFilterCount > 0 && (
-            <Badge
-              colorPalette="blue"
-              size="sm"
-              borderRadius="full"
-              px="1.5"
-            >
-              {activeFilterCount}
-            </Badge>
-          )}
-        </HStack>
-        {activeFilterCount > 0 && (
-          <Button
-            variant="ghost"
-            size="xs"
-            colorPalette="red"
-            onClick={onClearFilters}
-          >
-            Clear all
-          </Button>
-        )}
-      </Flex>
-
-      <Separator />
-
-      {/* Property Type */}
-      <Stack gap="3">
-        <Text
-          fontSize="xs"
-          fontWeight="bold"
-          textTransform="uppercase"
-          letterSpacing="widest"
-          color="fg.muted"
-        >
-          Property Type
-        </Text>
-        <Stack gap="2">
-          <For each={PROPERTY_TYPES}>
-            {(type) => (
-              <Checkbox.Root
-                key={type}
-                variant="solid"
-                colorPalette="blue"
-                size="sm"
-                checked={propertyTypesParam.includes(type)}
-                onCheckedChange={() => onPropertyTypeChange(type)}
-              >
-                <Checkbox.HiddenInput />
-                <Checkbox.Control borderRadius="md" />
-                <Checkbox.Label fontSize="sm">{type}</Checkbox.Label>
-              </Checkbox.Root>
-            )}
-          </For>
-        </Stack>
-      </Stack>
-
-      <Separator />
-
-      {/* Bedrooms */}
-      <Stack gap="2">
-        <Text
-          fontSize="xs"
-          fontWeight="bold"
-          textTransform="uppercase"
-          letterSpacing="widest"
-          color="fg.muted"
-        >
-          Min Bedrooms
-        </Text>
-        <NativeSelect.Root size="sm">
-          <NativeSelect.Field
-            borderRadius="lg"
-            value={bedroomsParam}
-            onChange={(e) => onBedroomsChange(e.currentTarget.value)}
-          >
-            <option value="">Any</option>
-            <option value="1">1+</option>
-            <option value="2">2+</option>
-            <option value="3">3+</option>
-            <option value="4">4+</option>
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-      </Stack>
-
-      {/* Bathrooms */}
-      <Stack gap="2">
-        <Text
-          fontSize="xs"
-          fontWeight="bold"
-          textTransform="uppercase"
-          letterSpacing="widest"
-          color="fg.muted"
-        >
-          Min Bathrooms
-        </Text>
-        <NativeSelect.Root size="sm">
-          <NativeSelect.Field
-            borderRadius="lg"
-            value={bathroomsParam}
-            onChange={(e) => onBathroomsChange(e.currentTarget.value)}
-          >
-            <option value="">Any</option>
-            <option value="1">1+</option>
-            <option value="2">2+</option>
-            <option value="3">3+</option>
-            <option value="4">4+</option>
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-      </Stack>
-
-      {/* Lease Term */}
-      <Stack gap="2">
-        <Text
-          fontSize="xs"
-          fontWeight="bold"
-          textTransform="uppercase"
-          letterSpacing="widest"
-          color="fg.muted"
-        >
-          Min Lease Term
-        </Text>
-        <NativeSelect.Root size="sm">
-          <NativeSelect.Field
-            borderRadius="lg"
-            value={leaseTermMonthsParam}
-            onChange={(e) => onLeaseTermChange(e.currentTarget.value)}
-          >
-            <option value="">Any</option>
-            <option value="6">6+ months</option>
-            <option value="12">12+ months</option>
-            <option value="24">24+ months</option>
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-      </Stack>
-
-      <Separator />
-
-      {/* Price Range */}
-      <Stack gap="3">
-        <Flex justify="space-between" align="center">
-          <Text
-            fontSize="xs"
-            fontWeight="bold"
-            textTransform="uppercase"
-            letterSpacing="widest"
-            color="fg.muted"
-          >
-            Price Range
-          </Text>
-          {(priceRange.min > 0 || priceRange.max < 10000000) && (
-            <Text fontSize="xs" color="blue.500" fontWeight="semibold">
-              ${priceRange.min.toLocaleString()} –{" "}
-              {priceRange.max === 10000000
-                ? "∞"
-                : "$" + priceRange.max.toLocaleString()}
-            </Text>
-          )}
-        </Flex>
-
-        <Stack gap="2.5">
-          <Flex align="center" gap="3">
-            <Text
-              fontSize="xs"
-              color="fg.muted"
-              w="8"
-              flexShrink={0}
-            >
-              Min
-            </Text>
-            <NumberInput.Root
-              size="sm"
-              value={String(priceRange.min)}
-              min={0}
-              max={priceRange.max}
-              flex="1"
-              onValueChange={(e) =>
-                onPriceRangeChange({
-                  ...priceRange,
-                  min: Math.max(0, parseInt(e.value) || 0),
-                })
-              }
-            >
-              <NumberInput.Input borderRadius="lg" />
-              <NumberInput.Control>
-                <NumberInput.IncrementTrigger />
-                <NumberInput.DecrementTrigger />
-              </NumberInput.Control>
-            </NumberInput.Root>
-          </Flex>
-          <Flex align="center" gap="3">
-            <Text
-              fontSize="xs"
-              color="fg.muted"
-              w="8"
-              flexShrink={0}
-            >
-              Max
-            </Text>
-            <NumberInput.Root
-              size="sm"
-              value={String(priceRange.max)}
-              min={priceRange.min}
-              max={10000000}
-              flex="1"
-              onValueChange={(e) =>
-                onPriceRangeChange({
-                  ...priceRange,
-                  max: Math.min(
-                    10000000,
-                    parseInt(e.value) || 10000000
-                  ),
-                })
-              }
-            >
-              <NumberInput.Input borderRadius="lg" />
-              <NumberInput.Control>
-                <NumberInput.IncrementTrigger />
-                <NumberInput.DecrementTrigger />
-              </NumberInput.Control>
-            </NumberInput.Root>
-          </Flex>
-        </Stack>
-      </Stack>
-    </Stack>
-  );
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <HStack gap="0.5" align="center">
-      <LuStar
-        size={11}
-        fill="var(--chakra-colors-yellow-400)"
-        color="var(--chakra-colors-yellow-400)"
-      />
-      <Text fontSize="xs" fontWeight="semibold" color="fg.muted">
-        {rating > 0 ? rating.toFixed(1) : "New"}
-      </Text>
-    </HStack>
-  );
-}
-
-function PropertyCardSkeleton({ list = false }: { list?: boolean }) {
-  if (list) {
-    return (
-      <Flex
-        borderWidth="1px"
-        borderRadius="2xl"
-        overflow="hidden"
-        h="36"
-        bg="bg.panel"
-      >
-        <Skeleton w="48" flexShrink={0} />
-        <Box p="4" flex="1">
-          <SkeletonText noOfLines={1} mb="3" />
-          <SkeletonText noOfLines={2} mb="3" />
-          <SkeletonText noOfLines={1} />
-        </Box>
-      </Flex>
-    );
-  }
-  return (
-    <Box borderWidth="1px" borderRadius="2xl" overflow="hidden" bg="bg.panel">
-      <Skeleton h="52" />
-      <Box p="4">
-        <SkeletonText noOfLines={1} mb="2" />
-        <SkeletonText noOfLines={2} mb="3" />
-        <SkeletonText noOfLines={1} />
-      </Box>
-    </Box>
-  );
-}
-
-function PropertyCardGrid({ property, isInWishlist, toggleSave }: { property: Property, isInWishlist: (propertyId: string) => boolean, toggleSave: (propertyId: string) => void }) {
-
-  return (
-    <Box
-      borderWidth="1px"
-      borderRadius="2xl"
-      overflow="hidden"
-      bg="bg.panel"
-      transition="all 0.22s ease"
-      _hover={{ shadow: "xl", transform: "translateY(-3px)" }}
-    >
-      {/* Image */}
-      <Box position="relative" h="52" overflow="hidden" bg="bg.subtle">
-        {property.images.length > 0 ? (
-          <Image
-            src={`${import.meta.env.VITE_FILE_URL}/property-images/${property.images[0]}`}
-            alt={property.title}
-            w="full"
-            h="full"
-            objectFit="cover"
-            transition="transform 0.35s ease"
-            _hover={{ transform: "scale(1.05)" }}
-          />
-        ) : (
-          <Flex h="full" align="center" justify="center" bg="bg.muted">
-            <LuSquare size={36} color="var(--chakra-colors-fg-subtle)" />
-          </Flex>
-        )}
-
-        {/* Gradient overlay */}
-        <Box
-          position="absolute"
-          inset="0"
-          bgGradient="to-t"
-          gradientFrom="blackAlpha.600"
-          gradientTo="transparent"
-          pointerEvents="none"
-        />
-
-        {/* Top badges */}
-        <Flex
-          position="absolute"
-          top="3"
-          left="3"
-          right="3"
-          justify="space-between"
-          align="flex-start"
-        >
-          <Badge
-            colorPalette={STATUS_COLOR[property.status]}
-            size="sm"
-            borderRadius="full"
-            px="2.5"
-            fontWeight="semibold"
-          >
-            {STATUS_LABEL[property.status]}
-          </Badge>
-          <IconButton
-            aria-label="Save"
-            variant="solid"
-            size="xs"
-            borderRadius="full"
-            bg={isInWishlist(property.id) ? "red.500" : "whiteAlpha.800"}
-            color={isInWishlist(property.id) ? "white" : "gray.700"}
-            backdropFilter="blur(6px)"
-            _hover={{ bg: isInWishlist(property.id) ? "red.600" : "whiteAlpha.950" }}
-            onClick={() => toggleSave(property.id)}
-          >
-            <LuHeart size={12} fill={isInWishlist(property.id) ? "currentColor" : "none"} />
-          </IconButton>
-        </Flex>
-
-        {/* Bottom price */}
-        <Box position="absolute" bottom="3" left="3">
-          <Text
-            color="white"
-            fontWeight="bold"
-            fontSize="lg"
-            lineHeight="1.2"
-            textShadow="0 1px 4px rgba(0,0,0,0.5)"
-          >
-            ${property.baseRentPrice.toLocaleString()}
-            <Text
-              as="span"
-              fontSize="xs"
-              fontWeight="normal"
-              opacity={0.85}
-            >
-              {" "}
-              /mo
-            </Text>
-          </Text>
-        </Box>
-      </Box>
-
-      {/* Body */}
-      <Box p="4" pb="3">
-        <Flex justify="space-between" align="flex-start" mb="1">
-          <Text
-            fontWeight="semibold"
-            fontSize="sm"
-            lineClamp={1}
-            flex="1"
-            mr="2"
-          >
-            {property.title}
-          </Text>
-          <StarRating rating={property.rating} />
-        </Flex>
-
-        {property.locationAddress && (
-          <HStack gap="1" mb="3" color="fg.muted">
-            <LuMapPin size={11} />
-            <Text fontSize="xs" lineClamp={1}>
-              {property.locationAddress}
-            </Text>
-          </HStack>
-        )}
-
-        <Separator mb="3" />
-
-        <HStack gap="3" color="fg.muted" wrap="wrap">
-          {property.beds != null && (
-            <HStack gap="1">
-              <LuBed size={13} />
-              <Text fontSize="xs">{property.beds} bd</Text>
-            </HStack>
-          )}
-          {property.baths != null && (
-            <HStack gap="1">
-              <LuBath size={13} />
-              <Text fontSize="xs">{property.baths} ba</Text>
-            </HStack>
-          )}
-          {property.area != null && (
-            <HStack gap="1">
-              <LuSquare size={13} />
-              <Text fontSize="xs">{property.area.toLocaleString()} sqft</Text>
-            </HStack>
-          )}
-        </HStack>
-
-        <HStack gap="1.5" mt="3" wrap="wrap">
-          {property.petAllowed && (
-            <Badge
-              variant="subtle"
-              colorPalette="green"
-              size="sm"
-              borderRadius="full"
-            >
-              <LuPawPrint size={9} /> Pets OK
-            </Badge>
-          )}
-          {property.parkingSpaces > 0 && (
-            <Badge
-              variant="subtle"
-              colorPalette="blue"
-              size="sm"
-              borderRadius="full"
-            >
-              <LuCar size={9} /> Parking
-            </Badge>
-          )}
-          {property.internetSpeed && (
-            <Badge
-              variant="subtle"
-              colorPalette="purple"
-              size="sm"
-              borderRadius="full"
-            >
-              <LuWifi size={9} /> {property.internetSpeed}
-            </Badge>
-          )}
-        </HStack>
-      </Box>
-
-      {property.availableDate && (
-        <Box px="4" pb="3">
-          <HStack gap="1" color="fg.muted">
-            <LuCalendar size={11} />
-            <Text fontSize="xs">
-              Available from{" "}
-              {new Date(property.availableDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </Text>
-          </HStack>
-        </Box>
-      )}
-    </Box>
-  );
-}
-
-function PropertyRowList({ property, isInWishlist, toggleSave }: { property: Property, isInWishlist: (propertyId: string) => boolean, toggleSave: (propertyId: string) => void }) {
-
-  return (
-    <Flex
-      borderWidth="1px"
-      borderRadius="2xl"
-      overflow="hidden"
-      bg="bg.panel"
-      transition="all 0.2s ease"
-      _hover={{ shadow: "md", borderColor: "blue.300" }}
-      align="stretch"
-      minH="36"
-    >
-      {/* Image */}
-      <Box
-        position="relative"
-        minW={{ base: "28", sm: "48" }}
-        w={{ base: "28", sm: "48" }}
-        h="44"
-        flexShrink={0}
-        bg="bg.muted"
-        overflow="hidden"
-      >
-        {property.images?.[0] ? (
-          <Image
-            src={`${import.meta.env.VITE_FILE_URL}/property-images/${property.images[0]}`}
-            alt={property.title}
-            w="full"
-            h="full"
-            objectFit="cover"
-            transition="transform 0.3s"
-            _hover={{ transform: "scale(1.04)" }}
-          />
-        ) : (
-          <Flex h="full" align="center" justify="center">
-            <LuSquare size={28} color="var(--chakra-colors-fg-subtle)" />
-          </Flex>
-        )}
-        <Badge
-          position="absolute"
-          top="3"
-          left="3"
-          colorPalette={STATUS_COLOR[property.status]}
-          size="sm"
-          borderRadius="full"
-          fontWeight="semibold"
-        >
-          {STATUS_LABEL[property.status]}
-        </Badge>
-      </Box>
-
-      {/* Content */}
-      <Flex
-        flex="1"
-        p={{ base: "3", sm: "4" }}
-        justify="space-between"
-        align="stretch"
-        gap={{ base: "2", sm: "4" }}
-        minW="0"
-      >
-        <VStack align="flex-start" gap="1.5" flex="1" minW="0">
-          <Flex align="center" gap="2" w="full">
-            <Text
-              fontWeight="semibold"
-              fontSize={{ base: "sm", sm: "md" }}
-              lineClamp={1}
-              flex="1"
-            >
-              {property.title}
-            </Text>
-            <StarRating rating={property.rating} />
-          </Flex>
-
-          {property.locationAddress && (
-            <HStack gap="1" color="fg.muted">
-              <LuMapPin size={11} />
-              <Text fontSize="xs" lineClamp={1}>
-                {property.locationAddress}
-              </Text>
-            </HStack>
-          )}
-
-          <Text
-            fontSize="xs"
-            color="fg.muted"
-            lineClamp={2}
-            mt="0.5"
-            display={{ base: "none", sm: "block" }}
-          >
-            {property.description}
-          </Text>
-
-          <HStack gap="3" color="fg.muted" mt="1" wrap="wrap">
-            {property.beds != null && (
-              <HStack gap="1">
-                <LuBed size={12} />
-                <Text fontSize="xs">{property.beds} Beds</Text>
-              </HStack>
-            )}
-            {property.baths != null && (
-              <HStack gap="1">
-                <LuBath size={12} />
-                <Text fontSize="xs">{property.baths} Baths</Text>
-              </HStack>
-            )}
-            {property.area != null && (
-              <HStack gap="1" display={{ base: "none", sm: "flex" }}>
-                <LuSquare size={12} />
-                <Text fontSize="xs">{property.area.toLocaleString()} sqft</Text>
-              </HStack>
-            )}
-            {property.leaseTermMonths && (
-              <HStack gap="1" display={{ base: "none", md: "flex" }}>
-                <LuCalendar size={12} />
-                <Text fontSize="xs">{property.leaseTermMonths} month lease</Text>
-              </HStack>
-            )}
-          </HStack>
-
-          <HStack
-            gap="1.5"
-            mt="auto"
-            wrap="wrap"
-            display={{ base: "none", sm: "flex" }}
-          >
-            {property.petAllowed && (
-              <Badge
-                variant="subtle"
-                colorPalette="green"
-                size="sm"
-                borderRadius="full"
-              >
-                <LuPawPrint size={9} /> Pets OK
-              </Badge>
-            )}
-            {property.parkingSpaces > 0 && (
-              <Badge
-                variant="subtle"
-                colorPalette="blue"
-                size="sm"
-                borderRadius="full"
-              >
-                <LuCar size={9} /> {property.parkingSpaces} Parking
-              </Badge>
-            )}
-            {property.internetSpeed && (
-              <Badge
-                variant="subtle"
-                colorPalette="purple"
-                size="sm"
-                borderRadius="full"
-              >
-                <LuWifi size={9} /> {property.internetSpeed}
-              </Badge>
-            )}
-            {property.yearBuilt && (
-              <Badge
-                variant="subtle"
-                colorPalette="gray"
-                size="sm"
-                borderRadius="full"
-              >
-                Built {property.yearBuilt}
-              </Badge>
-            )}
-          </HStack>
-        </VStack>
-
-        {/* Right: Price + Actions */}
-        <VStack
-          align="flex-end"
-          justify="space-between"
-          flexShrink={0}
-          minW={{ base: "20", sm: "28" }}
-        >
-          <VStack align="flex-end" gap="0">
-            <Text
-              fontWeight="bold"
-              fontSize={{ base: "md", sm: "xl" }}
-              color="blue.500"
-              lineHeight="1.2"
-            >
-              {property.baseRentPrice.toLocaleString()} mmk
-            </Text>
-            <Text fontSize="xs" color="fg.muted">
-              /month
-            </Text>
-          </VStack>
-
-          {property.availableDate && (
-            <Text
-              fontSize="xs"
-              color="fg.muted"
-              textAlign="right"
-              display={{ base: "none", sm: "block" }}
-            >
-              From{" "}
-              {new Date(property.availableDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}
-            </Text>
-          )}
-
-          <HStack gap="1.5">
-            <IconButton
-              aria-label="Save"
-              variant="ghost"
-              size="sm"
-              borderRadius="full"
-              color={isInWishlist(property.id) ? "red.400" : "fg.muted"}
-              onClick={() => toggleSave(property.id)}
-            >
-              <LuHeart size={14} fill={isInWishlist(property.id) ? "currentColor" : "none"} />
-            </IconButton>
-            <Button
-              size="sm"
-              colorPalette="blue"
-              borderRadius="lg"
-              display={{ base: "none", sm: "flex" }}
-            >
-              <Link to={`/properties/${property.id}`}>View</Link>
-            </Button>
-          </HStack>
-        </VStack>
-      </Flex>
-    </Flex>
-  );
-}
-
-function Pagination({
-  page,
-  totalPages,
-  onPageChange,
-}: {
-  page: number;
-  totalPages: number;
-  onPageChange: (p: number) => void;
-}) {
-  if (totalPages <= 1) return null;
-
-  const pages = Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-    if (totalPages <= 5) return i + 1;
-    if (page <= 3) return i + 1;
-    if (page >= totalPages - 2) return totalPages - 4 + i;
-    return page - 2 + i;
-  });
-
-  return (
-    <HStack justify="center" gap="1" mt="2" pb="2">
-      <IconButton
-        aria-label="Previous"
-        variant="ghost"
-        size="sm"
-        borderRadius="lg"
-        disabled={page === 1}
-        onClick={() => onPageChange(page - 1)}
-      >
-        <LuChevronLeft />
-      </IconButton>
-      {pages.map((p) => (
-        <Button
-          key={p}
-          size="sm"
-          variant={p === page ? "solid" : "ghost"}
-          colorPalette={p === page ? "blue" : "gray"}
-          borderRadius="lg"
-          minW="8"
-          onClick={() => onPageChange(p)}
-        >
-          {p}
-        </Button>
-      ))}
-      <IconButton
-        aria-label="Next"
-        variant="ghost"
-        size="sm"
-        borderRadius="lg"
-        disabled={page === totalPages}
-        onClick={() => onPageChange(page + 1)}
-      >
-        <LuChevronRight />
-      </IconButton>
-    </HStack>
-  );
-}
-
-// ─── Main Component ───────────────────────────────────────────────────────────
+export type PropertyType = "APARTMENT" | "HOUSE" | "CONDO" | "VILLA";
+export type Status = "AVAILABLE" | "RENTED" | "MAINTENANCE";
 
 export function Listings() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [view, setView] = useState<"list" | "card">("list");
+  const [view, setView] = useState<"list" | "card">(localStorage.getItem("view") as "list" | "card" || "list");
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const toggleView = () => {
+    setView(view === "list" ? "card" : "list");
+    localStorage.setItem("view", view === "list" ? "card" : "list");
+  }
 
   const page = Number(searchParams.get("page")) || 1;
   const sortValue = searchParams.get("sortBy") || "";
@@ -947,7 +130,7 @@ export function Listings() {
   const [searchTerm, setSearchTerm] = useState(searchValue);
 
   const filters = useMemo<Filter>(() => {
-    const filterObj: Filter = { page, limit: 10 };
+    const filterObj: Filter = { page, limit: 9 };
     if (searchTerm) filterObj.search = searchTerm;
     if (sortValue) filterObj.sortBy = sortValue;
     if (priceRange.min > 0 || priceRange.max < 10000000)
@@ -959,16 +142,7 @@ export function Listings() {
     if (propertyTypesParam.length > 0)
       filterObj.propertyTypes = propertyTypesParam;
     return filterObj;
-  }, [
-    page,
-    sortValue,
-    searchTerm,
-    priceRange,
-    bedroomsParam,
-    bathroomsParam,
-    leaseTermMonthsParam,
-    propertyTypesParam,
-  ]);
+  }, [ page, sortValue, searchTerm, priceRange, bedroomsParam, bathroomsParam, leaseTermMonthsParam, propertyTypesParam ]);
 
   const setParam = (key: string, value: string) =>
     setSearchParams((prev) => {
@@ -1022,13 +196,7 @@ export function Listings() {
   const totalPages = data?.content?.totalPages || 1;
   const totalCount = data?.content?.totalCount || 0;
 
-  const user = useAppStore((state) => state.user)
-  const { data: wishlistData } = useGetWishlist(user?.id)
-  const wishlist = wishlistData?.content?.wishlist
-  const isInWishlist = (propertyId: string) => wishlist?.some((p: Wishlist) => p.propertyId === propertyId)
-  const { mutate: addToWishlist } = useAddToWishlist(user?.id)
-  const { mutate: removeFromWishlist } = useRemoveFromWishlist(user?.id)
-  const toggleSave = (propertyId: string) => isInWishlist(propertyId) ? removeFromWishlist(propertyId) : addToWishlist(propertyId)
+  const { isInWishlist, toggleSave } = useHandleWishlist();
 
   const filterPanelProps: FilterPanelProps = {
     propertyTypesParam,
@@ -1122,7 +290,7 @@ export function Listings() {
                 variant={view === "list" ? "solid" : "outline"}
                 colorPalette="blue"
                 size="sm"
-                onClick={() => setView("list")}
+                onClick={toggleView}
                 bg={view === "list" ? undefined : "white"}
                 _dark={{ bg: view === "list" ? undefined : "gray.900" }}
                 shadow="sm"
@@ -1134,7 +302,7 @@ export function Listings() {
                 variant={view === "card" ? "solid" : "outline"}
                 colorPalette="blue"
                 size="sm"
-                onClick={() => setView("card")}
+                onClick={toggleView}
                 bg={view === "card" ? undefined : "white"}
                 _dark={{ bg: view === "card" ? undefined : "gray.900" }}
                 shadow="sm"
@@ -1147,7 +315,7 @@ export function Listings() {
 
         {/* ── Main Layout ── */}
         <Flex gap="5" align="flex-start">
-          {/* ── Desktop Sidebar ── */}
+          {/* ── Desktop Filter Sidebar ── */}
           <Box
             display={{ base: "none", lg: "block" }}
             w="64"

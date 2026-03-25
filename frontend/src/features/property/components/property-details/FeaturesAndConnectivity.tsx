@@ -114,7 +114,7 @@ export function FeatureAndConnectivity({
               </Text>
               <HStack gap="2">
                 <Text fontSize="sm" fontWeight="semibold">
-                  {internetName}
+                  {internetName || "N/A"}
                 </Text>
                 <Badge
                   colorPalette="blue"
@@ -122,7 +122,7 @@ export function FeatureAndConnectivity({
                   size="sm"
                   borderRadius="full"
                 >
-                  {internetSpeed}
+                  {internetSpeed || "N/A"}
                 </Badge>
               </HStack>
             </Stack>
@@ -160,7 +160,7 @@ export function FeatureAndConnectivity({
               </Text>
               <HStack gap="2">
                 <Text fontSize="sm" fontWeight="semibold">
-                  {nearTransitType}
+                  {nearTransitType || "N/A"}
                 </Text>
                 <Badge
                   colorPalette="green"
@@ -168,7 +168,7 @@ export function FeatureAndConnectivity({
                   size="sm"
                   borderRadius="full"
                 >
-                  {nearTransitDist} mi
+                  {nearTransitDist ? `${nearTransitDist} mi` : "N/A"}
                 </Badge>
               </HStack>
             </Stack>
