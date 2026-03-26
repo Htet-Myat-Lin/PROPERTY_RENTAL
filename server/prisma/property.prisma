@@ -35,7 +35,6 @@ model Property {
   nearTransitDist  Float?
   
   parkingSpaces    Int          @default(0)
-  rating           Float        @default(0)
   yearBuilt        Int?
   petAllowed       Boolean      @default(false)
   appliances       String[]
@@ -49,4 +48,5 @@ model Property {
   updatedAt        DateTime     @updatedAt
 
   wishlist         Wishlist[]
+  reviews          Review[]
 }

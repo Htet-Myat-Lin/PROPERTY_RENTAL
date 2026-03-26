@@ -66,13 +66,6 @@ export const createPropertyService = async (
   body: any,
   files: Express.Multer.File[],
 ) => {
-  if (typeof body.coordinates === "string") {
-    body.coordinates = JSON.parse(body.coordinates);
-  }
-  if (typeof body.appliances === "string") {
-    body.appliances = JSON.parse(body.appliances);
-  }
-
   const images = files?.map((file) => file.filename);
 
   const newProperty = await PropertyRepository.create({
@@ -87,16 +80,6 @@ export const createPropertyService = async (
 export const editPropertyService = async (propertyId: string, body: any, files: Express.Multer.File[]) => {
   const property = await PropertyRepository.findById(propertyId);
   if (!property) throw new NotFoundError("Property");
-
-  if (typeof body.coordinates === "string") {
-    body.coordinates = JSON.parse(body.coordinates);
-  }
-  if (typeof body.appliances === "string") {
-    body.appliances = JSON.parse(body.appliances);
-  }
-  if (typeof body.existingImages === "string") {
-    body.existingImages = JSON.parse(body.existingImages);
-  }
 
   const existingImages = body.existingImages || [];
 
@@ -142,4 +125,20 @@ export const bulkDeletePropertiesService = async (ids: string[]) => {
   await PropertyRepository.bulkDelete(ids);
 
   return { message: "Properties deleted successfully" };
+}
+
+export const propertyRecommendationService = async (propertyId: string) => {
+  const property = await PropertyRepository.findById(propertyId);
+  if (!property) throw new AppError("Property not found", 404);
+
+  let queryFilters: any = { 
+    id: { not: propertyId }, 
+    propertyType: property.propertyType, 
+    baseRentPrice: { gte: property.baseRentPrice - 100000, lte: property.baseRentPrice + 100000 }, 
+    status: "AVAILABLE"
+  };
+
+  const recommendedProperties = await PropertyRepository.findRecommendedProperties(queryFilters);
+
+  return { recommendedProperties };
 }

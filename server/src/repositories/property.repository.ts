@@ -46,4 +46,8 @@ export class PropertyRepository {
   static async findByIds (ids: string[]) {
     return prisma.property.findMany({ where: { id: { in: ids } } });
   }
+
+  static async findRecommendedProperties (queryFilters: any) {
+    return prisma.property.findMany({ where: queryFilters, orderBy: { createdAt: "desc" }, take: 4 });
+  }
 }

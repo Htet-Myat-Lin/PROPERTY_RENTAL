@@ -26,6 +26,7 @@ model User {
 
   properties                 Property[]
   wishlist                   Wishlist[]
+  reviews                    Review[]
 }
 
 

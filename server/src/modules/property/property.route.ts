@@ -1,6 +1,6 @@
 import { protect, restrictTo } from "@/middleware/auth.middleware"
 import { Router } from "express"
-import { createProperty, deleteProperty, editProperty, getAllProperties, getLandlordProperties, getPropertyById } from "./property.controller"
+import { createProperty, deleteProperty, editProperty, getAllProperties, getLandlordProperties, getPropertyById, getRecommendedProperties } from "./property.controller"
 import { upload } from "@/middleware/upload.middleware"
 import { cache } from "@/middleware/cache.middleware"
 import { validate } from "@/middleware/validation.middleware"
@@ -19,5 +19,7 @@ router.route("/:id")
     .get(getPropertyById)
     .patch(protect, restrictTo("LANDLORD"), upload.array("propertyImages", 5), validate(propertySchema), validatePropertyImages, editProperty)
     .delete(protect, restrictTo("LANDLORD"), deleteProperty)
+
+router.get("/:propertyId/recommend", getRecommendedProperties)
 
 export { router as propertyRouter }

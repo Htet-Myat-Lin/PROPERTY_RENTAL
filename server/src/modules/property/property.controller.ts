@@ -5,6 +5,7 @@ import {
   deletePropertyService,
   editPropertyService,
   getPropertiesService,
+  propertyRecommendationService,
 } from "./property.service";
 import { AppError } from "@/utils/app.error";
 import { successResponse } from "@/utils/api.response";
@@ -135,4 +136,11 @@ export const bulkDeleteProperties = asyncHandler (async (req, res, _next) => {
   await clearCache("properties");
 
   successResponse(res, message, 200);
+})
+
+export const getRecommendedProperties = asyncHandler(async (req, res, _next) => {
+  const { propertyId } = req.params;
+  if (!propertyId) throw new AppError("Property id required", 400);
+  const { recommendedProperties } = await propertyRecommendationService(propertyId);
+  successResponse(res, "Properties fetched successfully", 200, { properties: recommendedProperties });
 })
