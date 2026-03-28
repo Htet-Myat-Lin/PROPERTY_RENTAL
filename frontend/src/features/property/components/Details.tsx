@@ -1,9 +1,4 @@
-import {
-  Box,
-  Stack,
-  SimpleGrid,
-  GridItem,
-} from "@chakra-ui/react";
+import { Box, Stack, SimpleGrid, GridItem } from "@chakra-ui/react";
 import {
   LuSquare,
   LuCar,
@@ -13,7 +8,7 @@ import {
   LuCalendarCheck,
   LuBuilding,
   LuBed,
-  LuBath
+  LuBath,
 } from "react-icons/lu";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import L from "leaflet";
@@ -29,19 +24,31 @@ import { PropertyDescription } from "./property-details/PropertyDescription";
 import { useParams } from "react-router";
 import { FeatureAndConnectivity } from "./property-details/FeaturesAndConnectivity";
 import { LandlordCard } from "./property-details/LandlordCard";
-
+import { ReviewForm } from "./review/ReviewForm";
+import { ReviewList } from "./review/ReviewList";
+import { SectionWrapper } from "./property-details/SectionWrapper";
+import { useGetRecommendedProperties } from "../hooks/useGetRecommendedProperties";
+import { PropertyCardGrid } from "./property-listing/PropertyCardGrid";
+import { useHandleWishlist } from "../hooks/useHandleWishlist";
+import type { Property } from "./Listings";
 
 export function Details() {
   const { propertyId } = useParams();
   const { data, isPending } = useGetPropertyDetail(propertyId!);
   const property = data?.content?.property;
 
+  const { data: recommendedData } = useGetRecommendedProperties(property?.id);
+  const recommendedProperties = recommendedData?.content?.properties;
+  console.log(recommendedProperties);
+
+  const { isInWishlist, toggleSave } = useHandleWishlist();
+
   if (isPending) {
-    return <PropertyDetailSkeleton />
+    return <PropertyDetailSkeleton />;
   }
 
   if (!property) {
-    return <PropertyNotFound />
+    return <PropertyNotFound />;
   }
 
   const mapPosition = new L.LatLng(
@@ -59,12 +66,42 @@ export function Details() {
     { label: "Bedrooms", value: property?.beds, unit: "beds", icon: LuBed },
     { label: "Bathrooms", value: property?.baths, unit: "baths", icon: LuBath },
     { label: "Area", value: property?.area, unit: "sq ft", icon: LuSquare },
-    { label: "Property Type", value: property?.propertyType, unit: "", icon: LuBuilding, },
-    { label: "Parking", value: property?.parkingSpaces, unit: property?.parkingSpaces === 1 ? "space" : "spaces", icon: LuCar, },
-    { label: "Year Built", value: property?.yearBuilt, unit: "", icon: LuCalendarDays, },
-    { label: "Pets Allowed", value: property?.petAllowed ? "Yes" : "No", unit: "", icon: LuPawPrint, },
-    { label: "Available From", value: formateDate(property?.availableDate), unit: "", icon: LuCalendarCheck, },
-    { label: "Lease Term", value: property?.leaseTermMonths, unit: "months", icon: LuClock, },
+    {
+      label: "Property Type",
+      value: property?.propertyType,
+      unit: "",
+      icon: LuBuilding,
+    },
+    {
+      label: "Parking",
+      value: property?.parkingSpaces,
+      unit: property?.parkingSpaces === 1 ? "space" : "spaces",
+      icon: LuCar,
+    },
+    {
+      label: "Year Built",
+      value: property?.yearBuilt,
+      unit: "",
+      icon: LuCalendarDays,
+    },
+    {
+      label: "Pets Allowed",
+      value: property?.petAllowed ? "Yes" : "No",
+      unit: "",
+      icon: LuPawPrint,
+    },
+    {
+      label: "Available From",
+      value: formateDate(property?.availableDate),
+      unit: "",
+      icon: LuCalendarCheck,
+    },
+    {
+      label: "Lease Term",
+      value: property?.leaseTermMonths,
+      unit: "months",
+      icon: LuClock,
+    },
   ];
 
   return (
@@ -79,7 +116,17 @@ export function Details() {
         <PropertyBreadcrumb title={property?.title} />
 
         {/* ── Hero Header ── */}
-        <HeroHeader id={property?.id} title={property?.title} location={property?.locationAddress} propertyType={property?.propertyType} status={property?.status} rating={property?.rating} rentPrice={property?.baseRentPrice} />
+        <HeroHeader
+          id={property?.id}
+          title={property?.title}
+          location={property?.locationAddress}
+          propertyType={property?.propertyType}
+          status={property?.status}
+          rating={property?.rating}
+          rentPrice={property?.baseRentPrice}
+          isInWishlist={isInWishlist}
+          toggleSave={toggleSave}
+        />
 
         {/* ── Image Carousel ── */}
         <PropertyImageCarosel propertyImages={propertyImages} />
@@ -100,17 +147,32 @@ export function Details() {
               <KeyDetails keyDetails={keyDetails} />
 
               {/* Features & Connectivity */}
-              <FeatureAndConnectivity appliances={appliances} internetName={property?.internetName} internetSpeed={property?.internetSpeed} nearTransitType={property?.nearTransitType} nearTransitDist={property?.nearTransitDist} />
+              <FeatureAndConnectivity
+                appliances={appliances}
+                internetName={property?.internetName}
+                internetSpeed={property?.internetSpeed}
+                nearTransitType={property?.nearTransitType}
+                nearTransitDist={property?.nearTransitDist}
+              />
             </Stack>
           </GridItem>
 
           {/* Right column — Landlord card & Map */}
           <GridItem colSpan={1}>
             {/* Landlord card */}
-            <LandlordCard landlordName={property?.landlord?.username} landlordEmail={property?.landlord?.email} rentPrice={property?.baseRentPrice} profilePicture={property?.landlord?.profilePicture} />
+            <LandlordCard
+              landlordName={property?.landlord?.username}
+              landlordEmail={property?.landlord?.email}
+              rentPrice={property?.baseRentPrice}
+              profilePicture={property?.landlord?.profilePicture}
+            />
 
             {/* Map */}
-            <Box h={{ base: "52", sm: "64", md: "72" }} borderRadius="xl" overflow="hidden">
+            <Box
+              h={{ base: "52", sm: "64", md: "72" }}
+              borderRadius="xl"
+              overflow="hidden"
+            >
               <MapContainer
                 center={mapCenter}
                 zoom={13}
@@ -120,6 +182,43 @@ export function Details() {
                 <Marker position={mapPosition} />
               </MapContainer>
             </Box>
+          </GridItem>
+        </SimpleGrid>
+
+        {/* ── Reviews + Recommended ── */}
+        <SimpleGrid
+          columns={{ base: 1, lg: 3 }}
+          gap="5"
+          alignItems="flex-start"
+        >
+          {/* Reviews — left, spans 2 cols */}
+          <GridItem colSpan={{ base: 1, lg: 2 }}>
+            <SectionWrapper title="Reviews">
+              <Stack gap="4">
+                <ReviewForm propertyId={property?.id} />
+                <ReviewList propertyId={property?.id} />
+              </Stack>
+            </SectionWrapper>
+          </GridItem>
+
+          {/* Recommended — right, spans 1 col, sticky */}
+          <GridItem colSpan={1}>
+            {recommendedProperties.length > 0 && (
+              <Box position="sticky" top="4">
+                <SectionWrapper title="You May Also Like">
+                  <Stack gap="3">
+                    {recommendedProperties.map((p: Property) => (
+                      <PropertyCardGrid
+                        key={p.id}
+                        property={p}
+                        isInWishlist={isInWishlist}
+                        toggleSave={toggleSave}
+                      />
+                    ))}
+                  </Stack>
+                </SectionWrapper>
+              </Box>
+            )}
           </GridItem>
         </SimpleGrid>
       </Stack>

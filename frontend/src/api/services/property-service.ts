@@ -60,5 +60,9 @@ export const PropertyApi = {
 
     deleteProperties: async(ids: string[]) => {
          return (await axiosInstance.delete("/properties", { data: { ids } })).data
+    },
+
+    getRecommendedProperties: async (propertyId: string) => {
+        return (await axiosInstance.get(`/properties/${propertyId}/recommend`)).data
     }
 }

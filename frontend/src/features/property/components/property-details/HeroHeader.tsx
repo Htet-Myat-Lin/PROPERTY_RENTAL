@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { IoLocationSharp } from "react-icons/io5";
 import { LuShare2, LuHeart, LuStar } from "react-icons/lu";
-import { useHandleWishlist } from "../../hooks/useHandleWishlist";
 
 type Props = {
   id: string
@@ -23,6 +22,8 @@ type Props = {
   status: string;
   rating: string;
   rentPrice: number;
+  isInWishlist: (id: string) => boolean;
+  toggleSave: (id: string) => void
 };
 
 export function HeroHeader({
@@ -33,9 +34,9 @@ export function HeroHeader({
   status,
   rating,
   rentPrice,
+  isInWishlist,
+  toggleSave
 }: Props) {
-
-  const { isInWishlist, toggleSave } = useHandleWishlist()
 
   return (
     <Box

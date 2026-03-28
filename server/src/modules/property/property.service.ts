@@ -138,7 +138,20 @@ export const propertyRecommendationService = async (propertyId: string) => {
     status: "AVAILABLE"
   };
 
-  const recommendedProperties = await PropertyRepository.findRecommendedProperties(queryFilters);
+  // Get more properties to filter by coordinates in JavaScript
+  const nearByProperties = await PropertyRepository.findRecommendedProperties({ ...queryFilters });
+
+  const [lat, lng] = property.coordinates;
+  
+  // Filter by coordinates (within ~1km radius)
+  const recommendedProperties = nearByProperties.filter((p) => {
+    const propertyLat = p.coordinates?.[0];
+    const propertyLng = p.coordinates?.[1];
+    
+    if (propertyLat === undefined || propertyLng === undefined) return false;
+    
+    return (Math.abs(propertyLat) >= Math.abs(lat - 0.5) && Math.abs(propertyLat) <= Math.abs(lat + 0.5)) && (Math.abs(propertyLng) >= Math.abs(lng - 0.5) && Math.abs(propertyLng) <= Math.abs(lng + 0.5));
+  }).slice(0, 4);
 
   return { recommendedProperties };
 }

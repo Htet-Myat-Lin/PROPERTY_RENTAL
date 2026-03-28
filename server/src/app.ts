@@ -8,6 +8,7 @@ import { authRouter } from "./modules/auth/auth.route.js"
 import { propertyRouter } from "./modules/property/property.route.js"
 import { userRouter } from "./modules/user/user.route.js"
 import { wishlistRouter } from "./modules/wishlist/wishlist.route.js"
+import { reviewRouter } from "./modules/review/review.route.js"
 
 const app = express()
 
@@ -29,6 +30,7 @@ app.use("/api/auth", authRouter)
 app.use("/api/users", userRouter)
 app.use("/api/properties", propertyRouter)
 app.use("/api/wishlist", wishlistRouter)
+app.use("/api/reviews", reviewRouter)
 
 // Global Error Handler
 app.use(errorHandler)

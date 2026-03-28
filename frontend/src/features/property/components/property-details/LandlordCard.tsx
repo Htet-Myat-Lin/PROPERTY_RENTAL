@@ -27,7 +27,7 @@ type Props = {
 
 export function LandlordCard({ landlordName, landlordEmail, rentPrice, profilePicture }: Props) {
   return (
-    <Box mb="6" position="sticky" top="4">
+    <Box mb="6">
       <SectionWrapper>
         <Stack gap="4">
           {/* Landlord */}

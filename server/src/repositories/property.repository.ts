@@ -48,6 +48,6 @@ export class PropertyRepository {
   }
 
   static async findRecommendedProperties (queryFilters: any) {
-    return prisma.property.findMany({ where: queryFilters, orderBy: { createdAt: "desc" }, take: 4 });
+    return prisma.property.findMany({ where: queryFilters, orderBy: { createdAt: "desc" }, take: 20 });
   }
 }
