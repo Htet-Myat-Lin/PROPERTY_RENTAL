@@ -1,5 +1,4 @@
 import type { NextFunction, Response } from "express";
-import { UserService } from "../services/user.service.js";
 import type { AuthRequest } from "../types/types.js";
 import { AppError } from "../utils/app.error.js";
 import { asyncHandler } from "../utils/async.handler.js";
@@ -7,8 +6,7 @@ import { verifyAccessToken } from "../utils/jwt.js";
 import { UserRepository } from "@/repositories/user.repository.js";
 
 export const protect = asyncHandler(async (req, res, next) => {
-  const authHeader =
-    req.headers.authorization || (req.headers.Authorization as string);
+  const authHeader = req.headers.authorization || (req.headers.Authorization as string);
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(401);

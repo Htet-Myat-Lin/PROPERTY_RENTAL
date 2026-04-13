@@ -10,6 +10,8 @@ import { userRouter } from "./modules/user/user.route.js"
 import { wishlistRouter } from "./modules/wishlist/wishlist.route.js"
 import { reviewRouter } from "./modules/review/review.route.js"
 
+import "@/workers/email.worker"; // Start the email worker when the app starts
+
 const app = express()
 
 app.use(express.json())

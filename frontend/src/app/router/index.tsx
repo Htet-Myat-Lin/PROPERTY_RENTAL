@@ -19,7 +19,7 @@ import {
   LuUsers,
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
-import { PropertyDetailsPage } from "@/pages/PropdertyDetailsPage";
+import { PropertyDetailsPage } from "@/pages/PropertyDetailsPage";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },

@@ -203,7 +203,7 @@ export function Details() {
 
           {/* Recommended — right, spans 1 col, sticky */}
           <GridItem colSpan={1}>
-            {recommendedProperties.length > 0 && (
+            {recommendedProperties?.length > 0 && (
               <Box position="sticky" top="4">
                 <SectionWrapper title="You May Also Like">
                   <Stack gap="3">

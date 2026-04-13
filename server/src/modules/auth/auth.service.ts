@@ -31,8 +31,7 @@ export const registerService = async (
 export const loginService = async (data: LoginSchema) => {
   const user = await UserRepository.findByEmail(data.email);
 
-  if (!user || !(await bcrypt.compare(data.password, user.password)))
-    throw new AppError("Invalid email or password", 400);
+  if (!user || !(await bcrypt.compare(data.password, user.password))) throw new AppError("Invalid email or password", 400);
 
   const refreshToken = generateRefreshToken(user.id);
   const accessToken = generateAccessToken(user.id);
@@ -125,7 +124,9 @@ export const resetPasswordService = async (email: string, otp: string, password:
         throw new AppError("Invalid or expired OTP", 400);
     }
 
-    await UserRepository.resetPassword(user.id, password)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await UserRepository.resetPassword(user.id, hashedPassword)
 
     return { message: "Password reset successfully" };
 }
