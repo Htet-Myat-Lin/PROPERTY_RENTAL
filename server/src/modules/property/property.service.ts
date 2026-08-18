@@ -1,7 +1,6 @@
 import { PropertyRepository } from "@/repositories/property.repository";
 import { PropertyFilters } from "@/types/types";
 import { AppError, NotFoundError } from "@/utils/app.error";
-import { PropertyType } from "generated/prisma/client.js";
 import fs from "node:fs"
 
 export const getPropertiesService = async (

@@ -49,6 +49,7 @@ export function FeatureAndConnectivity({
             <For each={appliances}>
               {(el) => (
                 <HStack
+                  key={el}
                   gap="2.5"
                   px="3"
                   py="2"

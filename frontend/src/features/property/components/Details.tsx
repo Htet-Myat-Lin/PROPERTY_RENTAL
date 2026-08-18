@@ -39,7 +39,6 @@ export function Details() {
 
   const { data: recommendedData } = useGetRecommendedProperties(property?.id);
   const recommendedProperties = recommendedData?.content?.properties;
-  console.log(recommendedProperties);
 
   const { isInWishlist, toggleSave } = useHandleWishlist();
 
@@ -161,10 +160,12 @@ export function Details() {
           <GridItem colSpan={1}>
             {/* Landlord card */}
             <LandlordCard
+              landlordId={property?.landlord?.id}
               landlordName={property?.landlord?.username}
               landlordEmail={property?.landlord?.email}
               rentPrice={property?.baseRentPrice}
               profilePicture={property?.landlord?.profilePicture}
+              propertyId={property?.id}
             />
 
             {/* Map */}

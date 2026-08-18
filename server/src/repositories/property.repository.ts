@@ -32,7 +32,7 @@ export class PropertyRepository {
   }
 
   static async findById(id: string) {
-    return prisma.property.findUnique({ where: { id }, include: { landlord: { select: { username: true, email: true, profilePicture: true } }}});
+    return prisma.property.findUnique({ where: { id }, include: { landlord: { select: { id: true, username: true, email: true, profilePicture: true } }}});
   }
 
   static async delete(id: string) {

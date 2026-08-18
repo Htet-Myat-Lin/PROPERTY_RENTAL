@@ -12,41 +12,42 @@ enum Status {
 }
 
 model Property {
-  id               String       @id @default(uuid())
-  landlordId       String
-  landlord         User         @relation(fields: [landlordId], references: [id])
-  
-  title            String
-  description      String
-  baseRentPrice    Float
-  beds             Int?
-  baths            Int?
-  area             Float?
-  
-  propertyType     PropertyType
-  status           Status       @default(AVAILABLE)
-  
-  locationAddress  String?
-  coordinates      Float[]
-  
-  images           String[]
-  
-  nearTransitType  String?
-  nearTransitDist  Float?
-  
-  parkingSpaces    Int          @default(0)
-  yearBuilt        Int?
-  petAllowed       Boolean      @default(false)
-  appliances       String[]
-  availableDate    DateTime?
-  
-  internetName     String?
-  internetSpeed    String?
-  leaseTermMonths  Int?
+  id         String @id @default(uuid())
+  landlordId String
+  landlord   User   @relation(fields: [landlordId], references: [id])
 
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  title         String
+  description   String
+  baseRentPrice Float
+  beds          Int?
+  baths         Int?
+  area          Float?
 
-  wishlist         Wishlist[]
-  reviews          Review[]
+  propertyType PropertyType
+  status       Status       @default(AVAILABLE)
+
+  locationAddress String?
+  coordinates     Float[]
+
+  images String[]
+
+  nearTransitType String?
+  nearTransitDist Float?
+
+  parkingSpaces Int       @default(0)
+  yearBuilt     Int?
+  petAllowed    Boolean   @default(false)
+  appliances    String[]
+  availableDate DateTime?
+
+  internetName    String?
+  internetSpeed   String?
+  leaseTermMonths Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wishlists Wishlist[]
+  reviews   Review[]
+  chats     Chat[]
 }

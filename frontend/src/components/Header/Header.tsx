@@ -20,6 +20,7 @@ import { LuMenu } from "react-icons/lu";
 import { useAppStore } from "@/app/store";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { toast } from "react-toastify";
+import {useSocket} from "@/socket/useSocket.ts";
 
 const navRoutes = [
   { label: "Home", route: "/" },
@@ -74,9 +75,11 @@ export function Header() {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const { mutate } = useLogout();
+  const { socket } = useSocket();
 
   const handleLogout = async () => {
     mutate();
+    socket?.disconnect();
     toast.success("Logout was successful.");
     navigate("/login-register");
   };
