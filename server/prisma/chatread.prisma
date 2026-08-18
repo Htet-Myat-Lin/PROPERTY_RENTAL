@@ -1,0 +1,13 @@
+model ChatRead {
+  id                String     @id @default(uuid())
+  chatId            String
+  userId            String
+  lastReadMessageId String?
+  lastReadAt        DateTime?
+  unreadCount       Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  chat              Chat      @relation(fields: [chatId], references: [id])
+  @@unique([chatId, userId])
+}

@@ -8,12 +8,12 @@ import {
 import "../index.css";
 import "@fontsource-variable/inter";
 import { ThemeProvider } from "next-themes";
-import { Provider } from "@/components/ui/provider";
+import { Provider as ChakraProvider } from "@/components/ui/provider";
 import { UserApi } from "@/api/services/user-service";
 import { useEffect } from "react";
 import { useAppStore } from "./store";
 import { ToastContainer, Slide } from "react-toastify";
-
+import { SocketProvider } from "./providers/SocketProvider";
 
 const queryClient = new QueryClient();
 
@@ -56,11 +56,13 @@ function AppContent() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Provider>
-        <ThemeProvider>
-          <AppContent />
-        </ThemeProvider>
-      </Provider>
+      <SocketProvider>
+        <ChakraProvider>
+          <ThemeProvider>
+            <AppContent />
+          </ThemeProvider>
+        </ChakraProvider>
+      </SocketProvider>
     </QueryClientProvider>
   );
 }

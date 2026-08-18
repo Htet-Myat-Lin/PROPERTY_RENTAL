@@ -20,6 +20,8 @@ import {
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
 import { PropertyDetailsPage } from "@/pages/PropertyDetailsPage";
+import { IoChatbubblesOutline } from "react-icons/io5";
+import { ChatPage } from "@/pages/dashboards/ChatPage";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
@@ -33,7 +35,12 @@ const landlordNavLinks = [
   { icon: LuChrome, label: "Properties", path: "/landlord/properties" },
   { icon: LuUsers, label: "Tenants", path: "/landlord/tenants" },
   { icon: LuSettings, label: "Settings", path: "/landlord/settings" },
+  { icon: IoChatbubblesOutline, label: "Chat", path: "/landlord/chat" }
 ];
+
+const tenantNavLinks = [
+  { icon: IoChatbubblesOutline, label: "Chat", path: "/tenant/chat" }
+]
 
 export const router = createBrowserRouter([
   // Public Routes
@@ -71,10 +78,25 @@ export const router = createBrowserRouter([
         element: <DashboardLayout navLinks={landlordNavLinks} />,
         children: [
           { path: "dashboard", element: <LandlordDashboard /> },
-          { path: "properties", element: <Properties /> }
+          { path: "properties", element: <Properties /> },
+          { path: "chat", element: <ChatPage /> }
         ],
       },
     ],
   },
+
+  // TENANT Routes
+  {
+    element: <ProtectedRoute allowedRoles={["TENANT"]} />,
+    children: [
+      {
+        path: "/tenant",
+        element: <DashboardLayout navLinks={tenantNavLinks} />,
+        children: [
+          {  path: "chat", element: <ChatPage /> }
+        ]
+       }
+    ]
+  }
 
 ]);

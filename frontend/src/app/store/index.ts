@@ -1,12 +1,15 @@
 import { createAuthSlice } from "@/features/auth/store/auth-slice";
 import type { IAuthSlice } from "@/features/auth/types";
+import { createChatSlice } from "@/features/chat/store/chat-slice";
+import type { IChatSlice } from "@/features/chat/types";
 import { createPropertyFormSlice } from "@/features/property/store/PropertyFormSlice";
 import type { IPropertyFormSlice } from "@/features/property/types";
 import { create } from "zustand";
 
-type AppState = IAuthSlice & IPropertyFormSlice
+type AppState = IAuthSlice & IPropertyFormSlice & IChatSlice
 
 export const useAppStore = create<AppState>()((...args) => ({
     ...createAuthSlice(...args),
-    ...createPropertyFormSlice(...args)
+    ...createPropertyFormSlice(...args),
+    ...createChatSlice(...args)
 }))

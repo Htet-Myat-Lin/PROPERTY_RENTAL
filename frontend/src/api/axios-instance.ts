@@ -2,7 +2,7 @@ import { useAppStore } from "@/app/store";
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:7000/api",
+  baseURL: `${import.meta.env.VITE_BACKEND_URL}/api`,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });

@@ -1,0 +1,17 @@
+model Chat {
+  id          String    @id  @default(uuid())
+  landlordId  String
+  tenantId    String
+  propertyId  String
+  lastMessage String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  property    Property  @relation(fields: [propertyId], references: [id])
+  landlord    User      @relation("landlord", fields: [landlordId], references: [id])
+  tenant      User      @relation("tenant", fields: [tenantId], references: [id])
+  chatReads   ChatRead[]
+  messages    Message[]
+
+  @@unique([landlordId, tenantId, propertyId])
+}

@@ -17,15 +17,97 @@ import {
   LuPhone,
   LuCalendarCheck,
 } from "react-icons/lu";
+import { useAppStore } from "@/app/store";
+import { useSocket } from "@/socket/useSocket";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import { Modal } from "@/components/ui/modal";
+import { useMemo, useState } from "react";
+import { MessageInput } from "@/features/chat/components/MessageInput";
 
 type Props = {
+    landlordId: string;
     landlordName: string;
     landlordEmail: string;
     rentPrice: number;
     profilePicture?: string;
+    propertyId: string;
 }
 
-export function LandlordCard({ landlordName, landlordEmail, rentPrice, profilePicture }: Props) {
+export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPrice, profilePicture, propertyId }: Props) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const user = useAppStore((s) => s.user);
+  const chatList = useAppStore((s) => s.chatList);
+  const { socket, isConnected } = useSocket();
+  const navigate = useNavigate();
+
+  const currentChat = useMemo(() => {
+    return chatList?.find((chat) => chat.landlordId === landlordId && chat.tenantId === user?.id && chat.propertyId === propertyId);
+  }, [chatList, landlordId, user?.id, propertyId]);
+
+  const closeModal = () => setIsOpen(false);
+
+  function joinChat () {
+    if (!user) {
+      toast.warn("You need to be logged in to contact the landlord.");
+      navigate("/login-register");
+      return;
+    }
+
+    if (user.role === "LANDLORD") {
+      toast.info("Landlords cannot contact other landlords.");
+      return;
+    }
+
+    if (landlordId === user.id) {
+      toast.info("You can't start a chat about your own property.");
+      return;
+    }
+
+    if (!socket || !isConnected) {
+      socket?.connect();
+      toast.info("Connecting to chat... please click again in a moment.");
+      return;
+    }
+
+    if (!currentChat?.lastMessage) {
+      setIsOpen(true);
+      return;
+    }
+
+    socket.emit("join_chat", { landlordId, tenantId: user.id, propertyId });
+    navigate("/tenant/chat");
+  }
+
+  function sendMessage(content: string) {
+    if (!user) {
+      toast.warn("You need to be logged in to send a message.");
+      navigate("/login-register");
+      return;
+    }
+
+    if (!socket || !isConnected) {
+      socket?.connect();
+      toast.info("Connecting to chat... please click again in a moment.");
+      return;
+    }
+
+    if (!content.trim()) {
+      toast.warn("Message cannot be empty.");
+      return;
+    }
+
+    socket.emit(
+      "join_chat",
+      { landlordId, tenantId: user.id, propertyId },
+      () => {
+        socket.emit("send_message", content.trim());
+        setIsOpen(false);
+        navigate("/tenant/chat");
+      }
+    );
+  }
+
   return (
     <Box mb="6">
       <SectionWrapper>
@@ -138,6 +220,7 @@ export function LandlordCard({ landlordName, landlordEmail, rentPrice, profilePi
               size="md"
               w="full"
               gap="2"
+              onClick={joinChat}
             >
               <LuMessageSquare size={15} />
               Contact Landlord
@@ -149,6 +232,17 @@ export function LandlordCard({ landlordName, landlordEmail, rentPrice, profilePi
           </Text>
         </Stack>
       </SectionWrapper>
+
+      {/* modal for contacting landlord */}
+      <Modal
+        title="Contact Landlord"
+        isOpen={isOpen}
+        onClose={closeModal}
+        size="xs"
+      >
+        <MessageInput onSend={sendMessage} />
+      </Modal>
     </Box>
   );
 }
+

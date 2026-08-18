@@ -19,14 +19,14 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 app.use(cors({
-    origin: "http://localhost:5000",
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }))
 
 app.use(morgan('dev'));
 
 // serving static files (images)
-app.use("/uploads", express.static("src/uploads"))
+app.use("/uploads", express.static(process.env.UPLOAD_DIR as string))
 
 app.use("/api/auth", authRouter)
 app.use("/api/users", userRouter)
