@@ -12,7 +12,7 @@ model User {
   phone                       String?
   active                      Boolean  @default(true)
   role                        Role     @default(TENANT)
-  profilePicture              String? 
+  profilePicture              String?
   isEmailVerified             Boolean  @default(false)
   verifyOTP                   String?
   verifyOTPExpiry             Int      @default(0)
@@ -24,12 +24,11 @@ model User {
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
 
-  properties                  Property[]
-  wishlist                    Wishlist[]
-  reviews                     Review[]
-  landlordChats               Chat[]    @relation("landlord")
-  tenantChats                 Chat[]    @relation("tenant")
-  messages                    Message[] 
+  properties    Property[]
+  wishlist      Wishlist[]
+  reviews       Review[]
+  landlordChats Chat[]         @relation("landlord")
+  tenantChats   Chat[]         @relation("tenant")
+  messages      Message[]
+  notifications Notification[]
 }
-
-
