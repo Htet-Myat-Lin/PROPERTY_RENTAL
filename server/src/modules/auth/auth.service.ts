@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { sendEmailVerifyOTP, sendPasswordResetOTP } from "./../../utils/send.email";
+import { sendEmailVerifyOTP, sendPasswordResetOTP } from "@/utils/send.email";
 import type { LoginSchema, RegisterSchema } from "./auth.validation";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "@/utils/jwt";
 import { AppError } from "@/utils/app.error";
@@ -93,7 +93,7 @@ export const forgotPasswordService = async (email: string) => {
         throw new AppError("OTP already sent. Please wait before requesting a new one.", 429);
     }
     
-    sendPasswordResetOTP(user)
+    await sendPasswordResetOTP(user)
 
     return { message: "OTP sent to email successfully" };
 }
@@ -106,7 +106,7 @@ export const sendResetPasswordOTPService = async (email: string) => {
         throw new AppError("OTP already sent. Please wait before requesting a new one.", 429);
     }
     
-    sendPasswordResetOTP(user)
+    await sendPasswordResetOTP(user)
 
     return { message: "OTP sent to email successfully" };
 }

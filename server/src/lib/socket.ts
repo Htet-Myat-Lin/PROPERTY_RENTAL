@@ -4,6 +4,7 @@ import { OnlineUsers } from "@/modules/chat/online.users";
 import { AppError } from "@/utils/app.error";
 import { verifyAccessToken } from "@/utils/jwt";
 import {Server, Socket} from "socket.io";
+import {registerNotificationSocketHandler} from "@/modules/notification/notification.socket";
 
 export const socketHandler = (io: Server) => {
     io.use((socket, next) => {
@@ -35,6 +36,9 @@ export const socketHandler = (io: Server) => {
 
         // Chat Socket Handler
         registerChatSocketHandler(io, socket);
+
+        // Notification Socket Handler
+        registerNotificationSocketHandler(io, socket);
 
         // Disconnect
         socket.on("disconnect", (reason) => {

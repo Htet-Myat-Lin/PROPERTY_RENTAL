@@ -32,7 +32,6 @@ export const registerChatSocketHandler = (io: Server, socket: Socket) => {
             io.to(id).emit("unread_count_updated", { chatId: chat.id, unreadCount: 0 })
         }
         callback?.({ chatId: chat.id });
-        socket.to(chat.id).emit("user_joined", id);
     })
 
     /**

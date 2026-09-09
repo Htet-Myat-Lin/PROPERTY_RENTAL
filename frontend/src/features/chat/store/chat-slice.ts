@@ -26,9 +26,7 @@ export const createChatSlice: StoreSlice<IChatSlice> = (set) => ({
                             {
                                 ...(chat.chatReads?.[0] ?? {}),
                                 unreadCount: count,
-                                ...(lastReadMessageId !== undefined
-                                    ? { lastReadMessageId }
-                                    : {}),
+                                ...(lastReadMessageId !== undefined ? { lastReadMessageId } : {}),
                             },
                         ],
                     }
