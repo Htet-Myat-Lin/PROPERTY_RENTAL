@@ -3,6 +3,7 @@ import { MessageRepository } from "@/repositories/message.repository";
 import {Server, Socket} from "socket.io";
 import { ChatPresence } from "./chat.presence";
 import { ChatReadRepository } from "@/repositories/chatread.repository";
+import { NotificationRepository } from "@/repositories/notification.repository";
 
 export const registerChatSocketHandler = (io: Server, socket: Socket) => {
     const id = socket.data.userId;
@@ -57,6 +58,8 @@ export const registerChatSocketHandler = (io: Server, socket: Socket) => {
         } else {
             const updated = await ChatReadRepository.increaseUnreadCount(chatId, receiverId as string);
             const chatForReceiver = await ChatRepository.getByIdForUser(chatId, receiverId as string);
+            const newNotification = await NotificationRepository.createNotification(receiverId as string, "New Message", `You have a new message from ${id}`);
+            io.to(receiverId as string).emit("notification_created", newNotification);
             io.to(receiverId as string).emit("unread_count_updated", { chatId, unreadCount: updated.unreadCount, chat: chatForReceiver });
         }
     })

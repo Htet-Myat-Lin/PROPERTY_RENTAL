@@ -17,11 +17,13 @@ import {
   LuLayoutDashboard,
   LuSettings,
   LuUsers,
+  LuBell
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
 import { PropertyDetailsPage } from "@/pages/PropertyDetailsPage";
 import { IoChatbubblesOutline } from "react-icons/io5";
 import { ChatPage } from "@/pages/dashboards/ChatPage";
+import { NotificationPage } from "@/pages/dashboards/NotificationPage";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
@@ -35,11 +37,13 @@ const landlordNavLinks = [
   { icon: LuChrome, label: "Properties", path: "/landlord/properties" },
   { icon: LuUsers, label: "Tenants", path: "/landlord/tenants" },
   { icon: LuSettings, label: "Settings", path: "/landlord/settings" },
-  { icon: IoChatbubblesOutline, label: "Chat", path: "/landlord/chat" }
+  { icon: IoChatbubblesOutline, label: "Chat", path: "/landlord/chat" },
+  { icon: LuBell, label: "Notifications", path: "/landlord/notifications" }
 ];
 
 const tenantNavLinks = [
-  { icon: IoChatbubblesOutline, label: "Chat", path: "/tenant/chat" }
+  { icon: IoChatbubblesOutline, label: "Chat", path: "/tenant/chat" },
+  { icon: LuBell, label: "Notifications", path: "/tenant/notifications" }
 ]
 
 export const router = createBrowserRouter([
@@ -79,7 +83,8 @@ export const router = createBrowserRouter([
         children: [
           { path: "dashboard", element: <LandlordDashboard /> },
           { path: "properties", element: <Properties /> },
-          { path: "chat", element: <ChatPage /> }
+          { path: "chat", element: <ChatPage /> },
+          { path: "notifications", element: <NotificationPage /> },
         ],
       },
     ],
@@ -93,7 +98,8 @@ export const router = createBrowserRouter([
         path: "/tenant",
         element: <DashboardLayout navLinks={tenantNavLinks} />,
         children: [
-          {  path: "chat", element: <ChatPage /> }
+          {  path: "chat", element: <ChatPage /> },
+          { path: "notifications", element: <NotificationPage /> },
         ]
        }
     ]

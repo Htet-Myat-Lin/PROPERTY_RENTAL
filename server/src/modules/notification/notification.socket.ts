@@ -28,9 +28,4 @@ export const registerNotificationSocketHandler = (io: Server, socket: Socket) =>
         await NotificationRepository.bulkDeleteNotifications(notificationIds);
         socket.emit("notifications_deleted", notificationIds);
     });
-
-    socket.on("create_notification", async ({ userId, title, content } : Record<"userId" | "title" | "content", string>) => {
-        const newNotification = await NotificationRepository.createNotification(userId, title, content);
-        socket.emit("notification_created", newNotification);
-    });
 }

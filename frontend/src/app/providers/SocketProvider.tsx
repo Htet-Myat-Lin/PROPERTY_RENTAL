@@ -40,7 +40,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const notificationCreated = (notification: Notification) => {
-      setNotifications((prevNotifications) => [notification, ...prevNotifications]);
+      setNotifications((prevNotifications) =>
+        prevNotifications.some((n) => n.id === notification.id)
+          ? prevNotifications
+          : [notification, ...prevNotifications]
+      );
     }
 
     const notificationMarkedRead = (notificationId: string) => {
@@ -91,6 +95,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
       socket.off("connect_error", handleConnectError);
+      socket.off("notifications_fetched", fetchNotifications);
+      socket.off("notification_created", notificationCreated);
+      socket.off("notification_marked_read", notificationMarkedRead);
+      socket.off("notifications_marked_read", notificationsMarkedRead);
+      socket.off("notification_deleted", notificationDeleted);
+      socket.off("notifications_deleted", notificationsDeleted);
     };
   }, [token, setNotifications]);
 
