@@ -9,6 +9,9 @@ import {
   Button,
   Flex,
   Icon,
+  NativeSelect,
+  For,
+  Input,
 } from "@chakra-ui/react";
 import { SectionWrapper } from "./SectionWrapper";
 import {
@@ -16,6 +19,8 @@ import {
   LuMail,
   LuPhone,
   LuCalendarCheck,
+  LuPlus,
+  LuX,
 } from "react-icons/lu";
 import { useAppStore } from "@/app/store";
 import { useSocket } from "@/socket/useSocket";
@@ -24,6 +29,7 @@ import { toast } from "react-toastify";
 import { Modal } from "@/components/ui/modal";
 import { useMemo, useState } from "react";
 import { MessageInput } from "@/features/chat/components/MessageInput";
+import { useCreateBooking } from "@/features/property/hooks/useCreateBooking"
 
 type Props = {
     landlordId: string;
@@ -34,18 +40,93 @@ type Props = {
     propertyId: string;
 }
 
+function bookingDates () {
+  const today = new Date();
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    dates.push(
+      date.toLocaleDateString("en-Us", { weekday: "short", month: "short", day: "numeric" })
+    );
+  }
+  return dates;
+}
+
+const timeSlots = [ "09 AM", "10 AM", "11 AM", "12 PM", "01 PM", "02 PM", "03 PM", "04 PM", "05 PM" ];
+
 export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPrice, profilePicture, propertyId }: Props) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
+  const [selectedDates, setSelectedDates] = useState<Record<"date" | "time", string>[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Record<"date" | "time", string>>({ date: "", time: "" });
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
   const user = useAppStore((s) => s.user);
   const chatList = useAppStore((s) => s.chatList);
   const { socket, isConnected } = useSocket();
   const navigate = useNavigate();
+  const { mutate: createBooking } = useCreateBooking();
 
   const currentChat = useMemo(() => {
     return chatList?.find((chat) => chat.landlordId === landlordId && chat.tenantId === user?.id && chat.propertyId === propertyId);
   }, [chatList, landlordId, user?.id, propertyId]);
 
-  const closeModal = () => setIsOpen(false);
+  const closeChatModal = () => setIsChatOpen(false);
+
+  const closeBookingModal = () => {
+    setIsBookingOpen(false);
+    setSelectedDates([]);
+    setSelectedDate({ date: "", time: "" });
+  }
+
+  function addDate() {
+    if (selectedDates.length >= 3) {
+      toast.warn("You can only select up to 3 dates.");
+      return;
+    }
+    if (!selectedDate.date || !selectedDate.time) {
+      toast.warn("Please select both a date and time.");
+      return;
+    }
+    setSelectedDates([...selectedDates, selectedDate]);
+    setSelectedDate({ date: "", time: "" });
+  }
+
+  function requestTour() {
+    if (!user) {
+      toast.warn("You need to be logged in to request a tour.");
+      navigate("/login-register");
+      return;
+    }
+
+    if (user.role === "LANDLORD") {
+      toast.info("Landlords cannot request tours for properties.");
+      return;
+    }
+
+    if (!selectedDate.date || !selectedDate.time) {
+      toast.warn("Please select both a date and time.");
+      return;
+    }
+
+    if (!phoneNumber.trim()) {
+      toast.warn("Please enter your phone number.");
+      return;
+    }
+
+    createBooking({
+      landlordId,
+      tenantId: user.id,
+      propertyId,
+      phoneNumber,
+      schedules: selectedDates,
+    }, {
+      onSuccess: () => {
+        toast.success("Tour request sent successfully!");
+        closeBookingModal();
+      }
+    })
+  }
 
   function joinChat () {
     if (!user) {
@@ -71,7 +152,7 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
     }
 
     if (!currentChat?.lastMessage) {
-      setIsOpen(true);
+      setIsChatOpen(true);
       return;
     }
 
@@ -102,14 +183,14 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
       { landlordId, tenantId: user.id, propertyId },
       () => {
         socket.emit("send_message", content.trim());
-        setIsOpen(false);
+        setIsChatOpen(false);
         navigate("/tenant/chat");
       }
     );
   }
 
   return (
-    <Box mb="6">
+    <Box>
       <SectionWrapper>
         <Stack gap="4">
           {/* Landlord */}
@@ -210,6 +291,7 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
               size="md"
               w="full"
               gap="2"
+              onClick={() => setIsBookingOpen(true)}
             >
               <LuCalendarCheck size={15} />
               Request a Tour
@@ -236,12 +318,89 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
       {/* modal for contacting landlord */}
       <Modal
         title="Contact Landlord"
-        isOpen={isOpen}
-        onClose={closeModal}
+        isOpen={isChatOpen}
+        onClose={closeChatModal}
         size="xs"
       >
         <MessageInput onSend={sendMessage} />
       </Modal>
+
+      {/* modal for booking a tour */}
+      <Modal
+        title="Request a Tour"
+        isOpen={isBookingOpen}
+        onClose={closeBookingModal}
+        size="sm"
+        closeOnInteractOutside={false}
+        closeOnEsc={false}
+      >
+        <Text fontSize="sm" color="fg.muted" mb="3">
+          Please select a date and time for your tour request. The landlord will
+          be notified and will confirm the appointment.
+        </Text>
+
+        <Text fontWeight="semibold">You can choose up to 3 dates</Text>
+        <Text fontSize="sm" color="fg.muted" mb="3">Tour times are in the listing's local time zone.</Text>
+
+        <For each={selectedDates}>
+          {(date, index) => (
+            <HStack justify="space-between" mb="2" p="2" borderWidth="1px" borderRadius="md" borderColor="border.muted" bg="bg.muted" key={index}>
+              <Text>{`${date.date} at ${date.time}`}</Text>
+              <LuX onClick={() => setSelectedDates(prev => prev.filter((_, i) => i !== index))} />
+            </HStack>
+          )}
+        </For>
+
+        {selectedDates.length < 3 && (
+          <HStack mt="3">
+            <NativeSelect.Root size="sm" width="240px">
+              <NativeSelect.Field
+                placeholder="Select Date"
+                value={selectedDate.date}
+                onChange={(e) => setSelectedDate({ ...selectedDate, date: e.target.value })}
+              >
+                <For each={bookingDates()}>
+                  {(date) => (
+                    <option value={date}>{date}</option>
+                  )}
+                </For>
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+
+            <NativeSelect.Root size="sm" width="240px">
+              <NativeSelect.Field
+                placeholder="Select Time"
+                value={selectedDate.time}
+                onChange={(e) => setSelectedDate({ ...selectedDate, time: e.target.value })}
+              >
+                <For each={timeSlots}>
+                  {(time) => (
+                    <option value={time}>{time}</option>
+                  )}
+                </For>
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+          </HStack>
+        )}
+
+        <Button size="xs" variant="outline" mt="3" onClick={addDate}>
+          <LuPlus /> Date
+        </Button>
+
+        <Input placeholder="Enter phone number" mt="3" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+
+        <Button 
+          colorPalette="blue" 
+          mt="3" 
+          w="full"
+          onClick={requestTour}
+        >
+          Request
+        </Button>
+      </Modal>
+
     </Box>
   );
 }

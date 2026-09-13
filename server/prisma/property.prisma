@@ -50,4 +50,5 @@ model Property {
   wishlists Wishlist[]
   reviews   Review[]
   chats     Chat[]
+  visitBookings VisitBooking[]
 }

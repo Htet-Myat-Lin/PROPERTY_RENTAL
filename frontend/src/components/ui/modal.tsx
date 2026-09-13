@@ -1,3 +1,4 @@
+import { CloseButton } from "@chakra-ui/react/button";
 import { Dialog } from "@chakra-ui/react/dialog";
 
 interface Props {
@@ -8,18 +9,27 @@ interface Props {
     placement?: "center" | "top" | "bottom";
     size?: "xs" | "sm" | "md" | "lg";
     closeOnEsc?: boolean;
+    closeOnInteractOutside?: boolean;
 }
 
-export const Modal = ({ title, isOpen, onClose, children, placement = "center", size = "md", closeOnEsc = true }: Props) => {
+export const Modal = ({ title, isOpen, onClose, children, placement = "center", size = "md", closeOnEsc = true, closeOnInteractOutside = true }: Props) => {
     return (
-        <Dialog.Root open={isOpen} onOpenChange={onClose} closeOnEscape={closeOnEsc} placement={placement} size={size}>
+        <Dialog.Root 
+            open={isOpen} 
+            onOpenChange={onClose} 
+            closeOnEscape={closeOnEsc} 
+            placement={placement} size={size} 
+            closeOnInteractOutside={closeOnInteractOutside}
+        >
             <Dialog.Trigger />
             <Dialog.Backdrop />
             <Dialog.Positioner>
                 <Dialog.Content>
-                    <Dialog.CloseTrigger />
+                    <Dialog.CloseTrigger asChild>
+                        <CloseButton size="sm" />
+                    </Dialog.CloseTrigger>
                     <Dialog.Header>
-                        <Dialog.Title>
+                        <Dialog.Title fontSize="xl">
                             {title}
                         </Dialog.Title>
                     </Dialog.Header>
