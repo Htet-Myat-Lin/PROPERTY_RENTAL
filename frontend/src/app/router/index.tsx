@@ -17,13 +17,16 @@ import {
   LuLayoutDashboard,
   LuSettings,
   LuUsers,
-  LuBell
+  LuBell,
+  LuCalendarDays
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
 import { PropertyDetailsPage } from "@/pages/PropertyDetailsPage";
 import { IoChatbubblesOutline } from "react-icons/io5";
 import { ChatPage } from "@/pages/dashboards/ChatPage";
 import { NotificationPage } from "@/pages/dashboards/NotificationPage";
+import { Bookings } from "@/pages/dashboards/landlord/Bookings";
+import { Bookings as TenantBookings } from "@/pages/dashboards/tenant/Bookings";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
@@ -36,12 +39,13 @@ const landlordNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/landlord/dashboard" },
   { icon: LuChrome, label: "Properties", path: "/landlord/properties" },
   { icon: LuUsers, label: "Tenants", path: "/landlord/tenants" },
-  { icon: LuSettings, label: "Settings", path: "/landlord/settings" },
+  { icon: LuCalendarDays, label: "Bookings", path: "/landlord/bookings" },
   { icon: IoChatbubblesOutline, label: "Chat", path: "/landlord/chat" },
   { icon: LuBell, label: "Notifications", path: "/landlord/notifications" }
 ];
 
 const tenantNavLinks = [
+  { icon: LuCalendarDays, label: "Bookings", path: "/tenant/bookings" },
   { icon: IoChatbubblesOutline, label: "Chat", path: "/tenant/chat" },
   { icon: LuBell, label: "Notifications", path: "/tenant/notifications" }
 ]
@@ -85,6 +89,7 @@ export const router = createBrowserRouter([
           { path: "properties", element: <Properties /> },
           { path: "chat", element: <ChatPage /> },
           { path: "notifications", element: <NotificationPage /> },
+          { path: "bookings", element: <Bookings /> }
         ],
       },
     ],
@@ -98,6 +103,7 @@ export const router = createBrowserRouter([
         path: "/tenant",
         element: <DashboardLayout navLinks={tenantNavLinks} />,
         children: [
+          {  path: "bookings", element: <TenantBookings /> },
           {  path: "chat", element: <ChatPage /> },
           { path: "notifications", element: <NotificationPage /> },
         ]

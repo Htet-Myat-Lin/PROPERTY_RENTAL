@@ -8,6 +8,7 @@ import { propertyRouter } from "./modules/property/property.route.js";
 import { userRouter } from "./modules/user/user.route.js";
 import { wishlistRouter } from "./modules/wishlist/wishlist.route.js";
 import { reviewRouter } from "./modules/review/review.route.js";
+import { bookingRouter } from "./modules/visitbooking/booking.route.js";
 import "@/workers/email.worker"; // Start the email worker when the app starts
 const app = express();
 app.use(express.json());
@@ -25,6 +26,7 @@ app.use("/api/users", userRouter);
 app.use("/api/properties", propertyRouter);
 app.use("/api/wishlist", wishlistRouter);
 app.use("/api/reviews", reviewRouter);
+app.use("/api/bookings", bookingRouter);
 // Global Error Handler
 app.use(errorHandler);
 export default app;

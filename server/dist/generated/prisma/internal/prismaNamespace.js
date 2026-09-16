@@ -68,10 +68,13 @@ export const JsonNull = runtime.JsonNull;
 export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     Chat: 'Chat',
+    ChatRead: 'ChatRead',
     Message: 'Message',
+    Notification: 'Notification',
     Property: 'Property',
     Review: 'Review',
     User: 'User',
+    VisitBooking: 'VisitBooking',
     Wishlist: 'Wishlist'
 };
 /**
@@ -92,6 +95,16 @@ export const ChatScalarFieldEnum = {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
+export const ChatReadScalarFieldEnum = {
+    id: 'id',
+    chatId: 'chatId',
+    userId: 'userId',
+    lastReadMessageId: 'lastReadMessageId',
+    lastReadAt: 'lastReadAt',
+    unreadCount: 'unreadCount',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
 export const MessageScalarFieldEnum = {
     id: 'id',
     chatId: 'chatId',
@@ -99,6 +112,15 @@ export const MessageScalarFieldEnum = {
     content: 'content',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+};
+export const NotificationScalarFieldEnum = {
+    id: 'id',
+    title: 'title',
+    content: 'content',
+    isRead: 'isRead',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    userId: 'userId'
 };
 export const PropertyScalarFieldEnum = {
     id: 'id',
@@ -156,6 +178,18 @@ export const UserScalarFieldEnum = {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
+export const VisitBookingScalarFieldEnum = {
+    id: 'id',
+    landlordId: 'landlordId',
+    tenantId: 'tenantId',
+    propertyId: 'propertyId',
+    phoneNumber: 'phoneNumber',
+    schedules: 'schedules',
+    status: 'status',
+    remarks: 'remarks',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
 export const WishlistScalarFieldEnum = {
     id: 'id',
     userId: 'userId',
@@ -167,6 +201,9 @@ export const SortOrder = {
     asc: 'asc',
     desc: 'desc'
 };
+export const JsonNullValueInput = {
+    JsonNull: JsonNull
+};
 export const QueryMode = {
     default: 'default',
     insensitive: 'insensitive'
@@ -174,5 +211,10 @@ export const QueryMode = {
 export const NullsOrder = {
     first: 'first',
     last: 'last'
+};
+export const JsonNullValueFilter = {
+    DbNull: DbNull,
+    JsonNull: JsonNull,
+    AnyNull: AnyNull
 };
 export const defineExtension = runtime.Extensions.defineExtension;

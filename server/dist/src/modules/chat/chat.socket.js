@@ -1,5 +1,8 @@
 import { ChatRepository } from "@/repositories/chat.repository";
 import { MessageRepository } from "@/repositories/message.repository";
+import { ChatPresence } from "./chat.presence";
+import { ChatReadRepository } from "@/repositories/chatread.repository";
+import { NotificationRepository } from "@/repositories/notification.repository";
 export const registerChatSocketHandler = (io, socket) => {
     const id = socket.data.userId;
     /**
@@ -8,13 +11,24 @@ export const registerChatSocketHandler = (io, socket) => {
      */
     socket.on("join_chat", async ({ landlordId, tenantId, propertyId }, callback) => {
         const chat = await ChatRepository.findOrCreateChat(landlordId, tenantId, propertyId);
+        // leave previously active chat room
+        if (socket.data.chatId && socket.data.chatId !== chat.id) {
+            socket.leave(socket.data.chatId);
+            ChatPresence.leave(socket.data.chatId, id);
+        }
         socket.join(chat.id);
         socket.data.chatId = chat.id;
-        console.log(`User ${id} joined chat ${chat.id}`);
+        ChatPresence.join(chat.id, id);
         const messages = await MessageRepository.getChatMessages(chat.id);
         socket.emit("chat_messages", messages);
+        const lastMsg = messages[messages.length - 1];
+        // entering the chat makes the last message as read
+        if (lastMsg) {
+            await ChatReadRepository.markRead(chat.id, id, lastMsg.id);
+            socket.to(chat.id).emit("chat_read", { chatId: chat.id, lastReadMessageId: lastMsg.id });
+            io.to(id).emit("unread_count_updated", { chatId: chat.id, unreadCount: 0 });
+        }
         callback?.({ chatId: chat.id });
-        socket.to(chat.id).emit("user_joined", id);
     });
     /**
      * Send a message to the chat room
@@ -25,23 +39,55 @@ export const registerChatSocketHandler = (io, socket) => {
         if (!chatId || !safeContent)
             return;
         const message = await MessageRepository.createMessage(chatId, id, safeContent);
-        const chat = await ChatRepository.updateLastMessage(chatId, safeContent);
+        const lastMessage = `${message.senderId}:${message.content}`;
+        await ChatRepository.updateLastMessage(chatId, lastMessage);
         io.to(chatId).emit("receive_message", message);
-        io.to(chatId).emit("last_message_updated", { chatId, lastMessage: chat.lastMessage });
+        io.to(chatId).emit("last_message_updated", { chatId, lastMessage });
+        const chat = await ChatRepository.getById(chatId);
+        const receiverId = chat?.landlordId === id ? chat?.tenantId : chat?.landlordId;
+        // Always keep the receiver's chat list preview up to date, even when they
+        // are not viewing the chat (i.e. not a member of the chat room).
+        io.to(receiverId).emit("last_message_updated", { chatId, lastMessage });
+        if (ChatPresence.isViewing(chatId, receiverId)) {
+            await ChatReadRepository.markRead(chatId, receiverId, message.id);
+            socket.emit("chat_read", { chatId, userId: receiverId, lastReadMessageId: message.id });
+        }
+        else {
+            const updated = await ChatReadRepository.increaseUnreadCount(chatId, receiverId);
+            const chatForReceiver = await ChatRepository.getByIdForUser(chatId, receiverId);
+            const newNotification = await NotificationRepository.createNotification(receiverId, "New Message", `You have a new message from ${id}`);
+            io.to(receiverId).emit("notification_created", newNotification);
+            io.to(receiverId).emit("unread_count_updated", { chatId, unreadCount: updated.unreadCount, chat: chatForReceiver });
+        }
     });
     /**
      * Edit a message in the chat room
      */
     socket.on("edit_message", async ({ messageId, newContent }) => {
         const message = await MessageRepository.editMessage(messageId, newContent);
-        io.to(socket.data.chatId).emit("message_edited", message);
+        const chatId = socket.data.chatId;
+        io.to(chatId).emit("message_edited", message);
+        const lastMsg = await MessageRepository.getLastMessage(chatId);
+        if (messageId === lastMsg[0]?.id) {
+            const lastMessage = `${lastMsg[0].senderId}:${lastMsg[0].content}`;
+            await ChatRepository.updateLastMessage(chatId, lastMessage);
+            io.emit("last_message_updated", { chatId, lastMessage });
+        }
     });
     /**
      * Delete a message in the chat room
      */
     socket.on("delete_message", async (messageId) => {
+        const chatId = socket.data.chatId;
+        const lastMsg = await MessageRepository.getLastMessage(chatId);
         await MessageRepository.deleteMessage(messageId);
-        io.to(socket.data.chatId).emit("message_deleted", messageId);
+        if (messageId)
+            io.to(socket.data.chatId).emit("message_deleted", messageId);
+        if (messageId === lastMsg[0]?.id) {
+            const lastMessage = lastMsg[1] ? `${lastMsg[1].senderId}:${lastMsg[1].content}` : "";
+            await ChatRepository.updateLastMessage(chatId, lastMessage);
+            io.emit("last_message_updated", { chatId, lastMessage });
+        }
     });
     /**
      * Notify other user in the chat room that the user is typing
@@ -57,10 +103,13 @@ export const registerChatSocketHandler = (io, socket) => {
         socket.emit("chat_list_fetched", chats);
     });
     /**
-     * Update the last message of the chat. This is used to display the last message in the chat list.
+     * Leave the chat room
      */
-    socket.on("last_message", async ({ chatId, lastMessage }) => {
-        const chat = await ChatRepository.updateLastMessage(chatId, lastMessage);
-        io.to(chatId).emit("last_message_updated", { chatId, lastMessage: chat.lastMessage });
+    socket.on("leave_chat", () => {
+        if (socket.data.chatId) {
+            ChatPresence.leave(socket.data.chatId, id);
+            socket.leave(socket.data.chatId);
+            socket.data.chatId = undefined;
+        }
     });
 };

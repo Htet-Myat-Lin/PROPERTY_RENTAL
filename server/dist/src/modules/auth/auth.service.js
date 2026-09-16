@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { sendEmailVerifyOTP, sendPasswordResetOTP } from "./../../utils/send.email";
+import { sendEmailVerifyOTP, sendPasswordResetOTP } from "@/utils/send.email";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "@/utils/jwt";
 import { AppError } from "@/utils/app.error";
 import crypto from "crypto";
@@ -65,7 +65,7 @@ export const forgotPasswordService = async (email) => {
     if (user.resetPasswordOTPGeneratedAt && Date.now() / 1000 - user.resetPasswordOTPGeneratedAt < 60) {
         throw new AppError("OTP already sent. Please wait before requesting a new one.", 429);
     }
-    sendPasswordResetOTP(user);
+    await sendPasswordResetOTP(user);
     return { message: "OTP sent to email successfully" };
 };
 export const sendResetPasswordOTPService = async (email) => {
@@ -75,7 +75,7 @@ export const sendResetPasswordOTPService = async (email) => {
     if (user.resetPasswordOTPGeneratedAt && Date.now() / 1000 - user.resetPasswordOTPGeneratedAt < 60) {
         throw new AppError("OTP already sent. Please wait before requesting a new one.", 429);
     }
-    sendPasswordResetOTP(user);
+    await sendPasswordResetOTP(user);
     return { message: "OTP sent to email successfully" };
 };
 export const resetPasswordService = async (email, otp, password) => {

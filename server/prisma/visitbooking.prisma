@@ -1,14 +1,20 @@
+enum BookingStatus {
+    PENDING
+    ACCEPT
+    REJECT
+}
+
 model VisitBooking {
-    id          String   @id @default(uuid())
+    id          String        @id @default(uuid())
     landlordId  String
     tenantId    String
     propertyId  String
     phoneNumber String
     schedules   Json
-    accepted    Boolean  @default(false)
+    status      BookingStatus @default(PENDING)
     remarks     String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
 
     property Property @relation(fields: [propertyId], references: [id])
     landlord User     @relation("landlord", fields: [landlordId], references: [id])

@@ -104,7 +104,7 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
       return;
     }
 
-    if (!selectedDate.date || !selectedDate.time) {
+    if (selectedDates.length < 0 && (!selectedDate.date || !selectedDate.time)) {
       toast.warn("Please select both a date and time.");
       return;
     }
@@ -119,7 +119,7 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
       tenantId: user.id,
       propertyId,
       phoneNumber,
-      schedules: selectedDates,
+      schedules: selectedDates.length > 0 ? selectedDates : [selectedDate],
     }, {
       onSuccess: () => {
         toast.success("Tour request sent successfully!");

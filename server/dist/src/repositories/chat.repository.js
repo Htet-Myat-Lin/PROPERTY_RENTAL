@@ -1,25 +1,45 @@
 import { prisma } from "@/lib/prisma";
+export const chatInclude = {
+    landlord: { select: { id: true, username: true, profilePicture: true } },
+    tenant: { select: { id: true, username: true, profilePicture: true } },
+    property: { select: { id: true, title: true } },
+};
 export class ChatRepository {
     static async findOrCreateChat(landlordId, tenantId, propertyId) {
-        return await prisma.chat.upsert({
+        return prisma.chat.upsert({
             where: { landlordId_tenantId_propertyId: { landlordId, tenantId, propertyId } },
             update: {},
             create: { landlordId, tenantId, propertyId }
         });
     }
     static async getChatsByUser(userId) {
-        return await prisma.chat.findMany({
+        return prisma.chat.findMany({
             where: { OR: [{ landlordId: userId }, { tenantId: userId }], lastMessage: { not: null } },
             include: {
-                landlord: { select: { id: true, username: true, profilePicture: true } },
-                tenant: { select: { id: true, username: true, profilePicture: true } },
-                property: { select: { id: true, title: true } }
+                ...chatInclude,
+                chatReads: {
+                    where: { userId }, select: { unreadCount: true, lastReadMessageId: true }
+                }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { updatedAt: 'desc' }
         });
     }
+    static async getByIdForUser(chatId, userId) {
+        return prisma.chat.findUnique({
+            where: { id: chatId },
+            include: {
+                ...chatInclude,
+                chatReads: {
+                    where: { userId }, select: { unreadCount: true, lastReadMessageId: true }
+                }
+            }
+        });
+    }
+    static async getById(id) {
+        return prisma.chat.findUnique({ where: { id } });
+    }
     static async updateLastMessage(chatId, lastMessage) {
-        return await prisma.chat.update({
+        return prisma.chat.update({
             where: { id: chatId },
             data: { lastMessage }
         });

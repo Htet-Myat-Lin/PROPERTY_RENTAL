@@ -23,3 +23,8 @@ export const Role = {
     ADMIN: 'ADMIN',
     LANDLORD: 'LANDLORD'
 };
+export const BookingStatus = {
+    PENDING: 'PENDING',
+    ACCEPT: 'ACCEPT',
+    REJECT: 'REJECT'
+};

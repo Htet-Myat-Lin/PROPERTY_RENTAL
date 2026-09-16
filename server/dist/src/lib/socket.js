@@ -1,6 +1,9 @@
+import { ChatPresence } from "@/modules/chat/chat.presence";
 import { registerChatSocketHandler } from "@/modules/chat/chat.socket";
+import { OnlineUsers } from "@/modules/chat/online.users";
 import { AppError } from "@/utils/app.error";
 import { verifyAccessToken } from "@/utils/jwt";
+import { registerNotificationSocketHandler } from "@/modules/notification/notification.socket";
 export const socketHandler = (io) => {
     io.use((socket, next) => {
         const { token } = socket.handshake.auth;
@@ -18,14 +21,25 @@ export const socketHandler = (io) => {
         }
     });
     io.on("connection", (socket) => {
-        // Connect
-        socket.on("connect", () => {
-            console.log(`User ${socket.data.userId} connected`);
+        // Join a personal room named by the user id
+        socket.join(socket.data.userId);
+        OnlineUsers.addToOnlineUsers(socket.data.userId);
+        io.emit("online_users", OnlineUsers.list());
+        console.log(`User ${socket.data.userId} connected`);
+        // Send the current online user list on request (e.g. when entering the chat page)
+        socket.on("get_online_users", () => {
+            socket.emit("online_users", OnlineUsers.list());
         });
         // Chat Socket Handler
         registerChatSocketHandler(io, socket);
+        // Notification Socket Handler
+        registerNotificationSocketHandler(io, socket);
         // Disconnect
         socket.on("disconnect", (reason) => {
+            if (socket.data.chatId)
+                ChatPresence.leave(socket.data.chatId, socket.data.userId);
+            OnlineUsers.removeFromOnlineUsers(socket.data.userId);
+            io.emit("online_users", OnlineUsers.list());
             console.log(`Disconnected: ${reason}`);
         });
     });
