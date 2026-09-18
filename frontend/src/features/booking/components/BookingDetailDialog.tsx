@@ -2,6 +2,7 @@ import { Box, Badge, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import type { IBooking } from "../types";
 import { formateDate } from "@/utils/format-date";
 import { bookingStatusMeta } from "../utils/status";
+import { bookingDateLabel } from "../utils/date";
 
 export function BookingDetailDialog({ booking }: { booking: IBooking }) {
     const statusMeta = bookingStatusMeta[booking.status];
@@ -21,7 +22,7 @@ export function BookingDetailDialog({ booking }: { booking: IBooking }) {
             </Flex>
             <Stack gap="4">
                 {/* Property Information */}
-                <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
+                <Box p="4" borderWidth="1px" borderRadius="md" bg="bg.subtle">
                     <Heading size="sm" mb="3">Property</Heading>
                     <Stack gap="2">
                         <Flex justify="space-between">
@@ -48,7 +49,7 @@ export function BookingDetailDialog({ booking }: { booking: IBooking }) {
                 </Box>
 
                 {/* Tenant Information */}
-                <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
+                <Box p="4" borderWidth="1px" borderRadius="md" bg="bg.subtle">
                     <Heading size="sm" mb="3">Tenant</Heading>
                     <Stack gap="2">
                         <Flex justify="space-between">
@@ -69,7 +70,7 @@ export function BookingDetailDialog({ booking }: { booking: IBooking }) {
                 </Box>
 
                 {/* Landlord Information */}
-                <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
+                <Box p="4" borderWidth="1px" borderRadius="md" bg="bg.subtle">
                     <Heading size="sm" mb="3">Landlord</Heading>
                     <Stack gap="2">
                         <Flex justify="space-between">
@@ -86,14 +87,14 @@ export function BookingDetailDialog({ booking }: { booking: IBooking }) {
                 </Box>
 
                 {/* Schedules */}
-                <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
+                <Box p="4" borderWidth="1px" borderRadius="md" bg="bg.subtle">
                     <Heading size="sm" mb="3">Requested Tour Schedules</Heading>
                     {Array.isArray(booking.schedules) && booking.schedules.length > 0 ? (
                         <Stack gap="2">
                             {booking.schedules.map((s, index) => (
                                 <Flex key={index} justify="space-between">
                                     <Text fontWeight="medium">Option {index + 1}:</Text>
-                                    <Text>{`${s.date} at ${s.time}`}</Text>
+                                    <Text>{`${bookingDateLabel(s.date)} at ${s.time}`}</Text>
                                 </Flex>
                             ))}
                         </Stack>
@@ -103,7 +104,7 @@ export function BookingDetailDialog({ booking }: { booking: IBooking }) {
                 </Box>
 
                 {/* Remarks */}
-                <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
+                <Box p="4" borderWidth="1px" borderRadius="md" bg="bg.subtle">
                     <Heading size="sm" mb="3">Remarks</Heading>
                     <Text fontSize="sm" color="fg.muted">
                         {booking.remarks || "No remarks provided"}
@@ -111,7 +112,7 @@ export function BookingDetailDialog({ booking }: { booking: IBooking }) {
                 </Box>
 
                 {/* Dates */}
-                <Box p="4" borderWidth="1px" borderRadius="md" bg="gray.50">
+                <Box p="4" borderWidth="1px" borderRadius="md" bg="bg.subtle">
                     <Heading size="sm" mb="3">Info</Heading>
                     <Stack gap="2">
                         <Flex justify="space-between">

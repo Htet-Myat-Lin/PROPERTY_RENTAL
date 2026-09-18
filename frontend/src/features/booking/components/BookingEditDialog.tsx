@@ -4,22 +4,12 @@ import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import type { IBooking, IBookingSchedule } from "../types";
 import { useUpdateBooking } from "../hooks/useUpdateBooking";
+import { bookingDateLabel, bookingDateOptions, type BookingDateOption } from "../utils/date";
 
 const timeSlots = [
     "09 AM", "10 AM", "11 AM", "12 PM",
     "01 PM", "02 PM", "03 PM", "04 PM", "05 PM",
 ];
-
-function bookingDateOptions(): string[] {
-    const today = new Date();
-    const dates = [];
-    for (let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        dates.push(date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }));
-    }
-    return dates;
-}
 
 type Props = {
     booking: IBooking;
@@ -37,9 +27,11 @@ export function BookingEditDialog({ booking, onClose }: Props) {
     const { mutate: updateBooking, isPending } = useUpdateBooking();
 
     const dateOptions = useMemo(() => {
-        const options = bookingDateOptions();
+        const options: BookingDateOption[] = bookingDateOptions();
         schedules.forEach((s) => {
-            if (s.date && !options.includes(s.date)) options.push(s.date);
+            if (s.date && !options.some((o) => o.value === s.date)) {
+                options.push({ value: s.date, label: bookingDateLabel(s.date) });
+            }
         });
         return options;
     }, [schedules]);
@@ -110,8 +102,8 @@ export function BookingEditDialog({ booking, onClose }: Props) {
                             >
                                 <option value="" disabled>Select Date</option>
                                 <For each={dateOptions}>
-                                    {(date) => (
-                                        <option key={date} value={date}>{date}</option>
+                                    {(option) => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
                                     )}
                                 </For>
                             </NativeSelect.Field>

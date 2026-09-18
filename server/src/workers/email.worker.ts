@@ -20,9 +20,9 @@ export const emailWorker = new Worker(
 );
 
 emailWorker.on("completed", (job) => {
-  console.log(`✅ Job ${job.id} (${job.name}) completed`);
+  console.log(`Job ${job.id} (${job.name}) completed`);
 });
 
 emailWorker.on("failed", (job, err) => {
-  console.error(`❌ Job ${job?.id} (${job?.name}) failed:`, err.message);
+  console.error(`Job ${job?.id} (${job?.name}) failed:`, err.message);
 });

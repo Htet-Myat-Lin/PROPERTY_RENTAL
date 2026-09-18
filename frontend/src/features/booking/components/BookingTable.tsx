@@ -20,6 +20,7 @@ import { useDeleteBooking } from "../hooks/useDeleteBooking";
 import { BookingDetailDialog } from "./BookingDetailDialog";
 import { BookingEditDialog } from "./BookingEditDialog";
 import { bookingStatusMeta } from "../utils/status";
+import { bookingDateLabel } from "../utils/date";
 import { useState } from "react";
 
 type Props = {
@@ -129,7 +130,7 @@ export function BookingTable({ items, mode = "landlord" }: Props) {
                                     {Array.isArray(item.schedules) &&
                                         item.schedules.map((s, index) => (
                                             <Badge key={index} variant="subtle" colorPalette="blue" borderRadius="full" size="sm">
-                                                {`${s.date} • ${s.time}`}
+                                                {`${bookingDateLabel(s.date)} • ${s.time}`}
                                             </Badge>
                                         ))}
                                 </HStack>

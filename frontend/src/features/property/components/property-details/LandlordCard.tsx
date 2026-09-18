@@ -30,6 +30,7 @@ import { Modal } from "@/components/ui/modal";
 import { useMemo, useState } from "react";
 import { MessageInput } from "@/features/chat/components/MessageInput";
 import { useCreateBooking } from "@/features/property/hooks/useCreateBooking"
+import { formatBookingDate, toISODate } from "@/features/booking/utils/date";
 
 type Props = {
     landlordId: string;
@@ -40,15 +41,16 @@ type Props = {
     propertyId: string;
 }
 
-function bookingDates () {
+function bookingDates() {
   const today = new Date();
   const dates = [];
   for (let i = 0; i < 7; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
-    dates.push(
-      date.toLocaleDateString("en-Us", { weekday: "short", month: "short", day: "numeric" })
-    );
+    dates.push({
+      value: toISODate(date),
+      label: formatBookingDate(date),
+    });
   }
   return dates;
 }
@@ -361,7 +363,7 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
               >
                 <For each={bookingDates()}>
                   {(date) => (
-                    <option value={date}>{date}</option>
+                    <option value={date.value}>{date.label}</option>
                   )}
                 </For>
               </NativeSelect.Field>

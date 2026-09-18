@@ -18,7 +18,8 @@ import {
   LuSettings,
   LuUsers,
   LuBell,
-  LuCalendarDays
+  LuCalendarDays,
+  LuCalendar
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
 import { PropertyDetailsPage } from "@/pages/PropertyDetailsPage";
@@ -27,6 +28,7 @@ import { ChatPage } from "@/pages/dashboards/ChatPage";
 import { NotificationPage } from "@/pages/dashboards/NotificationPage";
 import { Bookings } from "@/pages/dashboards/landlord/Bookings";
 import { Bookings as TenantBookings } from "@/pages/dashboards/tenant/Bookings";
+import { CalendarPage } from "@/pages/dashboards/landlord/CalendarPage";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
@@ -41,7 +43,8 @@ const landlordNavLinks = [
   { icon: LuUsers, label: "Tenants", path: "/landlord/tenants" },
   { icon: LuCalendarDays, label: "Bookings", path: "/landlord/bookings" },
   { icon: IoChatbubblesOutline, label: "Chat", path: "/landlord/chat" },
-  { icon: LuBell, label: "Notifications", path: "/landlord/notifications" }
+  { icon: LuBell, label: "Notifications", path: "/landlord/notifications" },
+  { icon: LuCalendar, label: "Calendar", path: "/landlord/calendar" },
 ];
 
 const tenantNavLinks = [
@@ -89,7 +92,8 @@ export const router = createBrowserRouter([
           { path: "properties", element: <Properties /> },
           { path: "chat", element: <ChatPage /> },
           { path: "notifications", element: <NotificationPage /> },
-          { path: "bookings", element: <Bookings /> }
+          { path: "bookings", element: <Bookings /> },
+          { path: "calendar", element: <CalendarPage /> },
         ],
       },
     ],
