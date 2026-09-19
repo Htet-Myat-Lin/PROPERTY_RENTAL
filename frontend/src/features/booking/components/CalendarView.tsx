@@ -103,6 +103,7 @@ export function CalendarView() {
                                 fontWeight: 600,
                                 overflow: "hidden",
                                 boxShadow: "0 4px 12px rgba(76, 61, 105, 0.16)",
+                                cursor: "pointer",
                             }}
                         >
                             <span
