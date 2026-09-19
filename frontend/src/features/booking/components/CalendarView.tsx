@@ -83,64 +83,6 @@ export function CalendarView() {
                     meridiem: "short",
                 }}
                 eventClick={(info) => setSelected(info.event.extendedProps as BookingEventData)}
-                eventDidMount={(info) => {
-                    const el = info.el;
-                    const data = info.event.extendedProps as BookingEventData;
-                    const color = statusColors[data.status];
-
-                    el.style.background = "linear-gradient(135deg, rgba(80, 59, 118, 0.96), rgba(106, 81, 151, 0.96))";
-                    el.style.border = "1px solid rgba(149,127,194,0.8)";
-                    el.style.borderRadius = "10px";
-                    el.style.boxShadow = "0 4px 12px rgba(76, 61, 105, 0.16)";
-                    el.style.padding = "0";
-                    el.style.color = "#f4f1fb";
-                    el.style.overflow = "hidden";
-                    el.style.fontWeight = "600";
-                    el.style.cursor = "pointer";
-
-                    const dot = document.createElement("span");
-                    dot.style.width = "7px";
-                    dot.style.height = "7px";
-                    dot.style.borderRadius = "9999px";
-                    dot.style.backgroundColor = color;
-                    dot.style.flexShrink = "0";
-                    dot.style.display = "inline-block";
-                    dot.style.boxShadow = "0 0 0 2px rgba(255,255,255,0.18)";
-
-                    const time = document.createElement("span");
-                    time.textContent = data.time;
-                    time.style.opacity = "0.9";
-                    time.style.fontSize = "10px";
-                    time.style.fontWeight = "600";
-                    time.style.flexShrink = "0";
-                    time.style.letterSpacing = "0.02em";
-
-                    const title = document.createElement("span");
-                    title.textContent = `${data.tenant} ${data.propertyTitle}`;
-                    title.style.overflow = "hidden";
-                    title.style.textOverflow = "ellipsis";
-                    title.style.whiteSpace = "nowrap";
-                    title.style.minWidth = "0";
-                    title.style.flex = "1 1 auto";
-                    title.style.fontSize = "11px";
-                    title.style.lineHeight = "1.2";
-
-                    const wrap = document.createElement("span");
-                    wrap.style.display = "inline-flex";
-                    wrap.style.alignItems = "center";
-                    wrap.style.gap = "6px";
-                    wrap.style.maxWidth = "100%";
-                    wrap.style.width = "100%";
-                    wrap.style.minWidth = "0";
-                    wrap.style.padding = "4px 8px";
-                    wrap.style.boxSizing = "border-box";
-                    wrap.appendChild(dot);
-                    wrap.appendChild(time);
-                    wrap.appendChild(title);
-
-                    el.innerHTML = "";
-                    el.appendChild(wrap);
-                }}
                 eventContent={(arg) => {
                     const data = arg.event.extendedProps as BookingEventData;
                     const color = statusColors[data.status];
@@ -193,7 +135,7 @@ export function CalendarView() {
                 headerToolbar={{
                     left: "prev,next today",
                     center: "title",
-                    right: "dayGridMonth,timeGridWeek,timeGridDay",
+                    right: "dayGridMonth,timeGridWeek",
                 }}
             />
 
