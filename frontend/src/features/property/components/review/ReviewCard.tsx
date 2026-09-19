@@ -97,9 +97,10 @@ export function ReviewCard({ review }: { review: Props }) {
       p="4"
       borderWidth="1px"
       borderRadius="lg"
-      bg="white"
+      bg="bg.panel"
       shadow={isEditMode ? "md" : "sm"}
-      borderColor={isEditMode ? "green.300" : "gray.200"}
+      borderColor={isEditMode ? "green.300" : "border.muted"}
+      _dark={{ borderColor: isEditMode ? "green.400" : "border.muted" }}
       _hover={{ shadow: "md" }}
       transition="all 0.2s"
       position="relative"
@@ -109,7 +110,7 @@ export function ReviewCard({ review }: { review: Props }) {
         <Box
           position="absolute"
           inset="0"
-          bg="white"
+          bg="bg.panel"
           borderRadius="lg"
           display="flex"
           alignItems="center"
@@ -156,7 +157,7 @@ export function ReviewCard({ review }: { review: Props }) {
               <Text fontWeight="semibold" fontSize="sm">
                 {review.user?.username || "Anonymous"}
               </Text>
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color="fg.muted">
                 {formateDate(review.createdAt)}
               </Text>
             </Stack>
@@ -216,7 +217,7 @@ export function ReviewCard({ review }: { review: Props }) {
             </Flex>
           </Box>
         ) : (
-          <Text fontSize="sm" color="gray.700" lineHeight="tall">
+          <Text fontSize="sm" color="fg" lineHeight="tall">
             {review.comment}
           </Text>
         )}
