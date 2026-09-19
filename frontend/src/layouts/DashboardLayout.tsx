@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Box,
   Flex,
@@ -17,11 +17,10 @@ import {
   LuX,
   LuLogOut,
   LuBell,
-  LuSearch,
   LuChevronRight,
   LuHouse,
 } from "react-icons/lu";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ColorModeButton } from "../components/ui/color-mode";
 import type { IconType } from "react-icons/lib";
 import { useAppStore } from "@/app/store";
@@ -317,7 +316,13 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const user = useAppStore((s) => s.user);
+  const notifications = useAppStore(s => s.notifications);
   const logout = useLogout();
+  const navigate = useNavigate();
+
+  const unreadCount = useMemo(() => {
+    return notifications?.filter(n => !n.isRead)?.length || 0;
+  },[notifications])
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const handleLogout = () => logout.mutate();
@@ -444,61 +449,10 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
             >
               <LuMenu />
             </IconButton>
-
-            <HStack
-              display={{ base: "none", md: "flex" }}
-              bg="bg.subtle"
-              _dark={{ bg: "whiteAlpha.50" }}
-              borderRadius="xl"
-              px={4}
-              py={2}
-              gap={2}
-              minW="260px"
-              cursor="pointer"
-              border="1px solid"
-              borderColor="transparent"
-              transition="all 0.2s"
-              _hover={{
-                borderColor: "blue.200",
-                bg: "blue.50",
-                _dark: { borderColor: "blue.700", bg: "whiteAlpha.50" },
-              }}
-            >
-              <Icon as={LuSearch} boxSize={3.5} color="fg.muted" />
-              <Text fontSize="sm" color="fg.muted">
-                Search...
-              </Text>
-              <Box ml="auto">
-                <Text
-                  fontSize="xs"
-                  color="fg.muted"
-                  bg="bg.panel"
-                  px={2}
-                  py={0.5}
-                  borderRadius="md"
-                  border="1px solid"
-                  borderColor="border.muted"
-                  fontFamily="mono"
-                >
-                  ⌘K
-                </Text>
-              </Box>
-            </HStack>
           </HStack>
 
           {/* Right side */}
           <HStack gap={1}>
-            <IconButton
-              display={{ base: "flex", md: "none" }}
-              variant="ghost"
-              aria-label="Search"
-              size="sm"
-              borderRadius="lg"
-              color="fg.muted"
-            >
-              <LuSearch />
-            </IconButton>
-
             <ColorModeButton />
 
             <Box position="relative">
@@ -509,9 +463,11 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
                 size="sm"
                 borderRadius="lg"
                 _hover={{ color: "fg", bg: "blue.50", _dark: { bg: "whiteAlpha.100" } }}
+                onClick={() => navigate(`${user?.role === 'LANDLORD' ? '/landlord/notifications' : '/tenant/notifications'}`)}
               >
                 <LuBell />
               </IconButton>
+              {unreadCount > 0 && (
               <Badge
                 position="absolute"
                 top="1"
@@ -527,8 +483,9 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
                 justifyContent="center"
                 fontSize="2xs"
               >
-                3
+                { unreadCount }
               </Badge>
+              )}
             </Box>
 
             <HStack
