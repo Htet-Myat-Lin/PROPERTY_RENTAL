@@ -33,4 +33,5 @@ model User {
   notifications    Notification[]
   landlordBookings VisitBooking[] @relation("tenant")
   tenantBookings   VisitBooking[] @relation("landlord")
+  wallet           Wallet?
 }
