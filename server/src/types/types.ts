@@ -1,4 +1,5 @@
 import { Request } from "express";
+import type { Prisma } from "../../generated/prisma/client";
 
 export interface AuthRequest extends Request {
   user?: IUser;
@@ -96,5 +97,15 @@ export type PropertyQueryFilters = {
   propertyType?: string;
   locationAddress?: string;
 }
+
+// ------------------------------------
+
+/**
+ * Either the root prisma client or the transaction-scoped client handed to us
+ * by `prisma.$transaction`. `PrismaClient` is structurally assignable to
+ * `TransactionClient`, so repository methods can default to the root client
+ * and still be called with a transaction when one is required.
+ */
+export type DbClient = Prisma.TransactionClient;
 
 // ------------------------------------

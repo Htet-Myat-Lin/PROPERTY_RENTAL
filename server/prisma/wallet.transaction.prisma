@@ -1,0 +1,18 @@
+model WalletTransaction {
+    id           String          @id @default(uuid())
+    walletId     String
+    type         TransactionType
+    ammount      Decimal
+    balanceAfter Decimal
+    createdAt    DateTime        @default(now())
+    updatedAt    DateTime        @updatedAt
+
+    wallet Wallet @relation(fields: [walletId], references: [id])
+}
+
+enum TransactionType {
+    DEPOSIT
+    RENT_PAYMENT
+    WITHDRAWAL
+    COMMISSION
+}

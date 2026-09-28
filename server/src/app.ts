@@ -10,6 +10,7 @@ import { userRouter } from "./modules/user/user.route.js"
 import { wishlistRouter } from "./modules/wishlist/wishlist.route.js"
 import { reviewRouter } from "./modules/review/review.route.js"
 import { bookingRouter } from "./modules/visitbooking/booking.route.js"
+import { walletRouter } from "./modules/wallet/wallet.route.js"
 
 import "@/workers/email.worker"; // Start the email worker when the app starts
 
@@ -35,6 +36,7 @@ app.use("/api/properties", propertyRouter)
 app.use("/api/wishlist", wishlistRouter)
 app.use("/api/reviews", reviewRouter)
 app.use("/api/bookings", bookingRouter)
+app.use("/api/wallet", walletRouter)
 
 // Global Error Handler
 app.use(errorHandler)

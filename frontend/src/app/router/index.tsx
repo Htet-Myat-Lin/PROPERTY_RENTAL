@@ -19,7 +19,9 @@ import {
   LuUsers,
   LuBell,
   LuCalendarDays,
-  LuCalendar
+  LuCalendar,
+  LuWallet,
+  LuHandCoins,
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
 import { PropertyDetailsPage } from "@/pages/PropertyDetailsPage";
@@ -29,9 +31,12 @@ import { NotificationPage } from "@/pages/dashboards/NotificationPage";
 import { Bookings } from "@/pages/dashboards/landlord/Bookings";
 import { Bookings as TenantBookings } from "@/pages/dashboards/tenant/Bookings";
 import { CalendarPage } from "@/pages/dashboards/landlord/CalendarPage";
+import {WalletPage} from "@/pages/dashboards/WalletPage.tsx";
+import { DepositRequests as AdminDepositRequests } from "@/pages/dashboards/admin/DepositRequests";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
+  { icon: LuHandCoins, label: "Deposit Requests", path: "/admin/deposit-requests" },
   { icon: LuChrome, label: "Properties", path: "/admin/properties" },
   { icon: LuUsers, label: "Tenants", path: "/admin/tenants" },
   { icon: LuSettings, label: "Settings", path: "/admin/settings" },
@@ -45,12 +50,14 @@ const landlordNavLinks = [
   { icon: IoChatbubblesOutline, label: "Chat", path: "/landlord/chat" },
   { icon: LuBell, label: "Notifications", path: "/landlord/notifications" },
   { icon: LuCalendar, label: "Calendar", path: "/landlord/calendar" },
+  { icon: LuWallet, label: "Wallet", path: "/landlord/wallet" },
 ];
 
 const tenantNavLinks = [
   { icon: LuCalendarDays, label: "Bookings", path: "/tenant/bookings" },
   { icon: IoChatbubblesOutline, label: "Chat", path: "/tenant/chat" },
-  { icon: LuBell, label: "Notifications", path: "/tenant/notifications" }
+  { icon: LuBell, label: "Notifications", path: "/tenant/notifications" },
+  { icon: LuWallet, label: "Wallet", path: "/tenant/wallet" },
 ]
 
 export const router = createBrowserRouter([
@@ -68,13 +75,14 @@ export const router = createBrowserRouter([
 
   // Admin Routes
   {
-    element: <ProtectedRoute allowedRoles={["LANDLORD"]} />,
+    element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
     children: [
       {
         path: "/admin",
         element: <DashboardLayout navLinks={adminNavLinks} />,
         children: [
           { path: "dashboard", element: <AdminDashboard /> },
+          { path: "deposit-requests", element: <AdminDepositRequests /> },
         ],
       },
     ],
@@ -94,6 +102,7 @@ export const router = createBrowserRouter([
           { path: "notifications", element: <NotificationPage /> },
           { path: "bookings", element: <Bookings /> },
           { path: "calendar", element: <CalendarPage /> },
+          { path: "wallet", element: <WalletPage /> },
         ],
       },
     ],
@@ -110,6 +119,7 @@ export const router = createBrowserRouter([
           {  path: "bookings", element: <TenantBookings /> },
           {  path: "chat", element: <ChatPage /> },
           { path: "notifications", element: <NotificationPage /> },
+          { path: "wallet", element: <WalletPage /> },
         ]
        }
     ]

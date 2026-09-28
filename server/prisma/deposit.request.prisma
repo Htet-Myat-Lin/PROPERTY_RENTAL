@@ -1,0 +1,18 @@
+model DepositRequest {
+    id            String               @id @default(uuid())
+    userId        String
+    ammount       Decimal
+    paymentMethod String
+    transactionId String
+    status        DepositRequestStatus @default(PENDING)
+    createdAt     DateTime             @default(now())
+    updatedAt     DateTime             @updatedAt
+
+    user User @relation(fields: [userId], references: [id])
+}
+
+enum DepositRequestStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}

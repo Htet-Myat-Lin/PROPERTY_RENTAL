@@ -34,4 +34,5 @@ model User {
   landlordBookings VisitBooking[] @relation("tenant")
   tenantBookings   VisitBooking[] @relation("landlord")
   wallet           Wallet?
+  depositRequest   DepositRequest[]
 }

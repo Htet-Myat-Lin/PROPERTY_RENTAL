@@ -6,4 +6,5 @@ model Wallet {
     updatedAt DateTime @updatedAt
 
     user      User     @relation(fields: [userId], references: [id])
+    walletTransactions  WalletTransaction[]
 }
