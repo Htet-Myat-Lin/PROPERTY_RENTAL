@@ -19,14 +19,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type Resolver } from "react-hook-form";
 import { LuArrowUpFromLine, LuInfo } from "react-icons/lu";
 import { getApiErrorMessage, getApiFieldErrors } from "@/utils/api-error";
-import { formatCurrency, WALLET_CURRENCY } from "@/utils/format-currency";
+import { formatCurrency } from "@/utils/format-currency";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { PAYOUT_METHODS, withdrawFormSchema, type WithdrawFormValues } from "../schema";
 
 const QUICK_AMOUNTS = [100_000, 250_000, 500_000];
 
-const formatPlain = (amount: number) =>
-    new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(amount);
+const formatPlain = (amount: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(amount);
 
 interface WithdrawDialogProps {
     isOpen: boolean;
@@ -109,13 +108,7 @@ export function WithdrawDialog({ isOpen, onClose, availableBalance }: WithdrawDi
                                     <Stack gap={4}>
                                         <Field.Root invalid={!!errors.ammount}>
                                             <Field.Label>Amount</Field.Label>
-                                            <InputGroup
-                                                startElement={
-                                                    <Text color="fg.muted" fontWeight="medium">
-                                                        {WALLET_CURRENCY}
-                                                    </Text>
-                                                }
-                                            >
+                                            <InputGroup endElement={'KS'}>
                                                 <Input
                                                     type="number"
                                                     step="1000"

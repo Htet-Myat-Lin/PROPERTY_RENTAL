@@ -8,7 +8,6 @@ export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
   { value: "credit_card", label: "Credit / Debit card" },
 ];
 
-// Mirrors server/src/modules/wallet/wallet.validation.ts
 export const depositFormSchema = z.object({
   ammount: z.coerce
     .number({ message: "Enter an amount" })
@@ -30,7 +29,6 @@ export const PAYOUT_METHODS: { value: string; label: string }[] = [
   { value: "paypal", label: "PayPal" },
 ];
 
-/** `maxBalance` is passed in from the live wallet so the field can self-validate. */
 export const withdrawFormSchema = (maxBalance: number) =>
   z.object({
     ammount: z

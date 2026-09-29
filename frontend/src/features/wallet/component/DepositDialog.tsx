@@ -23,18 +23,8 @@ import { depositFormSchema, PAYMENT_METHODS, type DepositFormValues } from "../s
 import { getApiErrorMessage, getApiFieldErrors } from "@/utils/api-error"
 
 const QUICK_AMOUNTS = [50_000, 100_000, 250_000, 500_000]
-const CURRENCY = "MMK"
 
-const currencySymbol = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: CURRENCY,
-    maximumFractionDigits: 0,
-})
-    .format(0)
-    .replace(/[\d.,\s]/g, "")
-
-const formatAmount = (amount: number) =>
-    new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(amount)
+const formatAmount = (amount: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(amount)
 
 interface DepositDialogProps {
     isOpen: boolean;
@@ -69,8 +59,6 @@ export function DepositDialog({ isOpen, onClose }: DepositDialogProps) {
                     onClose()
                 },
                 onError: (err) => {
-                    // Surface zod rejections on the offending field, otherwise
-                    // fall back to a banner above the form.
                     const fieldErrors = getApiFieldErrors(err)
                     const fields = Object.keys(fieldErrors) as (keyof DepositFormValues)[]
                     if (fields.length) {
@@ -119,13 +107,7 @@ export function DepositDialog({ isOpen, onClose }: DepositDialogProps) {
                                     <Stack gap={4}>
                                         <Field.Root invalid={!!errors.ammount}>
                                             <Field.Label>Amount</Field.Label>
-                                            <InputGroup
-                                                startElement={
-                                                    <Text color="fg.muted" fontWeight="medium">
-                                                        {currencySymbol}
-                                                    </Text>
-                                                }
-                                            >
+                                            <InputGroup endElement={'KS'}>
                                                 <Input
                                                     type="number"
                                                     step="1000"

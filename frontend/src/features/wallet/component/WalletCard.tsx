@@ -58,7 +58,7 @@ export function WalletCard() {
                 borderRadius="2xl"
                 overflow="hidden"
                 shadow="md"
-                _dark={{shadow: "none"}} // shadows are invisible on dark; the border does the work
+                _dark={{shadow: "none"}}
                 transition="box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease"
                 _hover={{
                     shadow: "lg",
