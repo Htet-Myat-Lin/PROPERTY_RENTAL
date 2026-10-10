@@ -22,6 +22,11 @@ import {
   LuCalendar,
   LuWallet,
   LuHandCoins,
+  LuFileText,
+  LuLock,
+  LuBanknote,
+  LuCoins,
+  LuUser,
 } from "react-icons/lu";
 import { Properties } from "@/pages/dashboards/landlord/Properties";
 import { PropertyDetailsPage } from "@/pages/PropertyDetailsPage";
@@ -30,13 +35,22 @@ import { ChatPage } from "@/pages/dashboards/ChatPage";
 import { NotificationPage } from "@/pages/dashboards/NotificationPage";
 import { Bookings } from "@/pages/dashboards/landlord/Bookings";
 import { Bookings as TenantBookings } from "@/pages/dashboards/tenant/Bookings";
+import { RentRequests } from "@/pages/dashboards/landlord/RentRequests";
+import { RentRequests as TenantRentRequests } from "@/pages/dashboards/tenant/RentRequests";
 import { CalendarPage } from "@/pages/dashboards/landlord/CalendarPage";
 import {WalletPage} from "@/pages/dashboards/WalletPage.tsx";
 import { DepositRequests as AdminDepositRequests } from "@/pages/dashboards/admin/DepositRequests";
+import { Withdrawals as AdminWithdrawals } from "@/pages/dashboards/admin/Withdrawals";
+import { Escrow as AdminEscrow } from "@/pages/dashboards/admin/Escrow";
+import { Platform as AdminPlatform } from "@/pages/dashboards/admin/Platform";
+import { ProfilePage } from "@/pages/dashboards/ProfilePage";
 
 const adminNavLinks = [
   { icon: LuLayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
   { icon: LuHandCoins, label: "Deposit Requests", path: "/admin/deposit-requests" },
+  { icon: LuBanknote, label: "Withdrawals", path: "/admin/withdrawals" },
+  { icon: LuLock, label: "Escrow", path: "/admin/escrow" },
+  { icon: LuCoins, label: "Platform", path: "/admin/platform" },
   { icon: LuChrome, label: "Properties", path: "/admin/properties" },
   { icon: LuUsers, label: "Tenants", path: "/admin/tenants" },
   { icon: LuSettings, label: "Settings", path: "/admin/settings" },
@@ -47,17 +61,21 @@ const landlordNavLinks = [
   { icon: LuChrome, label: "Properties", path: "/landlord/properties" },
   { icon: LuUsers, label: "Tenants", path: "/landlord/tenants" },
   { icon: LuCalendarDays, label: "Bookings", path: "/landlord/bookings" },
+  { icon: LuFileText, label: "Rent Requests", path: "/landlord/rent-requests" },
   { icon: IoChatbubblesOutline, label: "Chat", path: "/landlord/chat" },
   { icon: LuBell, label: "Notifications", path: "/landlord/notifications" },
   { icon: LuCalendar, label: "Calendar", path: "/landlord/calendar" },
   { icon: LuWallet, label: "Wallet", path: "/landlord/wallet" },
+  { icon: LuUser, label: "Profile", path: "/landlord/profile" },
 ];
 
 const tenantNavLinks = [
   { icon: LuCalendarDays, label: "Bookings", path: "/tenant/bookings" },
+  { icon: LuFileText, label: "Rent Requests", path: "/tenant/rent-requests" },
   { icon: IoChatbubblesOutline, label: "Chat", path: "/tenant/chat" },
   { icon: LuBell, label: "Notifications", path: "/tenant/notifications" },
   { icon: LuWallet, label: "Wallet", path: "/tenant/wallet" },
+  { icon: LuUser, label: "Profile", path: "/tenant/profile" },
 ]
 
 export const router = createBrowserRouter([
@@ -83,6 +101,9 @@ export const router = createBrowserRouter([
         children: [
           { path: "dashboard", element: <AdminDashboard /> },
           { path: "deposit-requests", element: <AdminDepositRequests /> },
+          { path: "withdrawals", element: <AdminWithdrawals /> },
+          { path: "escrow", element: <AdminEscrow /> },
+          { path: "platform", element: <AdminPlatform /> },
         ],
       },
     ],
@@ -101,8 +122,10 @@ export const router = createBrowserRouter([
           { path: "chat", element: <ChatPage /> },
           { path: "notifications", element: <NotificationPage /> },
           { path: "bookings", element: <Bookings /> },
+          { path: "rent-requests", element: <RentRequests /> },
           { path: "calendar", element: <CalendarPage /> },
           { path: "wallet", element: <WalletPage /> },
+          { path: "profile", element: <ProfilePage /> },
         ],
       },
     ],
@@ -117,9 +140,11 @@ export const router = createBrowserRouter([
         element: <DashboardLayout navLinks={tenantNavLinks} />,
         children: [
           {  path: "bookings", element: <TenantBookings /> },
+          { path: "rent-requests", element: <TenantRentRequests /> },
           {  path: "chat", element: <ChatPage /> },
           { path: "notifications", element: <NotificationPage /> },
           { path: "wallet", element: <WalletPage /> },
+          { path: "profile", element: <ProfilePage /> },
         ]
        }
     ]

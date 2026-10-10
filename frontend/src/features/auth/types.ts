@@ -2,6 +2,8 @@ export interface IUser {
     id: string;
     username: string;
     email: string;
+    phone?: string | null;
+    profilePicture?: string | null;
     role: "ADMIN" | "TENANT" | "LANDLORD",
     createdAt?: Date;
     updatedAt?: Date;

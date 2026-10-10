@@ -1,0 +1,35 @@
+model RentRequest {
+  id               String            @id @default(uuid())
+  userId           String
+  landlordId       String
+  propertyId       String
+  amount           Decimal           @db.Decimal(12, 2)
+  depositAmount    Decimal?          @db.Decimal(12, 2)
+  startDate        DateTime
+  endDate          DateTime
+  durationMonths   Int
+  message          String?
+  status           RentRequestStatus @default(PENDING)
+  decisionReason   String?
+  decidedAt        DateTime?
+  leaseAgreement   String?           // Filename of the generated lease agreement PDF, under the uploads root.
+  leaseGeneratedAt DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  user     User      @relation("tenant", fields: [userId], references: [id])
+  landlord User      @relation("landlord", fields: [landlordId], references: [id])
+  property Property  @relation(fields: [propertyId], references: [id])
+  payments Payment[]
+
+  @@index([userId, status])
+  @@index([landlordId, status])
+  @@index([propertyId])
+}
+
+enum RentRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}

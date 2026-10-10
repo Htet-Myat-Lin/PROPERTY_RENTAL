@@ -47,8 +47,9 @@ model Property {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  wishlists Wishlist[]
-  reviews   Review[]
-  chats     Chat[]
+  wishlists     Wishlist[]
+  reviews       Review[]
+  chats         Chat[]
   visitBookings VisitBooking[]
+  rentRequests  RentRequest[]
 }

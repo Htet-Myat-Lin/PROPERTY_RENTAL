@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import type { PaymentMethod } from "./types";
 
 export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
@@ -9,8 +9,9 @@ export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
 ];
 
 export const depositFormSchema = z.object({
-  ammount: z.coerce
+  amount: z.coerce
     .number({ message: "Enter an amount" })
+    .int("Amount must be a whole number")
     .positive("Enter an amount greater than 0")
     .max(1_000_000_000, "Amount is too large"),
   paymentMethod: z.enum(["kbz_pay", "wave_pay", "bank_transfer", "credit_card"]),
@@ -31,9 +32,10 @@ export const PAYOUT_METHODS: { value: string; label: string }[] = [
 
 export const withdrawFormSchema = (maxBalance: number) =>
   z.object({
-    ammount: z
+    amount: z
       .coerce
       .number({ message: "Enter an amount" })
+      .int("Amount must be a whole number")
       .positive("Enter an amount greater than 0")
       .max(maxBalance, `Amount exceeds your available balance (${maxBalance.toLocaleString("en-US")})`),
     paymentMethod: z.enum(["bank_account", "mobile_money", "paypal"], {
@@ -42,3 +44,4 @@ export const withdrawFormSchema = (maxBalance: number) =>
   });
 
 export type WithdrawFormValues = z.infer<ReturnType<typeof withdrawFormSchema>>;
+

@@ -3,3 +3,10 @@ node_modules
 .env
 
 /generated/prisma
+
+# Lease agreement PDFs are generated at runtime, not source files
+/src/uploads/lease-agreements/
+
+# Profile pictures are uploaded at runtime; keep only the directory marker
+/src/uploads/profile-images/*
+!/src/uploads/profile-images/.gitkeep

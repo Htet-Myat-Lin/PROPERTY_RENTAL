@@ -6,7 +6,13 @@ import { verifyAccessToken } from "@/utils/jwt";
 import {Server, Socket} from "socket.io";
 import {registerNotificationSocketHandler} from "@/modules/notification/notification.socket";
 
+let ioRef: Server | null = null;
+
+export const getIO = (): Server | null => ioRef
+
 export const socketHandler = (io: Server) => {
+    ioRef = io
+
     io.use((socket, next) => {
         const { token } = socket.handshake.auth;
         if (!token) return next(new AppError("Unauthorized", 401))

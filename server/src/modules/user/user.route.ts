@@ -1,9 +1,16 @@
 import { protect } from "@/middleware/auth.middleware";
+import { validate } from "@/middleware/validation.middleware";
+import { upload } from "@/middleware/upload.middleware";
 import { Router } from "express";
-import { getMe } from "./user.controller";
+import { changePassword, getMe, removeProfilePicture, updateProfile, updateProfilePicture } from "./user.controller";
+import { changePasswordSchema, updateProfileSchema } from "./user.validation";
 
 const router = Router();
 
 router.get("/me", protect, getMe)
+router.patch("/me", protect, validate(updateProfileSchema), updateProfile)
+router.patch("/me/password", protect, validate(changePasswordSchema), changePassword)
+router.post("/me/profile-picture", protect, upload.single("profileImage"), updateProfilePicture)
+router.delete("/me/profile-picture", protect, removeProfilePicture)
 
 export { router as userRouter }

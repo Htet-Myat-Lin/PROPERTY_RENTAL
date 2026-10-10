@@ -21,6 +21,7 @@ import {
   LuCalendarCheck,
   LuPlus,
   LuX,
+  LuFileText,
 } from "react-icons/lu";
 import { useAppStore } from "@/app/store";
 import { useSocket } from "@/socket/useSocket";
@@ -30,6 +31,7 @@ import { Modal } from "@/components/ui/modal";
 import { useMemo, useState } from "react";
 import { MessageInput } from "@/features/chat/components/MessageInput";
 import { useCreateBooking } from "@/features/property/hooks/useCreateBooking"
+import { RentRequestDialog } from "@/features/rentrequest/components/RentRequestDialog";
 import { formatBookingDate, toISODate } from "@/features/booking/utils/date";
 
 type Props = {
@@ -39,6 +41,10 @@ type Props = {
     rentPrice: number;
     profilePicture?: string;
     propertyId: string;
+    /** Null when the landlord accepts any term, which leaves the field editable. */
+    leaseTermMonths?: number | null;
+    /** Drives whether the "Request to rent" CTA is offered. */
+    propertyStatus?: string;
 }
 
 function bookingDates() {
@@ -57,9 +63,10 @@ function bookingDates() {
 
 const timeSlots = [ "09 AM", "10 AM", "11 AM", "12 PM", "01 PM", "02 PM", "03 PM", "04 PM", "05 PM" ];
 
-export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPrice, profilePicture, propertyId }: Props) {
+export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPrice, profilePicture, propertyId, leaseTermMonths, propertyStatus }: Props) {
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
+  const [isRentRequestOpen, setIsRentRequestOpen] = useState<boolean>(false);
   const [selectedDates, setSelectedDates] = useState<Record<"date" | "time", string>[]>([]);
   const [selectedDate, setSelectedDate] = useState<Record<"date" | "time", string>>({ date: "", time: "" });
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -128,6 +135,26 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
         closeBookingModal();
       }
     })
+  }
+
+  function openRentRequest() {
+    if (!user) {
+      toast.warn("You need to be logged in to request this property.");
+      navigate("/login-register");
+      return;
+    }
+
+    if (user.role === "LANDLORD") {
+      toast.info("Only tenants can send a rent request.");
+      return;
+    }
+
+    if (landlordId === user.id) {
+      toast.info("You can't request to rent your own property.");
+      return;
+    }
+
+    setIsRentRequestOpen(true);
   }
 
   function joinChat () {
@@ -309,6 +336,20 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
               <LuMessageSquare size={15} />
               Contact Landlord
             </Button>
+            {propertyStatus === "AVAILABLE" && (
+              <Button
+                variant="subtle"
+                colorPalette="blue"
+                borderRadius="xl"
+                size="md"
+                w="full"
+                gap="2"
+                onClick={openRentRequest}
+              >
+                <LuFileText size={15} />
+                Request to Rent
+              </Button>
+            )}
           </Stack>
 
           <Text fontSize="xs" color="fg.muted" textAlign="center">
@@ -402,6 +443,15 @@ export function LandlordCard({ landlordId, landlordName, landlordEmail, rentPric
           Request
         </Button>
       </Modal>
+
+    {/* modal for applying to rent */}
+      <RentRequestDialog
+        isOpen={isRentRequestOpen}
+        onClose={() => setIsRentRequestOpen(false)}
+        propertyId={propertyId}
+        baseRentPrice={rentPrice}
+        leaseTermMonths={leaseTermMonths}
+      />
 
     </Box>
   );

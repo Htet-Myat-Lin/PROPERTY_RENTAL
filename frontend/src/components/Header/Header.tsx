@@ -19,6 +19,7 @@ import { ColorModeButton } from "../ui/color-mode";
 import { LuMenu } from "react-icons/lu";
 import { useAppStore } from "@/app/store";
 import { useLogout } from "@/features/auth/hooks/useLogout";
+import { dashboardPathFor } from "@/utils/role-paths";
 import { toast } from "react-toastify";
 import {useSocket} from "@/socket/useSocket.ts";
 
@@ -150,7 +151,16 @@ export function Header() {
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
-                    <Menu.Item value="account">Account</Menu.Item>
+                    {/* "Account" is the entry point into the signed-in area,
+                        which is role specific and has no page of its own. */}
+                    <Menu.Item
+                      value="account"
+                      onClick={() => {
+                        navigate(dashboardPathFor(user.role));
+                      }}
+                    >
+                      Account
+                    </Menu.Item>
                     <Menu.Item value="settings">Settings</Menu.Item>
                     <Menu.Item onClick={() => handleLogout()} value="logout">
                       Logout

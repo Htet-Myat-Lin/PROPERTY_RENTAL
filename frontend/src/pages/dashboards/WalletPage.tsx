@@ -4,6 +4,7 @@ import { LuArrowUpFromLine, LuCircleDollarSign, LuShieldCheck } from "react-icon
 import { useAppStore } from "@/app/store"
 import { useGetWallet } from "@/features/wallet/hooks/useGetWallet"
 import { MyDepositRequestList } from "@/features/wallet/component/MyDepositRequestList"
+import { MyWithdrawalRequestList } from "@/features/wallet/component/MyWithdrawalRequestList"
 import { TransactionHistoryList } from "@/features/wallet/component/TransactionHistoryList"
 import { WalletCard } from "@/features/wallet/component/WalletCard"
 import { WithdrawDialog } from "@/features/wallet/component/WithdrawDialog"
@@ -89,6 +90,7 @@ export function WalletPage() {
 
                 <Stack gap={{base: 4, md: 5}} w="full">
                     {isTenant && <MyDepositRequestList />}
+                    <MyWithdrawalRequestList />
                     <TransactionHistoryList />
                 </Stack>
             </Grid>

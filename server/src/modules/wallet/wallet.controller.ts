@@ -5,17 +5,24 @@ import { successResponse } from "@/utils/api.response";
 import type { NextFunction, Response } from "express";
 import {
     approveDepositRequestService,
+    approveWithdrawalRequestService,
     depositService,
     getAllDepositRequestsService,
+    getAllWithdrawalRequestsService,
     getMyWalletService,
+    getMyWithdrawalRequestsService,
     getTenantDepositRequestsService,
     getWalletTransactionsService,
     rejectDepositRequestService,
+    rejectWithdrawalRequestService,
+    withdrawalService,
 } from "./wallet.service";
 import {
     depositRequestQuerySchema,
+    myWithdrawalRequestQuerySchema,
     tenantDepositRequestQuerySchema,
     transactionQuerySchema,
+    withdrawalRequestQuerySchema,
 } from "./wallet.validation";
 
 // `Wallet.balance` is a BigInt, which JSON.stringify cannot handle
@@ -23,6 +30,15 @@ const serializeWallet = (wallet: { id: string; balance: bigint; userId: string; 
     ...wallet,
     balance: Number(wallet.balance),
 })
+
+// `WithdrawalRequest.amount` is a Prisma Decimal, which serializes as a string
+const serializeWithdrawal = <T extends { amount: unknown }>(withdrawal: T) => ({
+    ...withdrawal,
+    amount: Number(withdrawal.amount),
+})
+
+const serializeWithdrawals = <T extends { amount: unknown }>(withdrawals: T[]) =>
+    withdrawals.map((withdrawal) => serializeWithdrawal(withdrawal));
 
 export const getMyWallet = asyncHandler(async(req: AuthRequest, res: Response, _next: NextFunction) => {
     const userId = req.user?.id
@@ -57,8 +73,51 @@ export const rejectDepositRequest = asyncHandler(async(req: AuthRequest, res: Re
     successResponse(res, 'Deposit request rejected', 200, null)
 })
 
-export const withdrawal = asyncHandler(async(_req: AuthRequest, _res: Response, _next: NextFunction) => {
-    throw new AppError('Withdrawal is not available yet', 501)
+export const withdrawal = asyncHandler(async(req: AuthRequest, res: Response, _next: NextFunction) => {
+    const userId = req.user?.id
+    if (!userId) throw new AppError('Unauthorized', 401);
+
+    const withdrawalRequest = await withdrawalService(userId, req.body);
+    successResponse(res, 'Withdrawal request submitted for review', 201, { withdrawal: serializeWithdrawal(withdrawalRequest) })
+})
+
+export const approveWithdrawalRequest = asyncHandler(async(req: AuthRequest, res: Response, _next: NextFunction) => {
+    const { id } = req.params
+    await approveWithdrawalRequestService(id);
+    successResponse(res, 'Withdrawal approved', 200, null);
+})
+
+export const rejectWithdrawalRequest = asyncHandler(async(req: AuthRequest, res: Response, _next: NextFunction) => {
+    const { id } = req.params
+    await rejectWithdrawalRequestService(id);
+    successResponse(res, 'Withdrawal rejected', 200, null);
+})
+
+export const getMyWithdrawalRequests = asyncHandler(async(req: AuthRequest, res: Response, _next: NextFunction) => {
+    const userId = req.user?.id
+    if (!userId) throw new AppError('Unauthorized', 401);
+
+    const parsed = myWithdrawalRequestQuerySchema.safeParse(req.query);
+    if (!parsed.success) throw parsed.error;
+
+    const { withdrawalRequests, totalPages, totalCount } = await getMyWithdrawalRequestsService(userId, parsed.data)
+    successResponse(res, 'Withdrawal requests fetched', 200, {
+        withdrawalRequests: serializeWithdrawals(withdrawalRequests),
+        totalPages,
+        totalCount
+    })
+})
+
+export const getAllWithdrawalRequests = asyncHandler(async(req: AuthRequest, res: Response, _next: NextFunction) => {
+    const parsed = withdrawalRequestQuerySchema.safeParse(req.query);
+    if (!parsed.success) throw parsed.error;
+
+    const { withdrawalRequests, totalPages, totalCount } = await getAllWithdrawalRequestsService(parsed.data);
+    successResponse(res, 'All withdrawal requests fetched', 200, {
+        withdrawalRequests: serializeWithdrawals(withdrawalRequests),
+        totalPages,
+        totalCount
+    })
 })
 
 export const getWalletTransactions = asyncHandler(async(req: AuthRequest, res: Response, _next: NextFunction) => {

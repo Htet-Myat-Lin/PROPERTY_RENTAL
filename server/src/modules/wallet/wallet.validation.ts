@@ -1,7 +1,7 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 export const depositSchema = z.object({
-    ammount: z.coerce.number().positive("Amount must be greater than 0"),
+    amount: z.coerce.number().int("Amount must be a whole number").positive("Amount must be greater than 0"),
     paymentMethod: z.enum(["kbz_pay", "wave_pay", "bank_transfer", "credit_card"], {
         message: "Unsupported payment method",
     }),
@@ -31,8 +31,37 @@ export const tenantDepositRequestQuerySchema = z.object({
     status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
 });
 
+export const withdrawSchema = z.object({
+    amount: z.coerce.number().int("Amount must be a whole number").positive("Amount must be greater than 0"),
+    paymentMethod: z.enum(["bank_account", "mobile_money", "paypal"], {
+        message: "Unsupported payout method",
+    }),
+});
+
+export const withdrawalRequestParamsSchema = z.object({
+    id: z.string().trim().min(1, "Withdrawal request id is required"),
+});
+
+export const withdrawalRequestQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+    search: z.string().trim().max(64).optional(),
+});
+
+export const myWithdrawalRequestQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+});
+
 export type DepositSchema = z.infer<typeof depositSchema>;
 export type DepositRequestParamsSchema = z.infer<typeof depositRequestParamsSchema>;
 export type DepositRequestQuery = z.infer<typeof depositRequestQuerySchema>;
 export type TransactionQuery = z.infer<typeof transactionQuerySchema>;
 export type TenantDepositRequestQuery = z.infer<typeof tenantDepositRequestQuerySchema>;
+export type WithdrawSchema = z.infer<typeof withdrawSchema>;
+export type WithdrawalRequestParamsSchema = z.infer<typeof withdrawalRequestParamsSchema>;
+export type WithdrawalRequestQuery = z.infer<typeof withdrawalRequestQuerySchema>;
+export type MyWithdrawalRequestQuery = z.infer<typeof myWithdrawalRequestQuerySchema>;
+

@@ -58,7 +58,7 @@ function RequestDetails({ request }: { request: IAdminDepositRequest }) {
   const rows: [string, string][] = [
     ["Tenant", request.user.username],
     ["Email", request.user.email],
-    ["Amount", formatCurrency(request.ammount)],
+    ["Amount", formatCurrency(request.amount)],
     ["Payment method", methodLabels[request.paymentMethod] ?? request.paymentMethod],
     ["Transaction reference", request.transactionId],
     ["Status", request.status],
@@ -133,7 +133,7 @@ export function DepositRequestTable({ items }: Props) {
                   </Table.Cell>
                   <Table.Cell>
                     <Text fontWeight="semibold" fontSize="sm" color="blue.600" _dark={{ color: "blue.300" }}>
-                      {formatCurrency(item.ammount)}
+                      {formatCurrency(item.amount)}
                     </Text>
                   </Table.Cell>
                   <Table.Cell>
@@ -256,7 +256,7 @@ export function DepositRequestTable({ items }: Props) {
                   <Text color="fg.muted">
                     This credits{" "}
                     <Text as="span" fontWeight="semibold" color="fg">
-                      {formatCurrency(action.request.ammount)}
+                      {formatCurrency(action.request.amount)}
                     </Text>{" "}
                     to {action.request.user.username}&apos;s wallet and records a DEPOSIT transaction. This cannot
                     be undone.
@@ -266,7 +266,7 @@ export function DepositRequestTable({ items }: Props) {
                     <Text color="fg.muted">
                       {action.request.user.username}&apos;s request for{" "}
                       <Text as="span" fontWeight="semibold" color="fg">
-                        {formatCurrency(action.request.ammount)}
+                        {formatCurrency(action.request.amount)}
                       </Text>{" "}
                       will be declined. The tenant can submit a new request with a different transaction
                       reference.
@@ -297,3 +297,4 @@ export function DepositRequestTable({ items }: Props) {
     </>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
     Alert,
@@ -43,13 +43,13 @@ export function DepositDialog({ isOpen, onClose }: DepositDialogProps) {
     } = useForm<DepositFormValues>({
         resolver: zodResolver(depositFormSchema) as Resolver<DepositFormValues>,
         mode: "onChange",
-        defaultValues: { ammount: undefined, paymentMethod: "kbz_pay", transactionId: "" },
+        defaultValues: { amount: undefined, paymentMethod: "kbz_pay", transactionId: "" },
     })
 
     const onSubmit = handleSubmit((values) => {
         deposit(
             {
-                ammount: Number(values.ammount),
+                amount: Number(values.amount),
                 paymentMethod: values.paymentMethod,
                 transactionId: values.transactionId.trim(),
             },
@@ -105,7 +105,7 @@ export function DepositDialog({ isOpen, onClose }: DepositDialogProps) {
 
                                 <form id="deposit-form" onSubmit={onSubmit} noValidate>
                                     <Stack gap={4}>
-                                        <Field.Root invalid={!!errors.ammount}>
+                                        <Field.Root invalid={!!errors.amount}>
                                             <Field.Label>Amount</Field.Label>
                                             <InputGroup endElement={'KS'}>
                                                 <Input
@@ -114,10 +114,10 @@ export function DepositDialog({ isOpen, onClose }: DepositDialogProps) {
                                                     min="1"
                                                     placeholder="0"
                                                     borderRadius="lg"
-                                                    {...register("ammount")}
+                                                    {...register("amount")}
                                                 />
                                             </InputGroup>
-                                            <Field.ErrorText>{errors.ammount?.message}</Field.ErrorText>
+                                            <Field.ErrorText>{errors.amount?.message}</Field.ErrorText>
                                         </Field.Root>
 
                                         <HStack gap={2} wrap="wrap">
@@ -129,7 +129,7 @@ export function DepositDialog({ isOpen, onClose }: DepositDialogProps) {
                                                     variant="subtle"
                                                     colorPalette="blue"
                                                     onClick={() =>
-                                                        setValue("ammount", amount, { shouldValidate: true })
+                                                        setValue("amount", amount, { shouldValidate: true })
                                                     }
                                                 >
                                                     +{formatAmount(amount)}
@@ -211,3 +211,4 @@ export function DepositDialog({ isOpen, onClose }: DepositDialogProps) {
         </Dialog.Root>
     )
 }
+

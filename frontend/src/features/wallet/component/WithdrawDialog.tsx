@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
     Alert,
@@ -45,12 +45,12 @@ export function WithdrawDialog({ isOpen, onClose, availableBalance }: WithdrawDi
     } = useForm<WithdrawFormValues>({
         resolver: zodResolver(withdrawFormSchema(availableBalance)) as Resolver<WithdrawFormValues>,
         mode: "onChange",
-        defaultValues: { ammount: undefined, paymentMethod: "bank_account" },
+        defaultValues: { amount: undefined, paymentMethod: "bank_account" },
     });
 
     const onSubmit = handleSubmit((values) => {
         withdraw(
-            { ammount: Number(values.ammount), paymentMethod: values.paymentMethod },
+            { amount: Number(values.amount), paymentMethod: values.paymentMethod },
             {
                 onSuccess: () => {
                     resetForm()
@@ -106,7 +106,7 @@ export function WithdrawDialog({ isOpen, onClose, availableBalance }: WithdrawDi
 
                                 <form id="withdraw-form" onSubmit={onSubmit} noValidate>
                                     <Stack gap={4}>
-                                        <Field.Root invalid={!!errors.ammount}>
+                                        <Field.Root invalid={!!errors.amount}>
                                             <Field.Label>Amount</Field.Label>
                                             <InputGroup endElement={'KS'}>
                                                 <Input
@@ -115,13 +115,13 @@ export function WithdrawDialog({ isOpen, onClose, availableBalance }: WithdrawDi
                                                     min="1"
                                                     placeholder="0"
                                                     borderRadius="lg"
-                                                    {...register("ammount")}
+                                                    {...register("amount")}
                                                 />
                                             </InputGroup>
                                             <Field.HelperText>
                                                 Available: {formatCurrency(availableBalance)}
                                             </Field.HelperText>
-                                            <Field.ErrorText>{errors.ammount?.message}</Field.ErrorText>
+                                            <Field.ErrorText>{errors.amount?.message}</Field.ErrorText>
                                         </Field.Root>
 
                                         <HStack gap={2} wrap="wrap">
@@ -133,7 +133,7 @@ export function WithdrawDialog({ isOpen, onClose, availableBalance }: WithdrawDi
                                                     variant="subtle"
                                                     colorPalette="red"
                                                     disabled={amount > availableBalance}
-                                                    onClick={() => setValue("ammount", amount, { shouldValidate: true })}
+                                                    onClick={() => setValue("amount", amount, { shouldValidate: true })}
                                                 >
                                                     {formatPlain(amount)}
                                                 </Button>
@@ -145,7 +145,7 @@ export function WithdrawDialog({ isOpen, onClose, availableBalance }: WithdrawDi
                                                 colorPalette="red"
                                                 disabled={availableBalance <= 0}
                                                 onClick={() =>
-                                                    setValue("ammount", availableBalance, { shouldValidate: true })
+                                                    setValue("amount", availableBalance, { shouldValidate: true })
                                                 }
                                             >
                                                 Max
@@ -214,3 +214,4 @@ export function WithdrawDialog({ isOpen, onClose, availableBalance }: WithdrawDi
         </Dialog.Root>
     )
 }
+

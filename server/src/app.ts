@@ -11,6 +11,8 @@ import { wishlistRouter } from "./modules/wishlist/wishlist.route.js"
 import { reviewRouter } from "./modules/review/review.route.js"
 import { bookingRouter } from "./modules/visitbooking/booking.route.js"
 import { walletRouter } from "./modules/wallet/wallet.route.js"
+import { rentRequestRouter } from "./modules/rentrequest/rentrequest.route.js"
+import { platformRouter } from "./modules/platform/platform.route.js"
 
 import "@/workers/email.worker"; // Start the email worker when the app starts
 
@@ -37,6 +39,8 @@ app.use("/api/wishlist", wishlistRouter)
 app.use("/api/reviews", reviewRouter)
 app.use("/api/bookings", bookingRouter)
 app.use("/api/wallet", walletRouter)
+app.use("/api/rent-requests", rentRequestRouter)
+app.use("/api/platform", platformRouter)
 
 // Global Error Handler
 app.use(errorHandler)

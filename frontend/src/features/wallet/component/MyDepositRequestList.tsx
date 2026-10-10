@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Badge, HStack, Icon, Text } from "@chakra-ui/react";
 import { useState } from "react";
@@ -75,15 +75,15 @@ export function MyDepositRequestList() {
                         key={request.id}
                         title={
                             <HStack gap={2} minW={0}>
-                                <Text truncate>{formatCurrency(request.ammount)}</Text>
+                                <Text truncate>{formatCurrency(request.amount)}</Text>
                                 {request.status === "PENDING" && (
                                     <Icon as={LuClock3} boxSize={3.5} color="orange.500" flexShrink={0} />
                                 )}
                             </HStack>
                         }
-                        subtitle={`${methodLabels[request.paymentMethod] ?? request.paymentMethod} · ${formateDate(
+                        subtitle={`${methodLabels[request.paymentMethod] ?? request.paymentMethod} Â· ${formateDate(
                             request.createdAt
-                        )} · ${request.transactionId}`}
+                        )} Â· ${request.transactionId}`}
                         amount={meta.label}
                         amountColor={`${meta.palette}.500`}
                         trailing={
@@ -103,3 +103,4 @@ export function MyDepositRequestList() {
         </ListShell>
     );
 }
+

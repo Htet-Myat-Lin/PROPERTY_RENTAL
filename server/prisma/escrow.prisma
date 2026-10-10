@@ -1,0 +1,17 @@
+model Escrow {
+  id          String       @id @default(uuid())
+  paymentId   String       @unique
+  amount      Decimal      @db.Decimal(12, 2)
+  status      EscrowStatus @default(PENDING)
+  releaseDate DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+}
+
+enum EscrowStatus {
+  PENDING
+  RELEASED
+  REFUNDED
+}

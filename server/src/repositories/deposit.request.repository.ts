@@ -1,10 +1,10 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import type { DbClient } from "@/types/types";
 import { DepositRequestStatus } from "../../generated/prisma/enums";
 
 export type DepositPayload = {
     userId: string;
-    ammount: number;
+    amount: number;
     paymentMethod: string;
     transactionId: string;
 }
@@ -30,7 +30,11 @@ const buildWhere = (filters: DepositRequestFilters) => {
         where.OR = [
             { transactionId: insensitive },
             { paymentMethod: insensitive },
-            { user: { is: { OR: [{ username: insensitive }, { email: insensitive }] } } },
+            { user: { 
+                is: { 
+                    OR: [{ username: insensitive }, { email: insensitive }] } 
+                } 
+            },
         ];
     }
 
@@ -107,3 +111,4 @@ export class DepositRequestRepository {
         })
     }
 }
+

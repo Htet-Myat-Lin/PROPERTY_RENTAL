@@ -1,13 +1,17 @@
-import type {
+﻿import type {
   ApiResponse,
   DepositRequestFilters,
   IAdminDepositRequest,
+  IAdminWithdrawalRequest,
   IDepositRequest,
   IWallet,
   IWalletTransaction,
+  IWithdrawalRequest,
   Paginated,
   PaymentMethod,
+  PayoutMethod,
   TransactionFilters,
+  WithdrawalRequestFilters,
 } from "@/features/wallet/types";
 import { axiosInstance } from "../axios-instance";
 
@@ -23,30 +27,47 @@ const toWallet = (raw: WithNumeric<IWallet, "balance">): IWallet => ({
   balance: toNumber(raw.balance),
 });
 
-const toDepositRequest = (raw: WithNumeric<IDepositRequest, "ammount">): IDepositRequest => ({
+const toDepositRequest = (raw: WithNumeric<IDepositRequest, "amount">): IDepositRequest => ({
   ...raw,
-  ammount: toNumber(raw.ammount),
+  amount: toNumber(raw.amount),
 });
 
 const toAdminDepositRequest = (
-  raw: WithNumeric<IAdminDepositRequest, "ammount">
+  raw: WithNumeric<IAdminDepositRequest, "amount">
 ): IAdminDepositRequest => ({
   ...raw,
-  ammount: toNumber(raw.ammount),
+  amount: toNumber(raw.amount),
 });
 
 const toTransaction = (
-  raw: WithNumeric<IWalletTransaction, "ammount" | "balanceAfter">
+  raw: WithNumeric<IWalletTransaction, "amount" | "balanceAfter">
 ): IWalletTransaction => ({
   ...raw,
-  ammount: toNumber(raw.ammount),
+  amount: toNumber(raw.amount),
   balanceAfter: toNumber(raw.balanceAfter),
 });
 
+const toWithdrawalRequest = (raw: WithNumeric<IWithdrawalRequest, "amount">): IWithdrawalRequest => ({
+  ...raw,
+  amount: toNumber(raw.amount),
+});
+
+const toAdminWithdrawalRequest = (
+  raw: WithNumeric<IAdminWithdrawalRequest, "amount">
+): IAdminWithdrawalRequest => ({
+  ...raw,
+  amount: toNumber(raw.amount),
+});
+
 export type DepositPayload = {
-  ammount: number;
+  amount: number;
   paymentMethod: PaymentMethod;
   transactionId: string;
+};
+
+export type WithdrawPayload = {
+  amount: number;
+  paymentMethod: PayoutMethod;
 };
 
 const toQueryParams = (filters: object): string => {
@@ -81,7 +102,7 @@ export const WalletApi = {
 
     const { data } = await axiosInstance.get<
       ApiResponse<{
-        walletTransactions: WithNumeric<IWalletTransaction, "ammount" | "balanceAfter">[];
+        walletTransactions: WithNumeric<IWalletTransaction, "amount" | "balanceAfter">[];
         totalPages: number;
         totalCount: number;
       }>
@@ -99,7 +120,7 @@ export const WalletApi = {
 
     const { data } = await axiosInstance.get<
       ApiResponse<{
-        depositRequests: WithNumeric<IDepositRequest, "ammount">[];
+        depositRequests: WithNumeric<IDepositRequest, "amount">[];
         totalPages: number;
         totalCount: number;
       }>
@@ -115,7 +136,7 @@ export const WalletApi = {
   getAllDepositRequests: async (filters: DepositRequestFilters = {}): Promise<Paginated<IAdminDepositRequest>> => {
     const { data } = await axiosInstance.get<
       ApiResponse<{
-        depositRequests: WithNumeric<IAdminDepositRequest, "ammount">[];
+        depositRequests: WithNumeric<IAdminDepositRequest, "amount">[];
         totalPages: number;
         totalCount: number;
       }>
@@ -128,8 +149,56 @@ export const WalletApi = {
     };
   },
 
-  withdraw: async (payload: { ammount: number; paymentMethod: string }) => {
-    return (await axiosInstance.patch("/wallet/withdrawal", payload)).data;
+  withdraw: async (payload: WithdrawPayload) => {
+    const { data } = await axiosInstance.patch<ApiResponse<{ withdrawal: IWithdrawalRequest }>>(
+      "/wallet/withdrawal",
+      payload
+    );
+    return toWithdrawalRequest(data.content.withdrawal);
+  },
+
+  getMyWithdrawalRequests: async (
+    filters: WithdrawalRequestFilters = {}
+  ): Promise<Paginated<IWithdrawalRequest>> => {
+    const { data } = await axiosInstance.get<
+      ApiResponse<{
+        withdrawalRequests: WithNumeric<IWithdrawalRequest, "amount">[];
+        totalPages: number;
+        totalCount: number;
+      }>
+    >(`/wallet/my/withdrawal-requests${toQueryParams(filters)}`);
+
+    return {
+      items: data.content.withdrawalRequests.map(toWithdrawalRequest),
+      totalPages: data.content.totalPages,
+      totalCount: data.content.totalCount,
+    };
+  },
+
+  getAllWithdrawalRequests: async (
+    filters: WithdrawalRequestFilters = {}
+  ): Promise<Paginated<IAdminWithdrawalRequest>> => {
+    const { data } = await axiosInstance.get<
+      ApiResponse<{
+        withdrawalRequests: WithNumeric<IAdminWithdrawalRequest, "amount">[];
+        totalPages: number;
+        totalCount: number;
+      }>
+    >(`/wallet/withdrawal-requests${toQueryParams(filters)}`);
+
+    return {
+      items: data.content.withdrawalRequests.map(toAdminWithdrawalRequest),
+      totalPages: data.content.totalPages,
+      totalCount: data.content.totalCount,
+    };
+  },
+
+  approveWithdrawalRequest: async (id: string) => {
+    return (await axiosInstance.patch(`/wallet/withdrawal/${id}/approve`)).data;
+  },
+
+  rejectWithdrawalRequest: async (id: string) => {
+    return (await axiosInstance.patch(`/wallet/withdrawal/${id}/reject`)).data;
   },
 
   approveDepositRequest: async (id: string) => {
@@ -140,3 +209,4 @@ export const WalletApi = {
     return (await axiosInstance.patch(`/wallet/deposit/${id}/reject`)).data;
   },
 };
+

@@ -1,0 +1,19 @@
+model Payment {
+  id               String        @id @default(uuid())
+  rentRequestId    String
+  amount           Decimal       @db.Decimal(12, 2)
+  landlordAmount   Decimal       @db.Decimal(12, 2)
+  commissionAmount Decimal       @db.Decimal(12, 2)
+  status           PaymentStatus @default(PENDING)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  rentRequest RentRequest @relation(fields: [rentRequestId], references: [id])
+  escrow      Escrow?
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}

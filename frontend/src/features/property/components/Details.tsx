@@ -166,6 +166,8 @@ export function Details() {
               rentPrice={property?.baseRentPrice}
               profilePicture={property?.landlord?.profilePicture}
               propertyId={property?.id}
+              leaseTermMonths={property?.leaseTermMonths}
+              propertyStatus={property?.status}
             />
 
             {/* Map */}

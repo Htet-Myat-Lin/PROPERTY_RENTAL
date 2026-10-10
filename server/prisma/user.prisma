@@ -24,15 +24,18 @@ model User {
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
 
-  properties       Property[]
-  wishlist         Wishlist[]
-  reviews          Review[]
-  landlordChats    Chat[]         @relation("landlord")
-  tenantChats      Chat[]         @relation("tenant")
-  messages         Message[]
-  notifications    Notification[]
-  landlordBookings VisitBooking[] @relation("tenant")
-  tenantBookings   VisitBooking[] @relation("landlord")
-  wallet           Wallet?
-  depositRequest   DepositRequest[]
+  properties           Property[]
+  wishlist             Wishlist[]
+  reviews              Review[]
+  landlordChats        Chat[]           @relation("landlord")
+  tenantChats          Chat[]           @relation("tenant")
+  messages             Message[]
+  notifications        Notification[]
+  landlordBookings     VisitBooking[]   @relation("tenant")
+  tenantBookings       VisitBooking[]   @relation("landlord")
+  wallet               Wallet?
+  depositRequest       DepositRequest[]
+  landlordRentRequests RentRequest[]    @relation("landlord")
+  tenantRentRequests   RentRequest[]    @relation("tenant")
+  withdrawalRequests    WithdrawalRequest[]
 }

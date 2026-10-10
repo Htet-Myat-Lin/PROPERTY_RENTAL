@@ -1,4 +1,4 @@
-import { useAppStore } from "@/app/store";
+﻿import { useAppStore } from "@/app/store";
 import { WalletApi } from "@/api/services/wallet-service";
 import { useQuery } from "@tanstack/react-query";
 
@@ -18,9 +18,10 @@ export const useGetPendingDeposits = () => {
   });
 
   return {
-    pendingAmount: (query.data?.items ?? []).reduce((total, request) => total + request.ammount, 0),
+    pendingAmount: (query.data?.items ?? []).reduce((total, request) => total + request.amount, 0),
     pendingCount: query.data?.totalCount ?? 0,
     isPending: query.isPending,
     isTenant,
   };
 };
+

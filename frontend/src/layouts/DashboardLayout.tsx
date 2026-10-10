@@ -19,12 +19,17 @@ import {
   LuBell,
   LuChevronRight,
   LuHouse,
+  LuArrowLeft,
 } from "react-icons/lu";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ColorModeButton } from "../components/ui/color-mode";
 import type { IconType } from "react-icons/lib";
 import { useAppStore } from "@/app/store";
 import { useLogout } from "@/features/auth/hooks/useLogout";
+import { notificationsPathFor, profilePathFor } from "@/utils/role-paths";
+
+const profileImageUrl = (picture: string) =>
+  `${import.meta.env.VITE_FILE_URL}/profile-images/${picture}`;
 
 interface INavLink {
   icon: IconType;
@@ -169,48 +174,67 @@ const SidebarUserProfile = ({
 }: {
   user: any;
   onLogout: () => void;
-}) => (
-  <Box>
-    <Separator borderColor="blue.200" opacity={0.5} mb={4} _dark={{ borderColor: "blue.700" }} />
-    <Flex
-      align="center"
-      gap={3}
-      p={3}
-      borderRadius="xl"
-      bg="white"
-      boxShadow="0 2px 8px rgba(59,130,246,0.10)"
-      _dark={{ bg: "blue.900", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}
-    >
-      <Avatar.Root size="sm">
-        <Avatar.Fallback
-          name={user?.username}
-          fontWeight="semibold"
-          fontSize="xs"
-        />
-      </Avatar.Root>
-      <VStack gap={0} align="start" flex={1} overflow="hidden">
-        <Text fontSize="sm" fontWeight="semibold" lineClamp={1} color="blue.900" _dark={{ color: "blue.50" }}>
-          {user?.username || "User"}
-        </Text>
-        <Text fontSize="xs" color="blue.500" lineClamp={1}>
-          {user?.role || "Member"}
-        </Text>
-      </VStack>
-      <IconButton
-        variant="ghost"
-        size="sm"
-        aria-label="Logout"
-        color="blue.400"
-        _hover={{ color: "red.500", bg: "red.50" }}
-        _dark={{ _hover: { bg: "red.950", color: "red.400" } }}
-        onClick={onLogout}
-        borderRadius="lg"
+}) => {
+  const navigate = useNavigate();
+  const profilePath = profilePathFor(user?.role);
+  const openProfile = () => profilePath && navigate(profilePath);
+
+  return (
+    <Box>
+      <Separator borderColor="blue.200" opacity={0.5} mb={4} _dark={{ borderColor: "blue.700" }} />
+      <Flex
+        align="center"
+        gap={3}
+        p={3}
+        borderRadius="xl"
+        bg="white"
+        boxShadow="0 2px 8px rgba(59,130,246,0.10)"
+        _dark={{ bg: "blue.900", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}
       >
-        <LuLogOut />
-      </IconButton>
-    </Flex>
-  </Box>
-);
+        <Flex
+          align="center"
+          gap={3}
+          flex={1}
+          minW={0}
+          cursor={profilePath ? "pointer" : "default"}
+          onClick={openProfile}
+          title={profilePath ? "View profile" : undefined}
+        >
+          <Avatar.Root size="sm" flexShrink={0}>
+            {user?.profilePicture && (
+              <Avatar.Image src={profileImageUrl(user.profilePicture)} />
+            )}
+            <Avatar.Fallback
+              name={user?.username}
+              fontWeight="semibold"
+              fontSize="xs"
+            />
+          </Avatar.Root>
+          <VStack gap={0} align="start" flex={1} overflow="hidden">
+            <Text fontSize="sm" fontWeight="semibold" lineClamp={1} color="blue.900" _dark={{ color: "blue.50" }}>
+              {user?.username || "User"}
+            </Text>
+            <Text fontSize="xs" color="blue.500" lineClamp={1}>
+              {user?.role || "Member"}
+            </Text>
+          </VStack>
+        </Flex>
+        <IconButton
+          variant="ghost"
+          size="sm"
+          aria-label="Logout"
+          color="blue.400"
+          _hover={{ color: "red.500", bg: "red.50" }}
+          _dark={{ _hover: { bg: "red.950", color: "red.400" } }}
+          onClick={onLogout}
+          borderRadius="lg"
+        >
+          <LuLogOut />
+        </IconButton>
+      </Flex>
+    </Box>
+  );
+};
 
 /* ─── Sidebar Background Decoration ─── */
 const SidebarDecoration = () => (
@@ -326,6 +350,20 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const handleLogout = () => logout.mutate();
+
+  // Goes to the public landing page rather than through history: a dashboard
+  // reached by a shared or bookmarked link has no in-app history to step back
+  // through, and stepping back would otherwise drop the user out of the app.
+  const goHome = () => {
+    setIsMobileMenuOpen(false);
+    navigate("/");
+  };
+
+  const notificationsPath = notificationsPathFor(user?.role);
+  const profilePath = profilePathFor(user?.role);
+  const openProfile = () => {
+    if (profilePath) navigate(profilePath);
+  };
 
   return (
     <Box minH="100vh" bg="bg.canvas" color="fg">
@@ -449,6 +487,20 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
             >
               <LuMenu />
             </IconButton>
+
+            {/* Always available: the target is a fixed route, not history. */}
+            <IconButton
+              variant="ghost"
+              onClick={goHome}
+              aria-label="Back to home"
+              title="Back to home"
+              size="sm"
+              borderRadius="lg"
+              color="fg.muted"
+              _hover={{ color: "fg", bg: "blue.50", _dark: { bg: "whiteAlpha.100" } }}
+            >
+              <LuArrowLeft />
+            </IconButton>
           </HStack>
 
           {/* Right side */}
@@ -462,8 +514,11 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
                 color="fg.muted"
                 size="sm"
                 borderRadius="lg"
+                // Admins have no notifications route, so the control is inert
+                // rather than sending them to a tenant page.
+                disabled={!notificationsPath}
                 _hover={{ color: "fg", bg: "blue.50", _dark: { bg: "whiteAlpha.100" } }}
-                onClick={() => navigate(`${user?.role === 'LANDLORD' ? '/landlord/notifications' : '/tenant/notifications'}`)}
+                onClick={() => notificationsPath && navigate(notificationsPath)}
               >
                 <LuBell />
               </IconButton>
@@ -495,6 +550,9 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               borderLeft="1px solid"
               borderColor="border.muted"
               display={{ base: "none", md: "flex" }}
+              cursor={profilePath ? "pointer" : "default"}
+              title={profilePath ? "View profile" : undefined}
+              onClick={openProfile}
             >
               <VStack gap={0} align="end">
                 <Text fontSize="sm" fontWeight="semibold" lineHeight="1.2">
@@ -505,6 +563,9 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
                 </Text>
               </VStack>
               <Avatar.Root size="sm">
+                {user?.profilePicture && (
+                  <Avatar.Image src={profileImageUrl(user.profilePicture)} />
+                )}
                 <Avatar.Fallback
                   name={user?.username}
                   fontWeight="semibold"
@@ -513,8 +574,16 @@ export function DashboardLayout({ navLinks }: { navLinks: INavLink[] }) {
               </Avatar.Root>
             </HStack>
 
-            <Box display={{ base: "block", md: "none" }}>
+            <Box
+              display={{ base: "block", md: "none" }}
+              cursor={profilePath ? "pointer" : "default"}
+              title={profilePath ? "View profile" : undefined}
+              onClick={openProfile}
+            >
               <Avatar.Root size="sm">
+                {user?.profilePicture && (
+                  <Avatar.Image src={profileImageUrl(user.profilePicture)} />
+                )}
                 <Avatar.Fallback
                   name={user?.username}
                   color="white"

@@ -1,11 +1,11 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import type { DbClient } from "@/types/types";
 import { TransactionType } from "../../generated/prisma/enums";
 
 type TransactionPayload = {
     walletId: string;
     type: TransactionType;
-    ammount: number;
+    amount: number;
     balanceAfter: number
 }
 
@@ -43,3 +43,4 @@ export class WalletTransactionRepository {
         return { walletTransactions, totalCount };
     }
 }
+

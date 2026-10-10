@@ -9,7 +9,7 @@ import { socketHandler } from "./lib/socket.js"
 const server = http.createServer(app)
 
 // Socket.io server initialization
-export const io = new Server(server, {
+const io = new Server(server, {
     cors: { 
         origin: process.env.FRONTEND_URL, 
         credentials: true, 

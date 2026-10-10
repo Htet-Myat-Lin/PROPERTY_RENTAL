@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Badge, HStack, Icon, Text } from "@chakra-ui/react";
 import { useState } from "react";
@@ -87,10 +87,10 @@ export function TransactionHistoryList() {
                                 <Text truncate>{meta.label}</Text>
                             </HStack>
                         }
-                        subtitle={`${formatDateTime(transaction.createdAt)} · Balance ${formatCurrency(
+                        subtitle={`${formatDateTime(transaction.createdAt)} Â· Balance ${formatCurrency(
                             transaction.balanceAfter
                         )}`}
-                        amount={`${credit ? "+" : "-"}${formatCurrency(transaction.ammount)}`}
+                        amount={`${credit ? "+" : "-"}${formatCurrency(transaction.amount)}`}
                         amountColor={credit ? "green.500" : "fg"}
                         trailing={
                             credit ? null : (
@@ -111,3 +111,4 @@ export function TransactionHistoryList() {
         </ListShell>
     );
 }
+
