@@ -211,7 +211,7 @@ export const generateLeaseAgreement = async (id: string) => {
     const durationMonths = rentRequest.durationMonths;
     const fileName = leaseFileNameFor(rentRequest.id);
     const finalPath = path.join(leaseDir, fileName);
-    const tempPath = `${finalPath}.tmp`;
+    const tempPath = `${finalPath}.tmp`; // Write to a temp file first, then rename to avoid partial files on crash.
 
     await writeLeaseAgreement(
         {
@@ -246,15 +246,13 @@ export const generateLeaseAgreement = async (id: string) => {
 };
 
 /**
- * Resolves the lease filename for a request the caller is party to.
- * Regenerates it if the row says it exists but the file is gone
+ * Resolves the lease filename for an approved request, generating it if necessary
  */
 export const getLeaseAgreementService = async (id: string, userId: string, role: string) => {
     const rentRequest = await RentRequestRepository.findDetailedById(id);
     if (!rentRequest) throw new AppError("Rent request not found", 404);
 
-    const isParty =
-        role === "ADMIN" || rentRequest.userId === userId || rentRequest.landlordId === userId;
+    const isParty = role === "ADMIN" || rentRequest.userId === userId || rentRequest.landlordId === userId;
     if (!isParty) throw new AppError("You are not authorized to view this lease", 403);
 
     const fileName = rentRequest.leaseAgreement ?? leaseFileNameFor(rentRequest.id);
@@ -305,12 +303,13 @@ export const approveRentRequestService = async (
             throw new AppError(`This property is ${property.status.toLowerCase()}`, 409);
         }
 
-        // Guarded compare-and-set: exactly one concurrent approver can win.
+        // one concurrent approver can win.
         const claimed = await RentRequestRepository.claimPending(id, {
             status: RentRequestStatus.APPROVED,
             decisionReason: decisionReason ?? null,
             decidedAt: new Date(),
         }, tx);
+        // `count !== 1 means concurrent approval already happened
         if (claimed.count !== 1) {
             throw new AppError("Rent request has already been decided", 409);
         }
@@ -337,7 +336,7 @@ export const approveRentRequestService = async (
         await WalletTransactionRepository.create({
             walletId: wallet!.id,
             type: TransactionType.RENT_PAYMENT,
-            amount: -depositAmount,
+            amount: depositAmount,
             balanceAfter: Number(wallet!.balance),
         }, tx);
 
@@ -423,8 +422,7 @@ export const getRentRequestByIdService = async (
     const rentRequest = await RentRequestRepository.findDetailedById(id);
     if (!rentRequest) throw new AppError("Rent request not found", 404);
 
-    const isParty =
-        rentRequest.userId === requesterId || rentRequest.landlordId === requesterId;
+    const isParty = rentRequest.userId === requesterId || rentRequest.landlordId === requesterId;
     if (!isParty && requesterRole !== "ADMIN") {
         throw new AppError("You are not authorized to view this rent request", 403);
     }

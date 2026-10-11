@@ -199,11 +199,6 @@ export class RentRequestRepository {
         return { rentRequests, totalCount };
     }
 
-    /**
-     * Compare-and-set on `PENDING`. Returning `count !== 1` means somebody else
-     * already decided (or a concurrent request won the race), which callers
-     * translate into a 409 instead of a silent double-approval.
-     */
     static async claimPending (
         id: string,
         data: {

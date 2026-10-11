@@ -54,12 +54,16 @@ const longDate = (value: Date) =>
  */
 const wrap = (doc: PDFKit.PDFDocument, text: string, width: number, fontSize = 10) => {
   doc.fontSize(fontSize);
-  return doc.text(text, { width, align: "left" });
+  return doc.text(text, PAGE_MARGIN, doc.y, { width, align: "left" });
 };
 
 const clause = (doc: PDFKit.PDFDocument, heading: string, body: string, width: number) => {
   doc.moveDown(0.7);
-  doc.fontSize(10.5).fillColor(INK).font("Helvetica-Bold").text(heading, { width });
+  doc
+    .fontSize(10.5)
+    .fillColor(INK)
+    .font("Helvetica-Bold")
+    .text(heading, PAGE_MARGIN, doc.y, { width });
   doc.moveDown(0.2);
   doc.font("Helvetica").fillColor(INK);
   wrap(doc, body, width);
@@ -208,7 +212,11 @@ export const writeLeaseAgreement = async (
   doc.y = partiesTop + 54;
 
   /* ─── Commercial summary ─── */
-  doc.fontSize(9).fillColor(MUTED).font("Helvetica-Bold").text("KEY TERMS", { characterSpacing: 1 });
+  doc
+    .fontSize(9)
+    .fillColor(MUTED)
+    .font("Helvetica-Bold")
+    .text("KEY TERMS", PAGE_MARGIN, doc.y, { characterSpacing: 1 });
   const termsTop = doc.y + 8;
 
   const termRows: [string, string][] = [
@@ -240,31 +248,6 @@ export const writeLeaseAgreement = async (
   for (const [heading, body] of clauseBody(details)) {
     clause(doc, heading, body, contentWidth);
   }
-
-  /* ─── Signature block ─── */
-  if (doc.y > doc.page.height - 220) doc.addPage();
-  doc.moveDown(1.4);
-  doc.fontSize(9).fillColor(MUTED).font("Helvetica-Bold").text("SIGNATURES", { characterSpacing: 1 });
-  doc.moveDown(0.2);
-  wrap(
-    doc,
-    "By signing, each party acknowledges that they have read, understood, and agree to the terms of this Agreement.",
-    contentWidth,
-    9.5,
-  );
-
-  const sigTop = doc.y + 26;
-  const sigWidth = (contentWidth - 24) / 2;
-  const drawSignature = (party: LeaseParty, role: string, x: number) => {
-    doc.moveTo(x, sigTop).lineTo(x + sigWidth, sigTop).lineWidth(0.8).strokeColor(INK).stroke();
-    doc.fontSize(9).fillColor(MUTED).font("Helvetica").text(party.username, x, sigTop + 6, { width: sigWidth });
-    doc
-      .fontSize(8)
-      .fillColor(MUTED)
-      .text(`${role}  ·  Date: ____________`, x, sigTop + 20, { width: sigWidth });
-  };
-  drawSignature(details.landlord, "Landlord", PAGE_MARGIN);
-  drawSignature(details.tenant, "Tenant", PAGE_MARGIN + sigWidth + 24);
 
   /* ─── Footer on every page ─── */
   const range = doc.bufferedPageRange();
