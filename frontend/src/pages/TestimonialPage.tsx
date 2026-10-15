@@ -1,12 +1,17 @@
+import { CTASection } from "@/components/Testimonial/CTASection";
+import { HeroSection } from "@/components/Testimonial/HeroSection";
+import { StatsSection } from "@/components/Testimonial/StatsSection";
+import { TestimonialsSection } from "@/components/Testimonial/TestimonialsSection";
 import { Header } from "@/components/Header/Header";
-import { Center, Text } from "@chakra-ui/react";
 
 export function TestimonialPage() {
   return (
-  <>
-    <Header />
-    <Center minH="4xl">
-      <Text>Testimonial Page</Text>
-    </Center>
-  </>);
+    <>
+      <Header />
+      <HeroSection />
+      <StatsSection />
+      <TestimonialsSection />
+      <CTASection />
+    </>
+  );
 }

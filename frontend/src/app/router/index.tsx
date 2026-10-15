@@ -11,11 +11,14 @@ import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Dashboard as LandlordDashboard } from "@/pages/dashboards/landlord/Dashboard";
+import { Dashboard as TenantDashboard } from "@/pages/dashboards/tenant/Dashboard";
+import { Tenants as LandlordTenants } from "@/pages/dashboards/landlord/Tenants";
+import { Users as AdminUsers } from "@/pages/dashboards/admin/Users";
+import { Properties as AdminProperties } from "@/pages/dashboards/admin/Properties";
 import { Dashboard as AdminDashboard } from "@/pages/dashboards/admin/Dashboard";
 import {
   LuChrome,
   LuLayoutDashboard,
-  LuSettings,
   LuUsers,
   LuBell,
   LuCalendarDays,
@@ -52,8 +55,7 @@ const adminNavLinks = [
   { icon: LuLock, label: "Escrow", path: "/admin/escrow" },
   { icon: LuCoins, label: "Platform", path: "/admin/platform" },
   { icon: LuChrome, label: "Properties", path: "/admin/properties" },
-  { icon: LuUsers, label: "Tenants", path: "/admin/tenants" },
-  { icon: LuSettings, label: "Settings", path: "/admin/settings" },
+  { icon: LuUsers, label: "Users", path: "/admin/users" },
 ];
 
 const landlordNavLinks = [
@@ -70,6 +72,7 @@ const landlordNavLinks = [
 ];
 
 const tenantNavLinks = [
+  { icon: LuLayoutDashboard, label: "Dashboard", path: "/tenant/dashboard" },
   { icon: LuCalendarDays, label: "Bookings", path: "/tenant/bookings" },
   { icon: LuFileText, label: "Rent Requests", path: "/tenant/rent-requests" },
   { icon: IoChatbubblesOutline, label: "Chat", path: "/tenant/chat" },
@@ -104,6 +107,8 @@ export const router = createBrowserRouter([
           { path: "withdrawals", element: <AdminWithdrawals /> },
           { path: "escrow", element: <AdminEscrow /> },
           { path: "platform", element: <AdminPlatform /> },
+          { path: "users", element: <AdminUsers /> },
+          { path: "properties", element: <AdminProperties /> },
         ],
       },
     ],
@@ -118,6 +123,7 @@ export const router = createBrowserRouter([
         element: <DashboardLayout navLinks={landlordNavLinks} />,
         children: [
           { path: "dashboard", element: <LandlordDashboard /> },
+          { path: "tenants", element: <LandlordTenants /> },
           { path: "properties", element: <Properties /> },
           { path: "chat", element: <ChatPage /> },
           { path: "notifications", element: <NotificationPage /> },
@@ -139,6 +145,7 @@ export const router = createBrowserRouter([
         path: "/tenant",
         element: <DashboardLayout navLinks={tenantNavLinks} />,
         children: [
+          { path: "dashboard", element: <TenantDashboard /> },
           {  path: "bookings", element: <TenantBookings /> },
           { path: "rent-requests", element: <TenantRentRequests /> },
           {  path: "chat", element: <ChatPage /> },

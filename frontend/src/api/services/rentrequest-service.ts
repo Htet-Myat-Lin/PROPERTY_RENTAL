@@ -9,11 +9,6 @@ import type {
 } from "@/features/rentrequest/types";
 import { axiosInstance } from "../axios-instance";
 
-/**
- * The API returns `Decimal` columns already normalized to JSON numbers, but a
- * `Float` rent price and a `Decimal` amount can still differ in precision, so
- * money is coerced defensively rather than trusted to stay a number.
- */
 type WithNumeric<T, K extends keyof T> = Omit<T, K> & Record<K, number | string>;
 
 const toNumber = (value: unknown): number => {
@@ -118,8 +113,6 @@ export const RentRequestApi = {
     document.body.appendChild(link);
     link.click();
     link.remove();
-    // Revoked on the next tick; revoking synchronously can cancel the download
-    // in some browsers before it has started reading the blob.
     setTimeout(() => URL.revokeObjectURL(url), 0);
   },
 

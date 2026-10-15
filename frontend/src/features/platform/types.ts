@@ -36,3 +36,58 @@ export interface IPlatformSummary {
   };
   entries: IPlatformEntry[];
 }
+
+export interface IChartCount {
+  label: string;
+  count: number;
+}
+
+export interface IRevenuePoint {
+  month: string;
+  revenue: number;
+  deposits: number;
+}
+
+export interface IPendingRequestItem {
+  id: string;
+  amount: number;
+  paymentMethod: string;
+  createdAt: string;
+  user: { id: string; username: string; email: string };
+}
+
+export interface ITopRatedProperty {
+  id: string;
+  title: string;
+  propertyType: string;
+  status: string;
+  image: string | null;
+  averageRating: number;
+  reviewCount: number;
+}
+
+export interface IAdminDashboard {
+  cards: {
+    totalUsers: number;
+    totalProperties: number;
+    activeRentals: number;
+    commissionEarned: number;
+    escrowHeld: number;
+    totalWalletBalance: number;
+    pendingDeposits: { count: number; amount: number };
+    pendingWithdrawals: { count: number; amount: number };
+  };
+  revenueOverview: IRevenuePoint[];
+  rentRequests: IChartCount[];
+  propertyStatus: IChartCount[];
+  propertyTypes: IChartCount[];
+  usersByRole: IChartCount[];
+  platformActivity: {
+    pendingVisitBookings: number;
+    activeChats: number;
+    totalReviews: number;
+  };
+  pendingDepositRequests: IPendingRequestItem[];
+  pendingWithdrawalRequests: IPendingRequestItem[];
+  topRatedProperties: ITopRatedProperty[];
+}
